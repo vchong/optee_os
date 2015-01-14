@@ -32,6 +32,8 @@
 #include <string.h>
 
 #include <drivers/gic.h>
+#include <drivers/pl111.h>
+#include <drivers/tzc400.h>
 #include <drivers/uart.h>
 #include <sm/sm.h>
 #include <sm/sm_defs.h>
@@ -509,6 +511,77 @@ static void main_init_thread_stacks(void)
 }
 #endif
 
+#if defined(CFG_TZC400)
+#define FILTER_SHIFT(n) (1 << n)
+
+static void main_init_tzasc(void);
+static void main_init_tzasc(void)
+{
+	DMSG("Initializing TZASC");
+
+	tzc_init(TZC400_BASE);
+
+#if defined(CFG_PL111)
+	tzc_disable_filters();
+
+	/* CPU (secure) can write to FB */
+	tzc_configure_region((1 << 0), 3,
+			     SEC_FB_BASE,
+			     SEC_FB_BASE + SEC_FB_SIZE - 1,
+			     TZC_REGION_S_WR,
+			     0);
+	/* LCD controller (secure) can read from FB */
+	tzc_configure_region((1 << 2), 4,
+			     SEC_FB_BASE,
+			     SEC_FB_BASE + SEC_FB_SIZE - 1,
+			     TZC_REGION_S_RD,
+			     0);
+
+	/* Demo: don't raise exception nor interrupt */
+	tzc_set_action(TZC_ACTION_NONE);
+
+	/* Enable filters. */
+	tzc_enable_filters();
+
+	IMSG("TZASC state:");
+	tzc_dump_state();
+#endif
+}
+#else
+static void main_init_tzasc(void)
+{
+}
+#endif
+
+#if defined(CFG_PL111)
+void clear_fb(void *addr, int w, int h);
+void clear_fb(void *addr, int w, int h)
+{
+	uint32_t *start = addr, *end;
+
+	end = start + (w * h) - 1;
+
+	for (uint32_t *p = start; p <= end; p++)
+		*p = 0x00DFDFDF; /* 24-bit RGB: gray */
+}
+
+static void main_init_clcd(void)
+{
+	void *fb = (void *)SEC_FB_BASE;
+	int w = 800, h = 600;
+
+	DMSG("Initializing LCD");
+	assert(w * h * 4 <= SEC_FB_SIZE);
+	init_lcd_ve();
+	clear_fb(fb, w, h);
+	init_pl111(w, h, (unsigned int)fb);
+}
+#else
+static void main_init_clcd(void)
+{
+}
+#endif
+
 static void main_init_primary_helper(uint32_t pagable_part, uint32_t nsec_entry)
 {
 	size_t pos = get_core_pos();
@@ -543,6 +616,10 @@ static void main_init_primary_helper(uint32_t pagable_part, uint32_t nsec_entry)
 
 	main_init_gic();
 	main_init_nsacr();
+
+	main_init_tzasc();
+
+	main_init_clcd();
 
 	if (init_teecore() != TEE_SUCCESS)
 		panic();

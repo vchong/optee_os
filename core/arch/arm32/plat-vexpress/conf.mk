@@ -58,3 +58,9 @@ core-platform-cppflags += -DCONFIG_TEE_GDB_BOOT
 CFG_NO_TA_HASH_SIGN ?= y
 
 core-platform-cppflags += -DWITH_UART_DRV=1
+
+# PL111 Color LCD Controller
+CFG_PL111 ?= y
+
+# TZC400 TrustZone Address Space Controller
+CFG_TZC400 ?= y

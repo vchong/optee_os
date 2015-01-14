@@ -48,6 +48,8 @@
 #define UART1_BASE		0x1c0a0000
 #define UART2_BASE		0x1c0b0000
 #define UART3_BASE		0x1c0c0000
+#define LCD_BASE		0x1c1f0000
+#define TZC400_BASE             0x2a4a0000
 
 #define IT_UART1		38
 
@@ -298,5 +300,9 @@
 #ifndef CONSOLE_UART_CLK_IN_HZ
 #define CONSOLE_UART_CLK_IN_HZ	1
 #endif
+
+/* Secure framebuffer */
+#define SEC_FB_BASE 0xff000000
+#define SEC_FB_SIZE 0x00200000
 
 #endif /*PLATFORM_CONFIG_H*/
