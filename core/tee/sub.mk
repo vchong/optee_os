@@ -19,6 +19,7 @@ endif
 
 srcs-y += tee_svc.c
 srcs-y += tee_svc_cryp.c
+srcs-y += tee_svc_framebuffer.c
 srcs-y += tee_svc_storage.c
 srcs-y += tee_cryp_utl.c
 srcs-$(CFG_CRYPTO_HKDF) += tee_cryp_hkdf.c

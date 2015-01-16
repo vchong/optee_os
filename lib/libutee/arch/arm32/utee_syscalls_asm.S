@@ -216,3 +216,5 @@
 
         UTEE_SYSCALL utee_se_channel_close, \
                 TEE_SCN_SE_CHANNEL_CLOSE, 1
+
+	UTEE_SYSCALL utee_framebuffer_update, TEE_SCN_FRAMEBUFFER_UPDATE, 3

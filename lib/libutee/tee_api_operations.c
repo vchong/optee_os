@@ -1151,3 +1151,10 @@ void TEE_GenerateRandom(void *randomBuffer, size_t randomBufferLen)
 	if (res != TEE_SUCCESS)
 		TEE_Panic(res);
 }
+
+/* Framebuffer */
+
+TEE_Result TEEExt_UpdateFrameBuffer(void *data, size_t size, size_t offset)
+{
+	return utee_framebuffer_update(data, size, offset);
+}
