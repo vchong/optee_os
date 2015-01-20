@@ -57,7 +57,7 @@
 #ifndef TZC400_H
 #define TZC400_H
 
-#if defined CFG_TZC400
+#if defined(CFG_SECVIDEO_PROTO)
 
 #include <stdint.h>
 #include <trace_levels.h>
@@ -229,7 +229,7 @@ void tzc_set_action(tzc_action_t action);
 #if (CFG_TRACE_LEVEL >= TRACE_DEBUG)
 void tzc_dump_state(void);
 #else
-inline void tzc_dump_state(void)
+static inline void tzc_dump_state(void)
 {
 }
 #endif

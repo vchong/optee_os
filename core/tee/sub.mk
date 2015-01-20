@@ -19,7 +19,6 @@ endif
 
 srcs-y += tee_svc.c
 srcs-y += tee_svc_cryp.c
-srcs-y += tee_svc_framebuffer.c
 srcs-y += tee_svc_storage.c
 srcs-y += tee_cryp_utl.c
 srcs-$(CFG_CRYPTO_HKDF) += tee_cryp_hkdf.c
@@ -30,5 +29,6 @@ srcs-y += tee_obj.c
 srcs-y += tee_pobj.c
 srcs-y += tee_rpmb_fs.c
 srcs-y += tee_time_generic.c
+srcs-$(CFG_SECVIDEO_PROTO) += tee_svc_framebuffer.c
 
 subdirs-${CFG_SE_API} += se

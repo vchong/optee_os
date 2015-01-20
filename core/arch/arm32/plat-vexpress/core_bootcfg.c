@@ -187,15 +187,13 @@ static struct map_area bootcfg_memory_map[] = {
 	 },
 #endif
 
-#if defined(CFG_TZC400)
+#if defined(CFG_SECVIDEO_PROTO)
 	{
 	.type = MEM_AREA_IO_SEC,
 	.pa = TZC400_BASE & ~SECTION_MASK, .size = SECTION_SIZE,
 	.device = true, .secure = true, .rw = true,
 	},
-#endif
 
-#if defined(CFG_PL111)
 	{
 	.type = MEM_AREA_IO_SEC,
 	.pa = LCD_BASE & ~SECTION_MASK, .size = SECTION_SIZE,

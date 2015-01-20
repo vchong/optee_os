@@ -28,12 +28,14 @@
 #ifndef PL111_H
 #define PL111_H
 
-#ifdef CFG_PL111
+#if defined(CFG_SECVIDEO_PROTO)
+
 void init_lcd_ve( void );
 void init_pl111( unsigned int  width,
 		 unsigned int  height,
 		 unsigned int  frame_base );
 void init_screen(unsigned int screen_buffer, unsigned int width, unsigned int height);
+
 #endif
 
 #endif /* PL111_H */

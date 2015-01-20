@@ -511,7 +511,8 @@ static void main_init_thread_stacks(void)
 }
 #endif
 
-#if defined(CFG_TZC400)
+#if defined(CFG_SECVIDEO_PROTO)
+
 #define FILTER_SHIFT(n) (1 << n)
 
 static void main_init_tzasc(void);
@@ -521,7 +522,6 @@ static void main_init_tzasc(void)
 
 	tzc_init(TZC400_BASE);
 
-#if defined(CFG_PL111)
 	tzc_disable_filters();
 
 	/* CPU (secure) can write to FB */
@@ -545,15 +545,8 @@ static void main_init_tzasc(void)
 
 	IMSG("TZASC state:");
 	tzc_dump_state();
-#endif
 }
-#else
-static void main_init_tzasc(void)
-{
-}
-#endif
 
-#if defined(CFG_PL111)
 void clear_fb(void *addr, int w, int h);
 void clear_fb(void *addr, int w, int h)
 {
@@ -577,6 +570,10 @@ static void main_init_clcd(void)
 	init_pl111(w, h, (unsigned int)fb);
 }
 #else
+static void main_init_tzasc(void)
+{
+}
+
 static void main_init_clcd(void)
 {
 }

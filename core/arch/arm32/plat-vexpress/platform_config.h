@@ -141,6 +141,10 @@
 #define GICC_OFFSET		0x0
 #define GICD_OFFSET		0x3000000
 
+/* Secure framebuffer */
+#define SEC_FB_BASE 0xff000000
+#define SEC_FB_SIZE 0x00200000
+
 #elif PLATFORM_FLAVOR_IS(juno)
 /*
  * Juno specifics.
@@ -300,9 +304,5 @@
 #ifndef CONSOLE_UART_CLK_IN_HZ
 #define CONSOLE_UART_CLK_IN_HZ	1
 #endif
-
-/* Secure framebuffer */
-#define SEC_FB_BASE 0xff000000
-#define SEC_FB_SIZE 0x00200000
 
 #endif /*PLATFORM_CONFIG_H*/

@@ -35,7 +35,7 @@
 
 TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset)
 {
-#if defined(CFG_PL111)
+#if defined(CFG_SECVIDEO_PROTO)
 	TEE_Result res;
 
 	struct tee_ta_session *sess;
