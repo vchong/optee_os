@@ -35,7 +35,7 @@
 #include <platform_config.h>
 
 // Configure LCD for VE platforms
-void init_lcd_ve( void )
+void init_lcd_ve(void)
 {
 	// VE System Register 32-bit word offsets
 	const int VE_SYS_CFG_DATA = (0xA0/4);
@@ -57,11 +57,10 @@ void init_lcd_ve( void )
 
 
 // Configure PL111 CLCD
-void init_pl111( unsigned int  width,
-		 unsigned int  height,
-		 unsigned int  frame_base )
+void init_pl111(vaddr_t base, unsigned int width, unsigned int height,
+		paddr_t frame_base)
 {
-	volatile unsigned int*  clcd  = (unsigned int*) 0x1C1F0000;  // CS3 + 0x1F0000
+	volatile unsigned int* clcd  = (unsigned int *)base;
 
 	// PL111 register offsets (32-bit words)
 	const int PL111_TIM0 = (0x00/4);
@@ -94,11 +93,4 @@ void init_pl111( unsigned int  width,
 
 	// Power ON
 	clcd[ PL111_CNTL ] |= (1<<11);
-}
-
-
-void init_screen(unsigned int screen_buffer, unsigned int width, unsigned int height)
-{
-	init_lcd_ve();
-	init_pl111( width, height, screen_buffer);
 }

@@ -518,22 +518,29 @@ static void main_init_thread_stacks(void)
 static void main_init_tzasc(void);
 static void main_init_tzasc(void)
 {
+	vaddr_t tzc400_base_va, fb_base_va;
+
 	DMSG("Initializing TZASC");
 
-	tzc_init(TZC400_BASE);
+	if (core_pa2va(TZC400_BASE, (void **)&tzc400_base_va))
+		panic();
+	if (core_pa2va(SEC_FB_BASE, (void **)&fb_base_va))
+		panic();
+
+	tzc_init(tzc400_base_va);
 
 	tzc_disable_filters();
 
 	/* CPU (secure) can write to FB */
 	tzc_configure_region((1 << 0), 3,
-			     SEC_FB_BASE,
-			     SEC_FB_BASE + SEC_FB_SIZE - 1,
+			     fb_base_va,
+			     fb_base_va + SEC_FB_SIZE - 1,
 			     TZC_REGION_S_WR,
 			     0);
 	/* LCD controller (secure) can read from FB */
 	tzc_configure_region((1 << 2), 4,
-			     SEC_FB_BASE,
-			     SEC_FB_BASE + SEC_FB_SIZE - 1,
+			     fb_base_va,
+			     fb_base_va + SEC_FB_SIZE - 1,
 			     TZC_REGION_S_RD,
 			     0);
 
@@ -547,27 +554,31 @@ static void main_init_tzasc(void)
 	tzc_dump_state();
 }
 
-void clear_fb(void *addr, int w, int h);
-void clear_fb(void *addr, int w, int h)
+void clear_fb(vaddr_t addr, int w, int h);
+void clear_fb(vaddr_t addr, int w, int h)
 {
-	uint32_t *start = addr, *end;
+	vaddr_t end = addr + (w * h) - 1;
 
-	end = start + (w * h) - 1;
-
-	for (uint32_t *p = start; p <= end; p++)
-		*p = 0x00DFDFDF; /* 24-bit RGB: gray */
+	for (vaddr_t p = addr; p <= end; p += 4)
+		*(uint32_t *)p = 0x00DFDFDF; /* 24-bit RGB: gray */
 }
 
 static void main_init_clcd(void)
 {
-	void *fb = (void *)SEC_FB_BASE;
+	vaddr_t clcd_base_va, fb_va;
 	int w = 800, h = 600;
 
 	DMSG("Initializing LCD");
+
+	if (core_pa2va(PL111_BASE, (void **)&clcd_base_va))
+		panic();
+	if (core_pa2va(SEC_FB_BASE, (void **)&fb_va))
+		panic();
+
 	assert(w * h * 4 <= SEC_FB_SIZE);
 	init_lcd_ve();
-	clear_fb(fb, w, h);
-	init_pl111(w, h, (unsigned int)fb);
+	clear_fb(fb_va, w, h);
+	init_pl111(clcd_base_va, w, h, SEC_FB_BASE);
 }
 #else
 static void main_init_tzasc(void)
@@ -614,12 +625,13 @@ static void main_init_primary_helper(uint32_t pagable_part, uint32_t nsec_entry)
 	main_init_gic();
 	main_init_nsacr();
 
+	if (init_teecore() != TEE_SUCCESS)
+		panic();
+
 	main_init_tzasc();
 
 	main_init_clcd();
 
-	if (init_teecore() != TEE_SUCCESS)
-		panic();
 	DMSG("Primary CPU switching to normal world boot\n");
 }
 

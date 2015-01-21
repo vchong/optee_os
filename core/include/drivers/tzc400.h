@@ -60,6 +60,7 @@
 #if defined(CFG_SECVIDEO_PROTO)
 
 #include <stdint.h>
+#include <types_ext.h>
 #include <trace_levels.h>
 
 #define BUILD_CONFIG_OFF	0x000
@@ -215,13 +216,11 @@ typedef enum {
 } tzc_region_attributes_t;
 
 
-void tzc_init(uint64_t base);
-void tzc_configure_region(uint32_t filters,
-			uint8_t region,
-			uint64_t region_base,
-			uint64_t region_top,
-			tzc_region_attributes_t sec_attr,
-			uint32_t ns_device_access);
+void tzc_init(vaddr_t base);
+void tzc_configure_region(uint32_t filters, uint8_t region,
+			  vaddr_t region_base, vaddr_t region_top,
+			  tzc_region_attributes_t sec_attr,
+			  uint32_t ns_device_access);
 void tzc_enable_filters(void);
 void tzc_disable_filters(void);
 void tzc_set_action(tzc_action_t action);

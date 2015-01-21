@@ -59,6 +59,10 @@ CFG_NO_TA_HASH_SIGN ?= y
 
 core-platform-cppflags += -DWITH_UART_DRV=1
 
+ifeq ($(PLATFORM_FLAVOR),fvp)
+
 # Secure video prototype. Includes TZC-400 (TrustZone Address Space Controller)
 # and PL111 (color LCD controller) drivers
 CFG_SECVIDEO_PROTO ?= y
+
+endif

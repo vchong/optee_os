@@ -52,7 +52,9 @@ static struct memaccess_area secure_only[] = {
 	MEMACCESS_AREA(TZSRAM_BASE, TZSRAM_SIZE),
 #endif
 	MEMACCESS_AREA(TZDRAM_BASE, TZDRAM_SIZE),
+#if defined(CFG_SECVIDEO_PROTO)
 	MEMACCESS_AREA(SEC_FB_BASE, SEC_FB_SIZE),
+#endif
 };
 
 static struct memaccess_area nsec_shared[] = {
@@ -150,12 +152,6 @@ static struct map_area bootcfg_memory_map[] = {
 	 .cached = true, .secure = false, .rw = true, .exec = false,
 	 },
 
-	{	/* Secure framebuffer */
-	 .type = MEM_AREA_TEE_RAM,
-	 .pa = SEC_FB_BASE, .size = SEC_FB_SIZE,
-	 .cached = true, .secure = true, .rw = true, .exec = true,
-	 },
-
 	{	/* UART */
 	 .type = MEM_AREA_IO_NSEC,
 	 .pa = CONSOLE_UART_BASE & ~SECTION_MASK, .size = SECTION_SIZE,
@@ -199,6 +195,13 @@ static struct map_area bootcfg_memory_map[] = {
 	.pa = LCD_BASE & ~SECTION_MASK, .size = SECTION_SIZE,
 	.device = true, .secure = true, .rw = true,
 	},
+
+	{	/* Secure framebuffer */
+	.type = MEM_AREA_TEE_RAM,
+	.pa = SEC_FB_BASE, .size = SEC_FB_SIZE,
+	.cached = true, .secure = true, .rw = true, .exec = true,
+	},
+
 #endif
 
 	{.type = MEM_AREA_NOTYPE}

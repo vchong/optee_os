@@ -68,7 +68,7 @@
  * Address width : Values between 32 to 64
  */
 typedef struct tzc_instance {
-	uint64_t base;
+	vaddr_t base;
 	uint8_t addr_width;
 	uint8_t num_filters;
 	uint8_t num_regions;
@@ -77,75 +77,69 @@ typedef struct tzc_instance {
 tzc_instance_t tzc;
 
 
-static uint32_t tzc_read_build_config(uint64_t base)
+static uint32_t tzc_read_build_config(vaddr_t base)
 {
 	return read32(base + BUILD_CONFIG_OFF);
 }
 
-static uint32_t tzc_read_gate_keeper(uint64_t base)
+static uint32_t tzc_read_gate_keeper(vaddr_t base)
 {
 	return read32(base + GATE_KEEPER_OFF);
 }
 
-static void tzc_write_gate_keeper(uint64_t base, uint32_t val)
+static void tzc_write_gate_keeper(vaddr_t base, uint32_t val)
 {
 	write32(val, base + GATE_KEEPER_OFF);
 }
 
-static void tzc_write_action(uint64_t base, tzc_action_t action)
+static void tzc_write_action(vaddr_t base, tzc_action_t action)
 {
 	write32(action, base + ACTION_OFF);
 }
 
-static void tzc_write_region_base_low(uint64_t base,
-					uint32_t region,
-					uint32_t val)
+static void tzc_write_region_base_low(vaddr_t base, uint32_t region,
+				      uint32_t val)
 {
 	write32(val, base + REGION_BASE_LOW_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static void tzc_write_region_base_high(uint64_t base,
-					uint32_t region,
-					uint32_t val)
+static void tzc_write_region_base_high(vaddr_t base, uint32_t region,
+				       uint32_t val)
 {
 	write32(val, base + REGION_BASE_HIGH_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static void tzc_write_region_top_low(uint64_t base,
-					uint32_t region,
-					uint32_t val)
+static void tzc_write_region_top_low(vaddr_t base, uint32_t region,
+				     uint32_t val)
 {
 	write32(val, base + REGION_TOP_LOW_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static void tzc_write_region_top_high(uint64_t base,
-					uint32_t region,
-					uint32_t val)
+static void tzc_write_region_top_high(vaddr_t base, uint32_t region,
+				      uint32_t val)
 {
 	write32(val, base + REGION_TOP_HIGH_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static void tzc_write_region_attributes(uint64_t base,
-					uint32_t region,
+static void tzc_write_region_attributes(vaddr_t base, uint32_t region,
 					uint32_t val)
 {
 	write32(val, base + REGION_ATTRIBUTES_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static void tzc_write_region_id_access(uint64_t base,
-					uint32_t region,
-					uint32_t val)
+static void tzc_write_region_id_access(vaddr_t base, uint32_t region,
+				       uint32_t val)
 {
 	write32(val, base + REGION_ID_ACCESS_OFF +
 		REGION_NUM_OFF(region));
 }
 
-static uint32_t tzc_read_component_id(uint64_t base)
+static uint32_t tzc_read_component_id(vaddr_t base)
 {
 	uint32_t id;
 
@@ -157,7 +151,7 @@ static uint32_t tzc_read_component_id(uint64_t base)
 	return id;
 }
 
-static uint32_t tzc_get_gate_keeper(uint64_t base, uint8_t filter)
+static uint32_t tzc_get_gate_keeper(vaddr_t base, uint8_t filter)
 {
 	uint32_t tmp;
 
@@ -168,7 +162,7 @@ static uint32_t tzc_get_gate_keeper(uint64_t base, uint8_t filter)
 }
 
 /* This function is not MP safe. */
-static void tzc_set_gate_keeper(uint64_t base, uint8_t filter, uint32_t val)
+static void tzc_set_gate_keeper(vaddr_t base, uint8_t filter, uint32_t val)
 {
 	uint32_t tmp;
 
@@ -191,7 +185,7 @@ static void tzc_set_gate_keeper(uint64_t base, uint8_t filter, uint32_t val)
 }
 
 
-void tzc_init(uint64_t base)
+void tzc_init(vaddr_t base)
 {
 	uint32_t tzc_id, tzc_build;
 
@@ -218,6 +212,20 @@ void tzc_init(uint64_t base)
 			   BUILD_CONFIG_NR_MASK) + 1;
 }
 
+static uint32_t addr_low(vaddr_t addr)
+{
+	return (uint32_t)addr;
+}
+
+static uint32_t addr_high(vaddr_t addr __unused)
+{
+#if (UINTPTR_MAX == UINT64_MAX)
+	return (addr >> 32);
+#else
+	return 0;
+#endif
+}
+
 
 /*
  * `tzc_configure_region` is used to program regions into the TrustZone
@@ -230,8 +238,8 @@ void tzc_init(uint64_t base)
  */
 void tzc_configure_region(uint32_t filters,
 			  uint8_t  region,
-			  uint64_t region_base,
-			  uint64_t region_top,
+			  vaddr_t  region_base,
+			  vaddr_t  region_top,
 			  tzc_region_attributes_t sec_attr,
 			  uint32_t ns_device_access)
 {
@@ -245,9 +253,10 @@ void tzc_configure_region(uint32_t filters,
 	 * Do address range check based on TZC configuration. A 64bit address is
 	 * the max and expected case.
 	 */
+#if (UINTPTR_MAX == UINT64_MAX)
 	assert(((region_top <= (UINT64_MAX >> (64 - tzc.addr_width))) &&
 		(region_base < region_top)));
-
+#endif
 	/* region_base and (region_top + 1) must be 4KB aligned */
 	assert(((region_base | (region_top + 1)) & (4096 - 1)) == 0);
 
@@ -259,14 +268,14 @@ void tzc_configure_region(uint32_t filters,
 	 * component used to construct a up to a 64bit address.
 	 */
 	tzc_write_region_base_low(tzc.base, region,
-				(uint32_t)(region_base));
+				  addr_low(region_base));
 	tzc_write_region_base_high(tzc.base, region,
-				(uint32_t)(region_base >> 32));
+				   addr_high(region_base));
 
 	tzc_write_region_top_low(tzc.base, region,
-				(uint32_t)(region_top));
+				addr_low(region_top));
 	tzc_write_region_top_high(tzc.base, region,
-				(uint32_t)(region_top >> 32));
+				addr_high(region_top));
 
 	/* Assign the region to a filter and set secure attributes */
 	tzc_write_region_attributes(tzc.base, region,
@@ -335,28 +344,27 @@ void tzc_disable_filters(void)
 
 #if (CFG_TRACE_LEVEL >= TRACE_DEBUG)
 
-static uint32_t tzc_read_region_attributes(uint64_t base,
-						  uint32_t region)
+static uint32_t tzc_read_region_attributes(vaddr_t base, uint32_t region)
 {
 	return read32(base + REGION_ATTRIBUTES_OFF + REGION_NUM_OFF(region));
 }
 
-static uint32_t tzc_read_region_base_low(uint64_t base, uint32_t region)
+static uint32_t tzc_read_region_base_low(vaddr_t base, uint32_t region)
 {
 	return read32(base + REGION_BASE_LOW_OFF + REGION_NUM_OFF(region));
 }
 
-static uint32_t tzc_read_region_base_high(uint64_t base, uint32_t region)
+static uint32_t tzc_read_region_base_high(vaddr_t base, uint32_t region)
 {
 	return read32(base + REGION_BASE_HIGH_OFF + REGION_NUM_OFF(region));
 }
 
-static uint32_t tzc_read_region_top_low(uint64_t base, uint32_t region)
+static uint32_t tzc_read_region_top_low(vaddr_t base, uint32_t region)
 {
 	return read32(base + REGION_TOP_LOW_OFF + REGION_NUM_OFF(region));
 }
 
-static uint32_t tzc_read_region_top_high(uint64_t base, uint32_t region)
+static uint32_t tzc_read_region_top_high(vaddr_t base, uint32_t region)
 {
 	return read32(base + REGION_TOP_HIGH_OFF + REGION_NUM_OFF(region));
 }

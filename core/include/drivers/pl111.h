@@ -30,11 +30,11 @@
 
 #if defined(CFG_SECVIDEO_PROTO)
 
-void init_lcd_ve( void );
-void init_pl111( unsigned int  width,
-		 unsigned int  height,
-		 unsigned int  frame_base );
-void init_screen(unsigned int screen_buffer, unsigned int width, unsigned int height);
+#include <types_ext.h>
+
+void init_lcd_ve(void);
+void init_pl111(vaddr_t base, unsigned int width, unsigned int height,
+		paddr_t frame_base);
 
 #endif
 

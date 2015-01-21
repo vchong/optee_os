@@ -141,9 +141,12 @@
 #define GICC_OFFSET		0x0
 #define GICD_OFFSET		0x3000000
 
+/* PL111 color LCD controller */
+#define PL111_BASE		0x1C1F0000
+
 /* Secure framebuffer */
-#define SEC_FB_BASE 0xff000000
-#define SEC_FB_SIZE 0x00200000
+#define SEC_FB_BASE		0xFF000000
+#define SEC_FB_SIZE		0x00200000
 
 #elif PLATFORM_FLAVOR_IS(juno)
 /*
