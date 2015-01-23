@@ -518,29 +518,29 @@ static void main_init_thread_stacks(void)
 static void main_init_tzasc(void);
 static void main_init_tzasc(void)
 {
-	vaddr_t tzc400_base_va, fb_base_va;
+	void *tzc400_base_va = NULL, *fb_base_va = NULL;
 
 	DMSG("Initializing TZASC");
 
-	if (core_pa2va(TZC400_BASE, (void **)&tzc400_base_va))
+	if (core_pa2va(TZC400_BASE, &tzc400_base_va))
 		panic();
-	if (core_pa2va(SEC_FB_BASE, (void **)&fb_base_va))
+	if (core_pa2va(SEC_FB_BASE, &fb_base_va))
 		panic();
 
-	tzc_init(tzc400_base_va);
+	tzc_init((vaddr_t)tzc400_base_va);
 
 	tzc_disable_filters();
 
 	/* CPU (secure) can write to FB */
 	tzc_configure_region((1 << 0), 3,
-			     fb_base_va,
-			     fb_base_va + SEC_FB_SIZE - 1,
+			     (vaddr_t)fb_base_va,
+			     (vaddr_t)fb_base_va + SEC_FB_SIZE - 1,
 			     TZC_REGION_S_WR,
 			     0);
 	/* LCD controller (secure) can read from FB */
 	tzc_configure_region((1 << 2), 4,
-			     fb_base_va,
-			     fb_base_va + SEC_FB_SIZE - 1,
+			     (vaddr_t)fb_base_va,
+			     (vaddr_t)fb_base_va + SEC_FB_SIZE - 1,
 			     TZC_REGION_S_RD,
 			     0);
 
@@ -565,20 +565,20 @@ void clear_fb(vaddr_t addr, int w, int h)
 
 static void main_init_clcd(void)
 {
-	vaddr_t clcd_base_va, fb_va;
+	void *clcd_base_va = NULL, *fb_va = NULL;
 	int w = 800, h = 600;
 
 	DMSG("Initializing LCD");
 
-	if (core_pa2va(PL111_BASE, (void **)&clcd_base_va))
+	if (core_pa2va(PL111_BASE, &clcd_base_va))
 		panic();
-	if (core_pa2va(SEC_FB_BASE, (void **)&fb_va))
+	if (core_pa2va(SEC_FB_BASE, &fb_va))
 		panic();
 
 	assert(w * h * 4 <= SEC_FB_SIZE);
 	init_lcd_ve();
-	clear_fb(fb_va, w, h);
-	init_pl111(clcd_base_va, w, h, SEC_FB_BASE);
+	clear_fb((vaddr_t)fb_va, w, h);
+	init_pl111((vaddr_t)clcd_base_va, w, h, SEC_FB_BASE);
 }
 #else
 static void main_init_tzasc(void)
