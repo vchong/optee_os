@@ -1154,7 +1154,8 @@ void TEE_GenerateRandom(void *randomBuffer, size_t randomBufferLen)
 
 /* Framebuffer */
 
-TEE_Result TEEExt_UpdateFrameBuffer(void *data, size_t size, size_t offset)
+TEE_Result TEEExt_UpdateFrameBuffer(void *data, size_t size, size_t offset,
+				    size_t *out_sz)
 {
-	return utee_framebuffer_update(data, size, offset);
+	return utee_framebuffer_update(data, size, offset, out_sz);
 }

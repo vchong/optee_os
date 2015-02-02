@@ -31,14 +31,16 @@
 #include <mm/tee_mmu.h>
 #include <tee_api_types.h>
 #include <platform_config.h>
+#include <util.h>
 #include <string.h>
 
-TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset)
+TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset,
+				      size_t *out_sz)
 {
 #if defined(CFG_SECVIDEO_PROTO)
 	TEE_Result res;
-
 	struct tee_ta_session *sess;
+	size_t cp_sz = 0;
 
 	res = tee_ta_get_current_session(&sess);
 	if (res != TEE_SUCCESS)
@@ -51,8 +53,14 @@ TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset)
 	if (res != TEE_SUCCESS)
 		return res;
 
-	if (size + offset <= SEC_FB_SIZE)
-		memcpy((uint8_t *)SEC_FB_BASE + offset, data, size);
+	if (offset <= SEC_FB_SIZE) {
+		cp_sz = MIN(size, SEC_FB_SIZE - offset);
+		memcpy((uint8_t *)SEC_FB_BASE + offset, data, cp_sz);
+	} else {
+		return TEE_ERROR_OVERFLOW;
+	}
+	if (out_sz)
+		*out_sz = cp_sz;
 
 	return TEE_SUCCESS;
 #else

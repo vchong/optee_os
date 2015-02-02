@@ -33,7 +33,8 @@
 #if defined(CFG_SECVIDEO_PROTO)
 
 /* Write to secure framebuffer */
-TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset);
+TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset,
+				      size_t *out_sz);
 
 #else
 
@@ -42,7 +43,8 @@ TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset);
 
 static inline TEE_Result tee_svc_framebuffer_update(void *data __unused,
 						    size_t size __unused,
-						    size_t offset __unused)
+						    size_t offset __unused,
+						    size_t *out_sz __unused)
 {
 	return tee_svc_reserved();
 }

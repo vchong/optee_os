@@ -449,6 +449,7 @@ void TEE_BigIntComputeFMM(TEE_BigIntFMM *dest, const TEE_BigIntFMM *op1,
 			  const TEE_BigIntFMMContext *context);
 
 /* Framebuffer manipulation [secure video prototype] */
-TEE_Result TEEExt_UpdateFrameBuffer(void *data, size_t size, size_t offset);
+TEE_Result TEEExt_UpdateFrameBuffer(void *data, size_t size, size_t offset,
+				    size_t *out_sz);
 
 #endif /* TEE_API_H */
