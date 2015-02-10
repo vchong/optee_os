@@ -67,6 +67,7 @@ static struct map_area *static_memory_map = (void *)1;	/* not in BSS */
 static struct map_area *map_tee_ram = (void *)1;	/* not in BSS */
 static struct map_area *map_ta_ram = (void *)1;	/* not in BSS */
 static struct map_area *map_nsec_shm = (void *)1;	/* not in BSS */
+static struct map_area *map_sec_shm = (void *)1;	/* not in BSS */
 
 /* check if target buffer fits in a core default map area */
 static bool pbuf_inside_map_area(unsigned long p, size_t l,
@@ -295,6 +296,9 @@ static void load_bootcfg_mapping(void *ttb1)
 	map_tee_ram = NULL;
 	map_ta_ram = NULL;
 	map_nsec_shm = NULL;
+#if defined(CFG_SECVIDEO_PROTO)
+	map_sec_shm = NULL;
+#endif
 
 	/* reset L1 table */
 	memset(ttb1, 0, TEE_MMU_L1_SIZE);
@@ -315,7 +319,10 @@ static void load_bootcfg_mapping(void *ttb1)
 			map_ta_ram = map;
 		else if (map->type == MEM_AREA_NSEC_SHM)
 			map_nsec_shm = map;
-
+#if defined(CFG_SECVIDEO_PROTO)
+		else if (map->type == MEM_AREA_SEC_SHM)
+			map_sec_shm = map;
+#endif
 		map++;
 	}
 
@@ -403,6 +410,10 @@ bool core_pbuf_is(uint32_t attr, tee_paddr_t pbuf, size_t len)
 		return pbuf_inside_map_area(pbuf, len, map_ta_ram);
 	case CORE_MEM_NSEC_SHM:
 		return pbuf_inside_map_area(pbuf, len, map_nsec_shm);
+#if defined(CFG_SECVIDEO_PROTO)
+	case CORE_MEM_SEC_SHM:
+		return pbuf_inside_map_area(pbuf, len, map_sec_shm);
+#endif
 	case CORE_MEM_MULTPURPOSE:
 		return ((platform_pbuf_is_t)bootcfg_pbuf_is)(attr, pbuf, len);
 	case CORE_MEM_EXTRAM:

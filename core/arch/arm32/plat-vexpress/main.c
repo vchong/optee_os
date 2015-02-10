@@ -524,23 +524,29 @@ static void main_init_tzasc(void)
 
 	if (core_pa2va(TZC400_BASE, &tzc400_base_va))
 		panic();
-	if (core_pa2va(SEC_FB_BASE, &fb_base_va))
+	if (core_pa2va(FRAMEBUFFER_BASE, &fb_base_va))
 		panic();
 
 	tzc_init((vaddr_t)tzc400_base_va);
 
 	tzc_disable_filters();
 
-	/* CPU (secure) can write to FB */
+	/*
+	 * CPU (filter 0 device 9) should be allowed to write to FB when in
+	 * in secure mode. So, enable secure write access on filter 0.
+	 */
 	tzc_configure_region((1 << 0), 3,
 			     (vaddr_t)fb_base_va,
-			     (vaddr_t)fb_base_va + SEC_FB_SIZE - 1,
+			     (vaddr_t)fb_base_va + FRAMEBUFFER_SIZE - 1,
 			     TZC_REGION_S_WR,
 			     0);
-	/* LCD controller (secure) can read from FB */
+	/*
+	 * LCD controller (filter 2 device ?) should be allowed to read from
+	 * FB. It work in secure mode. So, enable secure read on filter 2.
+	 */
 	tzc_configure_region((1 << 2), 4,
 			     (vaddr_t)fb_base_va,
-			     (vaddr_t)fb_base_va + SEC_FB_SIZE - 1,
+			     (vaddr_t)fb_base_va + FRAMEBUFFER_SIZE - 1,
 			     TZC_REGION_S_RD,
 			     0);
 
@@ -572,13 +578,13 @@ static void main_init_clcd(void)
 
 	if (core_pa2va(PL111_BASE, &clcd_base_va))
 		panic();
-	if (core_pa2va(SEC_FB_BASE, &fb_va))
+	if (core_pa2va(FRAMEBUFFER_BASE, &fb_va))
 		panic();
 
-	assert(w * h * 4 <= SEC_FB_SIZE);
+	assert(w * h * 4 <= FRAMEBUFFER_SIZE);
 	init_lcd_ve();
 	clear_fb((vaddr_t)fb_va, w, h);
-	init_pl111((vaddr_t)clcd_base_va, w, h, SEC_FB_BASE);
+	init_pl111((vaddr_t)clcd_base_va, w, h, FRAMEBUFFER_BASE);
 }
 #else
 static void main_init_tzasc(void)

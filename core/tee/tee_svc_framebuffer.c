@@ -53,9 +53,9 @@ TEE_Result tee_svc_framebuffer_update(void *data, size_t size, size_t offset,
 	if (res != TEE_SUCCESS)
 		return res;
 
-	if (offset <= SEC_FB_SIZE) {
-		cp_sz = MIN(size, SEC_FB_SIZE - offset);
-		memcpy((uint8_t *)SEC_FB_BASE + offset, data, cp_sz);
+	if (offset <= FRAMEBUFFER_SIZE) {
+		cp_sz = MIN(size, FRAMEBUFFER_SIZE - offset);
+		memcpy((uint8_t *)FRAMEBUFFER_BASE + offset, data, cp_sz);
 	} else {
 		return TEE_ERROR_OVERFLOW;
 	}

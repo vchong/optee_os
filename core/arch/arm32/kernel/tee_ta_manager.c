@@ -1142,6 +1142,10 @@ static TEE_Result tee_ta_verify_param(struct tee_ta_session *sess,
 
 			if (core_pbuf_is(CORE_MEM_NSEC_SHM, p, l))
 				break;
+#if defined(CFG_SECVIDEO_PROTO)
+			if (core_pbuf_is(CORE_MEM_SEC_SHM, p, l))
+				break;
+#endif
 			if ((sess->ctx->flags & TA_FLAG_UNSAFE_NW_PARAMS) &&
 				core_pbuf_is(CORE_MEM_MULTPURPOSE, p, l))
 				break;

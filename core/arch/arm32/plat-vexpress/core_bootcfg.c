@@ -52,14 +52,18 @@ static struct memaccess_area secure_only[] = {
 	MEMACCESS_AREA(TZSRAM_BASE, TZSRAM_SIZE),
 #endif
 	MEMACCESS_AREA(TZDRAM_BASE, TZDRAM_SIZE),
-#if defined(CFG_SECVIDEO_PROTO)
-	MEMACCESS_AREA(SEC_FB_BASE, SEC_FB_SIZE),
-#endif
 };
 
 static struct memaccess_area nsec_shared[] = {
 	MEMACCESS_AREA(CFG_SHMEM_START, CFG_SHMEM_SIZE),
 };
+
+#if defined(CFG_SECVIDEO_PROTO)
+static struct memaccess_area sec_shared[] = {
+	/* Secure framebuffer */
+	MEMACCESS_AREA(FRAMEBUFFER_BASE, FRAMEBUFFER_SIZE),
+};
+#endif
 
 static bool _pbuf_intersects(struct memaccess_area *a, size_t alen,
 			     paddr_t pa, size_t size)
@@ -197,8 +201,8 @@ static struct map_area bootcfg_memory_map[] = {
 	},
 
 	{	/* Secure framebuffer */
-	.type = MEM_AREA_TEE_RAM,
-	.pa = SEC_FB_BASE, .size = SEC_FB_SIZE,
+	.type = MEM_AREA_SEC_SHM,
+	.pa = FRAMEBUFFER_BASE, .size = FRAMEBUFFER_SIZE,
 	.cached = true, .secure = true, .rw = true, .exec = true,
 	},
 
@@ -254,6 +258,14 @@ struct map_area *bootcfg_get_memory(void)
 				return NULL;
 			}
 			break;
+#if defined(CFG_SECVIDEO_PROTO)
+		case MEM_AREA_SEC_SHM:
+			if (!pbuf_is_inside(sec_shared, map->pa, map->size)) {
+				EMSG("SEC_SHM does not fit in sec_shared");
+				return NULL;
+			}
+			break;
+#endif
 		default:
 			/* other mapped areas are not checked */
 			break;

@@ -74,6 +74,9 @@ enum teecore_memtypes {
 	MEM_AREA_KEYVAULT,
 	MEM_AREA_IO_SEC,
 	MEM_AREA_IO_NSEC,
+#if defined(CFG_SECVIDEO_PROTO)
+	MEM_AREA_SEC_SHM,
+#endif
 	MEM_AREA_MAXTYPE
 };
 

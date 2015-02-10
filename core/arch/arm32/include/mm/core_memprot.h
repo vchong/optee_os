@@ -53,6 +53,9 @@ enum buf_is_attr {
 	CORE_MEM_EXTRAM,
 	CORE_MEM_INTRAM,
 	CORE_MEM_CACHED,
+#if defined (CFG_SECVIDEO_PROTO)
+	CORE_MEM_SEC_SHM,
+#endif
 };
 
 /* redirect legacy tee_vbuf_is() and tee_pbuf_is() to our routines */
