@@ -47,6 +47,8 @@
 #include <sm/teesmc.h>
 #include <kernel/tz_ssvce.h>
 #include <kernel/panic.h>
+#include <platform_config.h>
+#include <sys/queue.h>
 
 #define TEE_MMU_PAGE_TEX_SHIFT 6
 
@@ -517,6 +519,30 @@ TEE_Result tee_mmu_user_pa2va_helper(const struct tee_ta_ctx *ctx, void *pa,
 	return TEE_ERROR_ACCESS_DENIED;
 }
 
+#if defined(CFG_SECVIDEO_PROTO)
+struct tzasc_secbuf_head tzasc_secbuf_head =
+		TAILQ_HEAD_INITIALIZER(tzasc_secbuf_head);
+
+/*
+ * True if buffer is protected by TZASC so that it cannot be accessed by the
+ * CPU in non-secure mode
+ */
+static bool is_tzasc_secure(paddr_t pa, size_t size)
+{
+	struct tzasc_secbuf *secbuf;
+	TAILQ_FOREACH(secbuf, &tzasc_secbuf_head, link) {
+		if (pa >= secbuf->pa &&	size <= secbuf->size)
+			return true;
+	}
+	return false;
+}
+#else
+static bool is_tzasc_secure(paddr_t pa __unused, size_t size __unused)
+{
+	return false;
+}
+#endif
+
 TEE_Result tee_mmu_check_access_rights(struct tee_ta_ctx *ctx,
 				       uint32_t flags, tee_uaddr_t uaddr,
 				       size_t len)
@@ -539,6 +565,7 @@ TEE_Result tee_mmu_check_access_rights(struct tee_ta_ctx *ctx,
 
 		if ((flags & TEE_MEMORY_ACCESS_ANY_OWNER) !=
 		    TEE_MEMORY_ACCESS_ANY_OWNER && n >= param_section) {
+			bool secure;
 			paddr_t pa;
 			TEE_Result res =
 			    tee_mmu_user_va2pa(ctx, (void *)a, &pa);
@@ -554,7 +581,10 @@ TEE_Result tee_mmu_check_access_rights(struct tee_ta_ctx *ctx,
 			 * new memory allocated privately for the paramters to
 			 * this TA.
 			 */
-			if (!tee_mm_addr_is_within_range(&tee_mm_sec_ddr, pa))
+			secure = tee_mm_addr_is_within_range(&tee_mm_sec_ddr,
+							     pa) ||
+					is_tzasc_secure(pa, len);
+			if (!secure)
 				return TEE_ERROR_ACCESS_DENIED;
 		}
 

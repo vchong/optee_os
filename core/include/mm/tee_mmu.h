@@ -178,5 +178,20 @@ bool tee_mmu_is_kernel_mapping(void);
 uint32_t tee_mmu_kmap_get_cache_attr(void *va);
 uint32_t tee_mmu_user_get_cache_attr(struct tee_ta_ctx *ctx, void *va);
 
+#if defined(CFG_SECVIDEO_PROTO)
+
+/*
+ * Queue of buffers protected by TZASC, so that they cannot be accessed by the
+ * CPU in non-secure mode
+ */
+struct tzasc_secbuf {
+	paddr_t pa;
+	size_t size;
+	TAILQ_ENTRY(tzasc_secbuf) link;
+};
+TAILQ_HEAD(tzasc_secbuf_head, tzasc_secbuf);
+extern struct tzasc_secbuf_head tzasc_secbuf_head;
+
+#endif
 
 #endif
