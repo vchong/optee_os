@@ -515,19 +515,6 @@ static void main_init_thread_stacks(void)
 
 #define FILTER_SHIFT(n) (1 << n)
 
-static void add_framebuffer_to_secure_buf_queue(void);
-static void add_framebuffer_to_secure_buf_queue(void)
-{
-	struct tzasc_secbuf *secbuf;
-
-	secbuf = malloc(sizeof(*secbuf));
-	if (!secbuf)
-		panic();
-	secbuf->pa = FRAMEBUFFER_BASE;
-	secbuf->size = FRAMEBUFFER_SIZE;
-	TAILQ_INSERT_TAIL(&tzasc_secbuf_head, secbuf, link);
-}
-
 static void main_init_tzasc(void);
 static void main_init_tzasc(void)
 {
@@ -544,28 +531,12 @@ static void main_init_tzasc(void)
 
 	tzc_disable_filters();
 
-	/*
-	 * CPU (filter 0 device 9) should be allowed to write to FB when in
-	 * in secure mode. So, enable secure write access on filter 0.
-	 * Remember that CPU non-secure read is disabled by storing the buffer
-	 * info in a queue.
-	 */
-	tzc_configure_region((1 << 0), 3,
+	/* CPU is filter 0 device 9. LCD controller is on filter 2. */
+	tzc_configure_region((1 << 0) | (1 << 2), 3,
 			     (vaddr_t)fb_base_va,
 			     (vaddr_t)fb_base_va + FRAMEBUFFER_SIZE - 1,
-			     TZC_REGION_S_WR,
-			     0);
-	add_framebuffer_to_secure_buf_queue();
-
-	/*
-	 * LCD controller (filter 2 device ?) should be allowed to read from
-	 * FB. It work in secure mode. So, enable secure read on filter 2.
-	 */
-	tzc_configure_region((1 << 2), 4,
-			     (vaddr_t)fb_base_va,
-			     (vaddr_t)fb_base_va + FRAMEBUFFER_SIZE - 1,
-			     TZC_REGION_S_RD,
-			     0);
+			     TZC_REGION_S_RDWR,
+			     TZC_REGION_ACCESS_RDWR(9));
 
 	/* Demo: don't raise exception nor interrupt */
 	tzc_set_action(TZC_ACTION_NONE);

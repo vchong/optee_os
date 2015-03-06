@@ -102,6 +102,7 @@
 #define TEESMC_CMD_INVOKE_COMMAND	1
 #define TEESMC_CMD_CLOSE_SESSION	2
 #define TEESMC_CMD_CANCEL		3
+#define TEESMC_CMD_SHM_MAKE_SECURE	4
 
 /**
  * struct teesmc32_param_memref - memory reference

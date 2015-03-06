@@ -527,7 +527,7 @@ struct tzasc_secbuf_head tzasc_secbuf_head =
  * True if buffer is protected by TZASC so that it cannot be accessed by the
  * CPU in non-secure mode
  */
-static bool is_tzasc_secure(paddr_t pa, size_t size)
+bool is_tzasc_secure(paddr_t pa, size_t size)
 {
 	struct tzasc_secbuf *secbuf;
 	TAILQ_FOREACH(secbuf, &tzasc_secbuf_head, link) {
@@ -537,7 +537,7 @@ static bool is_tzasc_secure(paddr_t pa, size_t size)
 	return false;
 }
 #else
-static bool is_tzasc_secure(paddr_t pa __unused, size_t size __unused)
+bool is_tzasc_secure(paddr_t pa __unused, size_t size __unused)
 {
 	return false;
 }

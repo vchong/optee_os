@@ -31,6 +31,9 @@
 #include <kernel/tee_dispatch.h>
 #include <kernel/panic.h>
 #include <mm/core_mmu.h>
+#include <drivers/tzc400.h>
+#include <mm/tee_mmu.h>
+#include <malloc.h>
 
 #include <assert.h>
 
@@ -316,7 +319,67 @@ static void entry_cancel(struct thread_smc_args *args,
 	args->a0 = TEESMC_RETURN_OK;
 }
 
+#if defined(CFG_SECVIDEO_PROTO)
 
+static void add_to_secure_buf_queue(paddr_t addr, size_t size);
+static void add_to_secure_buf_queue(paddr_t addr, size_t size)
+{
+	struct tzasc_secbuf *secbuf;
+
+	secbuf = malloc(sizeof(*secbuf));
+	if (!secbuf)
+		panic();
+	secbuf->pa = addr;
+	secbuf->size = size;
+	TAILQ_INSERT_TAIL(&tzasc_secbuf_head, secbuf, link);
+}
+
+static void entry_make_shm_secure(struct thread_smc_args *args __unused,
+				  struct teesmc32_arg *arg32 __unused,
+				  uint32_t num_params __unused)
+{
+	uint32_t ret = TEESMC_RETURN_EBADCMD;
+	struct teesmc32_param *params = TEESMC32_GET_PARAMS(arg32);
+	vaddr_t start, end;
+	size_t size;
+
+	if (num_params == 1) {
+		start = (paddr_t)params[0].u.value.a;
+		size = (size_t)params[0].u.value.b;
+		end = start + size;
+		IMSG("start %p end %p size %zd", (void*)start,
+		     (void*)end, size);
+		if ((start | end) & (4096 - 1)) {
+			/* Start and end must be 4KB aligned */
+			goto out;
+		}
+
+		if (!is_tzasc_secure(start, size)) {
+			/*
+			 * Allow only secure write from CPU (filter 0 device 9).
+			 * Done by enabling secure write access on filter 0.
+			 */
+			tzc_configure_region((1 << 0), 4, start, end - 1,
+					     TZC_REGION_S_WR, 0);
+			add_to_secure_buf_queue(start, size);
+		}
+		ret = TEE_SUCCESS;
+	}
+out:
+	arg32->ret_origin = TEE_ORIGIN_TEE;
+	args->a0 = ret;
+}
+
+#else
+
+static void entry_make_shm_secure(struct thread_smc_args *args,
+				  struct teesmc32_arg *arg32 __unused,
+				  uint32_t num_params __unused)
+{
+	args->a0 = TEESMC_RETURN_EBADCMD;
+}
+
+#endif
 
 static void tee_entry_call_with_arg(struct thread_smc_args *args)
 {
@@ -363,6 +426,9 @@ static void tee_entry_call_with_arg(struct thread_smc_args *args)
 			break;
 		case TEESMC_CMD_CANCEL:
 			entry_cancel(args, arg32, num_params);
+			break;
+		case TEESMC_CMD_SHM_MAKE_SECURE:
+			entry_make_shm_secure(args, arg32, num_params);
 			break;
 		default:
 			EMSG("Unknown cmd 0x%x\n", arg32->cmd);

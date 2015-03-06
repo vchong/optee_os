@@ -192,6 +192,8 @@ struct tzasc_secbuf {
 TAILQ_HEAD(tzasc_secbuf_head, tzasc_secbuf);
 extern struct tzasc_secbuf_head tzasc_secbuf_head;
 
+bool is_tzasc_secure(paddr_t pa, size_t size);
+
 #endif
 
 #endif
