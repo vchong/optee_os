@@ -276,6 +276,7 @@ ARMv8 (with ARM-TF)
                             |
                             V
 Cache and MMU init  --> _start
+(CPU init done by ARM-TF)
                             |
                             V
                         main_init
