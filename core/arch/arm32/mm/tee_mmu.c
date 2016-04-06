@@ -530,6 +530,7 @@ struct tzasc_secbuf_head tzasc_secbuf_head =
 bool is_tzasc_secure(paddr_t pa, size_t size)
 {
 	struct tzasc_secbuf *secbuf;
+	EMSG("in ok\n");
 	TAILQ_FOREACH(secbuf, &tzasc_secbuf_head, link) {
 		if (pa >= secbuf->pa &&	size <= secbuf->size)
 			return true;
@@ -539,6 +540,7 @@ bool is_tzasc_secure(paddr_t pa, size_t size)
 #else
 bool is_tzasc_secure(paddr_t pa __unused, size_t size __unused)
 {
+	EMSG("in false\n");
 	return false;
 }
 #endif

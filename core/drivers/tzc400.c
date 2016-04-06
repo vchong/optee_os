@@ -243,6 +243,8 @@ void tzc_configure_region(uint32_t filters,
 			  tzc_region_attributes_t sec_attr,
 			  uint32_t ns_device_access)
 {
+	EMSG("in\n");
+
 	assert(tzc.base);
 
 	/* Do range checks on filters and regions. */

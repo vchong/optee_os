@@ -270,6 +270,8 @@ static void entry_invoke_command(struct thread_smc_args *args,
 	struct tee_dispatch_invoke_command_out out;
 	struct teesmc32_param *params = TEESMC32_GET_PARAMS(arg32);
 
+	EMSG("entry_invoke_command\n");
+
 	if (!copy_in_params(params, num_params,
 			 &in.param_types, in.param_attr, in.params)) {
 		arg32->ret = TEE_ERROR_BAD_PARAMETERS;
@@ -326,6 +328,8 @@ static void add_to_secure_buf_queue(paddr_t addr, size_t size)
 {
 	struct tzasc_secbuf *secbuf;
 
+	EMSG("in\n");
+
 	secbuf = malloc(sizeof(*secbuf));
 	if (!secbuf)
 		panic();
@@ -334,18 +338,22 @@ static void add_to_secure_buf_queue(paddr_t addr, size_t size)
 	TAILQ_INSERT_TAIL(&tzasc_secbuf_head, secbuf, link);
 }
 
-static void entry_make_shm_secure(struct thread_smc_args *args __unused,
-				  struct teesmc32_arg *arg32 __unused,
-				  uint32_t num_params __unused)
+static void entry_make_shm_secure(struct thread_smc_args *args,
+				  struct teesmc32_arg *arg32,
+				  uint32_t num_params)
 {
 	uint32_t ret = TEESMC_RETURN_EBADCMD;
-	struct teesmc32_param *params = TEESMC32_GET_PARAMS(arg32);
+	//struct teesmc32_param *params = TEESMC32_GET_PARAMS(arg32);
 	vaddr_t start, end;
 	size_t size;
 
-	if (num_params == 1) {
-		start = (paddr_t)params[0].u.value.a;
-		size = (size_t)params[0].u.value.b;
+	EMSG("in num_params = %u\n", num_params);
+
+	if (num_params) {
+		//start = (paddr_t)params[0].u.value.a;
+		//size = (size_t)params[0].u.value.b;
+		start = (paddr_t)0xff000000;
+		size = (size_t)0x00200000;
 		end = start + size;
 		IMSG("start %p end %p size %zd", (void*)start,
 		     (void*)end, size);
@@ -376,6 +384,7 @@ static void entry_make_shm_secure(struct thread_smc_args *args,
 				  struct teesmc32_arg *arg32 __unused,
 				  uint32_t num_params __unused)
 {
+	EMSG("entry_make_shm_secure ebadcmd\n");
 	args->a0 = TEESMC_RETURN_EBADCMD;
 }
 
@@ -385,6 +394,8 @@ static void tee_entry_call_with_arg(struct thread_smc_args *args)
 {
 	struct teesmc32_arg *arg32 = NULL;	/* fix gcc warning */
 	uint32_t num_params;
+
+	EMSG("tee_entry_call_with_arg\n");
 
 	if (args->a0 != TEESMC32_CALL_WITH_ARG &&
 	    args->a0 != TEESMC32_FASTCALL_WITH_ARG) {
@@ -416,18 +427,23 @@ static void tee_entry_call_with_arg(struct thread_smc_args *args)
 	if (args->a0 == TEESMC32_CALL_WITH_ARG) {
 		switch (arg32->cmd) {
 		case TEESMC_CMD_OPEN_SESSION:
+			EMSG("tee_entry_call_with_arg: TEESMC_CMD_OPEN_SESSION\n");
 			entry_open_session(args, arg32, num_params);
 			break;
 		case TEESMC_CMD_CLOSE_SESSION:
+			EMSG("tee_entry_call_with_arg: TEESMC_CMD_CLOSE_SESSION\n");
 			entry_close_session(args, arg32, num_params);
 			break;
 		case TEESMC_CMD_INVOKE_COMMAND:
+			EMSG("tee_entry_call_with_arg: TEESMC_CMD_INVOKE_COMMAND\n");
 			entry_invoke_command(args, arg32, num_params);
 			break;
 		case TEESMC_CMD_CANCEL:
+			EMSG("tee_entry_call_with_arg: TEESMC_CMD_CANCEL\n");
 			entry_cancel(args, arg32, num_params);
 			break;
 		case TEESMC_CMD_SHM_MAKE_SECURE:
+			EMSG("tee_entry_call_with_arg: TEESMC_CMD_SHM_MAKE_SECURE\n");
 			entry_make_shm_secure(args, arg32, num_params);
 			break;
 		default:
