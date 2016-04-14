@@ -181,3 +181,7 @@ CFG_DT ?= n
 # Maximum size of the Device Tree Blob, has to be large enough to allow
 # editing of the supplied DTB.
 CFG_DTB_MAX_SIZE ?= 0x10000
+
+# Enable Trusted UI, can't be turned on by default as it requires special
+# hardware.
+#CFG_WITH_TUI ?= y

@@ -43,11 +43,13 @@
 #include <kernel/tee_time.h>
 #include <tee/entry_fast.h>
 #include <tee/entry_std.h>
+#include <tee/tui.h>
 #include <mm/core_memprot.h>
 #include <mm/core_mmu.h>
 #include <console.h>
 #include <keep.h>
 #include <initcall.h>
+#include <kernel/panic.h>
 
 static void main_fiq(void);
 
@@ -154,6 +156,7 @@ static enum itr_return console_itr_cb(struct itr_handler *h __unused)
 		int ch __maybe_unused = pl011_getchar(uart_base);
 
 		DMSG("cpu %zu: got 0x%x", get_core_pos(), ch);
+		tui_async_input(ch, 0, 0);
 	}
 	return ITRR_HANDLED;
 }
