@@ -9,3 +9,4 @@ endif
 srcs-y += entry_std.c
 srcs-y += entry_fast.c
 srcs-y += init.c
+srcs-$(CFG_WITH_TUI) += tui.c
