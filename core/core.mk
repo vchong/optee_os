@@ -11,6 +11,24 @@ include $(platform-dir)/conf.mk
 include mk/config.mk
 include core/arch/$(ARCH)/$(ARCH).mk
 
+ifeq ($(CFG_WITH_TUI),y)
+ifneq ($(CFG_FRAME_BUFFER),y)
+$(warning warning: disabling CFG_WITH_TUI due to missing CFG_FRAME_BUFFER)
+CFG_WITH_TUI :=
+ifeq ($(CFG_WITH_TUI),y)
+$(error error: can't disable CFG_WITH_TUI)
+endif
+
+endif
+ifneq ($(CFG_DISPLAY),y)
+$(warning warning: disabling CFG_WITH_TUI due to missing CFG_DISPLAY)
+CFG_WITH_TUI :=
+ifeq ($(CFG_WITH_TUI),y)
+$(error error: can't disable CFG_WITH_TUI)
+endif
+endif
+endif
+
 # Setup compiler for this sub module
 COMPILER_$(sm)		?= $(COMPILER)
 include mk/$(COMPILER_$(sm)).mk

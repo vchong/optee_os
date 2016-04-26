@@ -38,3 +38,5 @@ srcs-y += tee_time_generic.c
 endif #CFG_WITH_USER_TA,y
 
 subdirs-$(CFG_SE_API) += se
+
+srcs-$(CFG_WITH_TUI) += pta_tui.c tui.c

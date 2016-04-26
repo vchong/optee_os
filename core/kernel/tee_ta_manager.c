@@ -45,6 +45,7 @@
 #include <tee/tee_svc_cryp.h>
 #include <tee/tee_obj.h>
 #include <tee/tee_svc_storage.h>
+#include <tee/tui.h>
 #include <tee_api_types.h>
 #include <trace.h>
 #include <utee_types.h>
@@ -342,6 +343,7 @@ TEE_Result tee_ta_close_session(struct tee_ta_session *csess,
 		ctx->ops->enter_close_session(sess);
 	}
 
+	tui_close_session(sess);
 	tee_ta_unlink_session(sess, open_sessions);
 	free(sess);
 
