@@ -26,11 +26,10 @@
  */
 
 #include <assert.h>
-#include <trace.h>
-#include <gpio.h>
-#include <io.h>
-#include <util.h>
 #include <drivers/pl061_gpio.h>
+#include <io.h>
+#include <trace.h>
+#include <util.h>
 
 #ifndef PLAT_PL061_MAX_GPIOS
 # define PLAT_PL061_MAX_GPIOS	32
@@ -39,9 +38,26 @@
 #define MAX_GPIO_DEVICES	((PLAT_PL061_MAX_GPIOS + \
 	(GPIOS_PER_PL061 - 1)) / GPIOS_PER_PL061)
 
-#define PL061_GPIO_DIR		0x400
-
 #define GPIOS_PER_PL061		8
+
+/* gpio register offsets */
+#define GPIODIR		0x400
+#define GPIOIS		0x404
+#define GPIOIBE		0x408
+#define GPIOIEV		0x40C
+#define GPIOIE		0x410
+#define GPIORIS		0x414
+#define GPIOMIS		0x418
+#define GPIOIC		0x41C
+#define GPIOAFSEL	0x420
+
+/* gpio register masks */
+#define GPIOIE_ENABLED		SHIFT_U64(1, 0)
+#define GPIOIE_MASKED		SHIFT_U64(0, 0)
+#define GPIOAFSEL_HW		SHIFT_U64(1, 0)
+#define GPIOAFSEL_SW		SHIFT_U64(0, 0)
+#define GPIODIR_OUT			SHIFT_U64(1, 0)
+#define GPIODIR_IN			SHIFT_U64(0, 0)
 
 static enum gpio_dir pl061_get_direction(unsigned int gpio_pin);
 static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction);
@@ -67,7 +83,7 @@ static enum gpio_dir pl061_get_direction(unsigned int gpio_pin)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
-	data = read8(base_addr + PL061_GPIO_DIR);
+	data = read8(base_addr + GPIODIR);
 	if (data & BIT(offset))
 		return GPIO_DIR_OUT;
 	return GPIO_DIR_IN;
@@ -84,11 +100,11 @@ static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction)
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
 	if (direction == GPIO_DIR_OUT) {
-		data = read8(base_addr + PL061_GPIO_DIR) | BIT(offset);
-		write8(data, base_addr + PL061_GPIO_DIR);
+		data = read8(base_addr + GPIODIR) | BIT(offset);
+		write8(data, base_addr + GPIODIR);
 	} else {
-		data = read8(base_addr + PL061_GPIO_DIR) & ~BIT(offset);
-		write8(data, base_addr + PL061_GPIO_DIR);
+		data = read8(base_addr + GPIODIR) & ~BIT(offset);
+		write8(data, base_addr + GPIODIR);
 	}
 }
 
@@ -134,7 +150,6 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 		write8(0, base_addr + BIT(offset + 2));
 }
 
-
 /*
  * Register the PL061 GPIO controller with a base address and the offset
  * of start pin in this GPIO controller.
@@ -155,3 +170,12 @@ void pl061_gpio_init(void)
 	COMPILE_TIME_ASSERT(PLAT_PL061_MAX_GPIOS > 0);
 	gpio_init(&pl061_gpio_ops);
 }
+
+void pl061_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+{
+	FMSG ("addr = 0x%x\n", (uint32_t)reg);
+	FMSG ("before: 0x%x\n", read32 (reg));
+	write32 ((read32 (reg) & ~mask) | shifted_val, reg);
+	FMSG ("after: 0x%x\n", read32 (reg));
+}
+

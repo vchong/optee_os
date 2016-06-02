@@ -27,6 +27,10 @@
 
 #include <console.h>
 #include <drivers/pl011.h>
+#include <drivers/pl022_spi.h>
+#include <drivers/pl061_gpio.h>
+#include <hi6220.h>
+#include <initcall.h>
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
@@ -52,6 +56,21 @@ static const struct thread_handlers handlers = {
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+
+//speed
+//10000; //10khz
+//50000; //50khz
+//500000; //500khz
+
+static const struct pl022_spi_cfg hikey_spi_cfg = {
+	.base = SPI_BASE,
+	.cs_gpio_base = GPIO6_BASE,
+	.spi_clk = HI6220_SPI_CLK,
+	.speed = 500000,
+	.cs_gpio_pin = 2,
+	.mode = 0,
+	.data_size = 8,
+};
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -93,3 +112,35 @@ void console_flush(void)
 {
 	pl011_flush(console_base());
 }
+
+static TEE_Result peri_init (void)
+{
+	pl061_gpio_init();
+	pl061_gpio_register(GPIO0_BASE, 0);
+	pl061_gpio_register(GPIO1_BASE, 1);
+	pl061_gpio_register(GPIO2_BASE, 2);
+	pl061_gpio_register(GPIO3_BASE, 3);
+	pl061_gpio_register(GPIO4_BASE, 4);
+	pl061_gpio_register(GPIO5_BASE, 5);
+	pl061_gpio_register(GPIO6_BASE, 6);
+	pl061_gpio_register(GPIO7_BASE, 7);
+	pl061_gpio_register(GPIO8_BASE, 8);
+	pl061_gpio_register(GPIO9_BASE, 9);
+	pl061_gpio_register(GPIO10_BASE, 10);
+	pl061_gpio_register(GPIO11_BASE, 11);
+	pl061_gpio_register(GPIO12_BASE, 12);
+	pl061_gpio_register(GPIO13_BASE, 13);
+	pl061_gpio_register(GPIO14_BASE, 14);
+	pl061_gpio_register(GPIO15_BASE, 15);
+	pl061_gpio_register(GPIO16_BASE, 16);
+	pl061_gpio_register(GPIO17_BASE, 17);
+	pl061_gpio_register(GPIO18_BASE, 18);
+	pl061_gpio_register(GPIO19_BASE, 19);
+
+	pl022_init (&hikey_spi_cfg);
+	pl022_configure ();
+
+	return TEE_SUCCESS;
+}
+
+service_init(peri_init);

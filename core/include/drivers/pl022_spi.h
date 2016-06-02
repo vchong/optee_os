@@ -23,16 +23,31 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-#ifndef __PL061_GPIO_H__
-#define __PL061_GPIO_H__
+#ifndef __PL022_SPI_H__
+#define __PL022_SPI_H__
 
-#include <gpio.h>
+#include <spi.h>
 #include <types_ext.h>
 
-void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev);
-void pl061_gpio_init(void);
-void pl061_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask);
+struct pl022_spi_cfg {
+	vaddr_t		base;
+	vaddr_t		cs_gpio_base; /* gpio register base address for chip select */
+	uint32_t	spi_clk; /* hz */
+	uint32_t	speed; /* hz */
+	uint16_t	cs_gpio_pin; /* gpio pin number for chip select */
+	uint8_t		mode;
+	uint8_t		data_size;
+};
 
-#endif	/* __PL061_GPIO_H__ */
+void pl022_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask);
+void pl022_print_peri_id (void);
+void pl022_print_cell_id (void);
+void pl022_sanity_check (void);
+void pl022_configure (void);
+void pl022_init (const struct pl022_spi_cfg *cfg_ptr);
+
+#endif	/* __PL022_SPI_H__ */
+
