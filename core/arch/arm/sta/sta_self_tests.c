@@ -31,6 +31,7 @@
 #include <tee_api_types.h>
 #include <tee_api_defines.h>
 #include "core_self_tests.h"
+#include "spi.h"
 
 #define TA_NAME		"sta_self_tests.ta"
 
@@ -41,6 +42,15 @@
 #define CMD_TRACE	0
 #define CMD_PARAMS	1
 #define CMD_SELF_TESTS	2
+#define CMD_RUN_SPI_TST2 3
+
+static TEE_Result run_spi_test2 (uint32_t param_types __unused,
+			TEE_Param params[4] __unused)
+{
+	DMSG("in\n");
+	spi_test2();
+	return TEE_SUCCESS;
+}
 
 static TEE_Result test_trace(uint32_t param_types __unused,
 			TEE_Param params[TEE_NUM_PARAMS] __unused)
@@ -236,6 +246,8 @@ static TEE_Result invoke_command(void *pSessionContext __unused,
 		return test_entry_params(nParamTypes, pParams);
 	case CMD_SELF_TESTS:
 		return core_self_tests(nParamTypes, pParams);
+	case CMD_RUN_SPI_TST2:
+		return run_spi_test2(nParamTypes, pParams);
 	default:
 		break;
 	}

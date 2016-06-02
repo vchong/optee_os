@@ -71,9 +71,19 @@ static enum gpio_dir pl061_get_direction(unsigned int gpio_pin)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+
+	DMSG("addr: 0x%" PRIxVA "\n", base_addr + GPIODIR);
+
 	data = read8(base_addr + GPIODIR);
 	if (data & BIT(offset))
+	{
+		DMSG("dir: GPIO_DIR_OUT: %u\n", GPIO_DIR_OUT);
 		return GPIO_DIR_OUT;
+	}
+	DMSG("dir: GPIO_DIR_IN: %u\n", GPIO_DIR_IN);
 	return GPIO_DIR_IN;
 }
 
@@ -87,13 +97,24 @@ static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+
+	DMSG("addr: 0x%" PRIxVA "\n", base_addr + GPIODIR);
+	DMSG("before: 0x%x\n", read32(base_addr + GPIODIR));
+
 	if (direction == GPIO_DIR_OUT) {
+		DMSG("dir: GPIO_DIR_OUT: %u\n", direction);
 		data = read8(base_addr + GPIODIR) | BIT(offset);
 		write8(data, base_addr + GPIODIR);
 	} else {
+		DMSG("dir: GPIO_DIR_IN: %u\n", direction);
 		data = read8(base_addr + GPIODIR) & ~BIT(offset);
 		write8(data, base_addr + GPIODIR);
 	}
+
+	DMSG("after: 0x%x\n", read32(base_addr + GPIODIR));
 }
 
 /*
@@ -113,8 +134,17 @@ static enum gpio_level pl061_get_value(unsigned int gpio_pin)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+	DMSG("base_addr + BIT(offset + 2): 0x%" PRIxVA "\n", base_addr + BIT(offset + 2));
+
 	if (read8(base_addr + BIT(offset + 2)))
+	{
+		DMSG("value: GPIO_LEVEL_HIGH: %u\n", GPIO_LEVEL_HIGH);
 		return GPIO_LEVEL_HIGH;
+	}
+	DMSG("value: GPIO_LEVEL_LOW: %u\n", GPIO_LEVEL_LOW);
 	return GPIO_LEVEL_LOW;
 }
 
@@ -132,10 +162,26 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u, BIT(offset) = 0x%x\n", offset, BIT(offset));
+	DMSG("base_addr + BIT(offset + 2): 0x%" PRIxVA "\n", base_addr + BIT(offset + 2));
+	DMSG("value: %u\n", value);
+
+	DMSG("before: 0x%x\n", read32(base_addr + BIT(offset + 2)));
+
 	if (value == GPIO_LEVEL_HIGH)
+	{
+		DMSG("value: GPIO_LEVEL_HIGH: %u\n", value);
 		write8(BIT(offset), base_addr + BIT(offset + 2));
+	}
 	else
+	{
+		DMSG("value: GPIO_LEVEL_LOW: %u\n", value);
 		write8(0, base_addr + BIT(offset + 2));
+	}
+
+	DMSG("after: 0x%x\n", read32(base_addr + BIT(offset + 2)));
 }
 
 static enum gpio_interrupt pl061_get_interrupt(unsigned int gpio_pin)
@@ -155,6 +201,23 @@ static enum gpio_interrupt pl061_get_interrupt(unsigned int gpio_pin)
 }
 
 static void pl061_set_interrupt(unsigned int gpio_pin,
+	enum gpio_interrupt ena_dis)
+{
+	vaddr_t base_addr;
+	unsigned int offset;
+
+	assert(gpio_pin < PLAT_PL061_MAX_GPIOS);
+
+	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
+	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+
+	io_mask8(base_addr + GPIOIE, SHIFT_U32(ena_dis, offset), BIT(offset));
+}
+
+static void __maybe_unused pl061_set_interrupt2(unsigned int gpio_pin,
 	enum gpio_interrupt ena_dis)
 {
 	vaddr_t base_addr;
@@ -200,6 +263,9 @@ static const struct gpio_ops pl061_ops = {
  */
 void pl061_init(struct pl061_data *pd)
 {
+	DMSG("PLAT_PL061_MAX_GPIOS: %d\n", PLAT_PL061_MAX_GPIOS);
+	DMSG("MAX_GPIO_DEVICES: %d\n", MAX_GPIO_DEVICES);
+
 	COMPILE_TIME_ASSERT(PLAT_PL061_MAX_GPIOS > 0);
 
 	assert(pd);
@@ -223,6 +289,25 @@ enum pl061_mode_control pl061_get_mode_control(unsigned int gpio_pin)
 }
 
 void pl061_set_mode_control(unsigned int gpio_pin,
+	enum pl061_mode_control hw_sw)
+{
+	vaddr_t base_addr;
+	unsigned int offset;
+
+	assert(gpio_pin < PLAT_PL061_MAX_GPIOS);
+
+	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
+	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+
+	io_mask8(base_addr + GPIOAFSEL, SHIFT_U32(hw_sw, offset), BIT(offset));
+}
+
+void pl061_set_mode_control2(unsigned int gpio_pin,
+	enum pl061_mode_control hw_sw);
+void pl061_set_mode_control2(unsigned int gpio_pin,
 	enum pl061_mode_control hw_sw)
 {
 	vaddr_t base_addr;

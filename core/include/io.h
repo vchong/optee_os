@@ -28,6 +28,7 @@
 #define IO_H
 
 #include <stdint.h>
+#include <trace.h>
 #include <types_ext.h>
 
 /*
@@ -68,17 +69,26 @@ static inline uint32_t read32(vaddr_t addr)
 
 static inline void io_mask8(vaddr_t addr, uint8_t val, uint8_t mask)
 {
+	DMSG("addr: 0x%" PRIxVA "\n", addr);
+	DMSG("before: 0x%x\n", read8(addr));
 	write8((read8(addr) & ~mask) | (val & mask), addr);
+	DMSG("after: 0x%x\n", read8(addr));
 }
 
 static inline void io_mask16(vaddr_t addr, uint16_t val, uint16_t mask)
 {
+	DMSG("addr: 0x%" PRIxVA "\n", addr);
+	DMSG("before: 0x%x\n", read16(addr));
 	write16((read16(addr) & ~mask) | (val & mask), addr);
+	DMSG("after: 0x%x\n", read16(addr));
 }
 
 static inline void io_mask32(vaddr_t addr, uint32_t val, uint32_t mask)
 {
+	DMSG("addr: 0x%" PRIxVA "\n", addr);
+	DMSG("before: 0x%x\n", read32(addr));
 	write32((read32(addr) & ~mask) | (val & mask), addr);
+	DMSG("after: 0x%x\n", read32(addr));
 }
 
 #endif /*IO_H*/

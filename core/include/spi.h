@@ -56,5 +56,7 @@ struct spi_ops {
 		size_t *num_rxpkts);
 };
 
+void spi_test2(void);
+
 #endif	/* __SPI_H__ */
 

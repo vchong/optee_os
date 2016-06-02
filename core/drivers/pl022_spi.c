@@ -191,16 +191,22 @@ static void pl022_txrx8(struct spi_chip *chip, uint8_t *wdat,
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_LOW);
 
 	while (i < num_txpkts) {
-		if (read8(pd->base + SSPSR) & SSPSR_TNF)
+		if (read8(pd->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
+			DMSG("wdat[%zu] = 0x%x", i, wdat[i]);
 			write8(wdat[i++], pd->base + SSPDR);
+		}
+		else
+			DMSG("TX FIFO full.. waiting..");
 	}
 
 	do {
 		while ((read8(pd->base + SSPSR) & SSPSR_RNE) &&
-			(j < *num_rxpkts))
+			(j < *num_rxpkts)) {
 			/* rx 1 packet */
 			rdat[j++] = read8(pd->base + SSPDR);
+			DMSG("rdat[%zu] = 0x%x", j-1, rdat[j-1]);
+		}
 	} while ((read8(pd->base + SSPSR) & SSPSR_BSY) && (j < *num_rxpkts));
 
 	*num_rxpkts = j;
@@ -218,16 +224,22 @@ static void pl022_txrx16(struct spi_chip *chip, uint16_t *wdat,
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_LOW);
 
 	while (i < num_txpkts) {
-		if (read8(pd->base + SSPSR) & SSPSR_TNF)
+		if (read8(pd->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
+			DMSG("wdat[%zu] = 0x%x", i, wdat[i]);
 			write16(wdat[i++], pd->base + SSPDR);
+		}
+		else
+			DMSG("TX FIFO full.. waiting..");
 	}
 
 	do {
 		while ((read8(pd->base + SSPSR) & SSPSR_RNE)
-			&& (j < *num_rxpkts))
+			&& (j < *num_rxpkts)) {
 			/* rx 1 packet */
 			rdat[j++] = read16(pd->base + SSPDR);
+			DMSG("rdat[%zu] = 0x%x", j-1, rdat[j-1]);
+		}
 	} while ((read8(pd->base + SSPSR) & SSPSR_BSY) && (j < *num_rxpkts));
 
 	*num_rxpkts = j;
@@ -244,9 +256,13 @@ static void pl022_tx8(struct spi_chip *chip, uint8_t *wdat,
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_LOW);
 
 	while (i < num_txpkts) {
-		if (read8(pd->base + SSPSR) & SSPSR_TNF)
+		if (read8(pd->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
+			DMSG("wdat[%zu] = 0x%x", i, wdat[i]);
 			write8(wdat[i++], pd->base + SSPDR);
+		}
+		else
+			DMSG("TX FIFO full.. waiting..");
 	}
 
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_HIGH);
@@ -261,9 +277,13 @@ static void pl022_tx16(struct spi_chip *chip, uint16_t *wdat,
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_LOW);
 
 	while (i < num_txpkts) {
-		if (read8(pd->base + SSPSR) & SSPSR_TNF)
+		if (read8(pd->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
+			DMSG("wdat[%zu] = 0x%x", i, wdat[i]);
 			write16(wdat[i++], pd->base + SSPDR);
+		}
+		else
+			DMSG("TX FIFO full.. waiting..");
 	}
 
 	pd->gpio->ops->set_value(pd->cs_gpio_pin, GPIO_LEVEL_HIGH);
@@ -279,9 +299,11 @@ static void pl022_rx8(struct spi_chip *chip, uint8_t *rdat,
 
 	do {
 		while ((read8(pd->base + SSPSR) & SSPSR_RNE) &&
-			(j < *num_rxpkts))
+			(j < *num_rxpkts)) {
 			/* rx 1 packet */
 			rdat[j++] = read8(pd->base + SSPDR);
+			DMSG("rdat[%zu] = 0x%x", j-1, rdat[j-1]);
+		}
 	} while ((read8(pd->base + SSPSR) & SSPSR_BSY) && (j < *num_rxpkts));
 
 	*num_rxpkts = j;
@@ -299,9 +321,11 @@ static void pl022_rx16(struct spi_chip *chip, uint16_t *rdat,
 
 	do {
 		while ((read8(pd->base + SSPSR) & SSPSR_RNE) &&
-			(j < *num_rxpkts))
+			(j < *num_rxpkts)) {
 			/* rx 1 packet */
 			rdat[j++] = read16(pd->base + SSPDR);
+			DMSG("rdat[%zu] = 0x%x", j-1, rdat[j-1]);
+		}
 	} while ((read8(pd->base + SSPSR) & SSPSR_BSY) && (j < *num_rxpkts));
 
 	*num_rxpkts = j;
@@ -436,6 +460,8 @@ void pl022_configure(struct pl022_data *pd)
 	pd->chip.ops = &pl022_ops;
 	pl022_sanity_check(pd);
 	pl022_calc_clk_divisors(pd, &cpsdvr, &scr);
+
+	DMSG("PL022_SPI_MODEs: 0x%x 0x%x 0x%x 0x%x", PL022_SPI_MODE0, PL022_SPI_MODE1, PL022_SPI_MODE2, PL022_SPI_MODE3);
 
 	/* configure ssp based on platform settings */
 	switch (pd->mode) {
