@@ -25,14 +25,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PL061_GPIO_H__
-#define __PL061_GPIO_H__
+#ifndef __SPI_H__
+#define __SPI_H__
 
-#include <gpio.h>
 #include <types_ext.h>
 
-void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev);
-void pl061_gpio_init(void);
-void pl061_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask);
+struct spi_ops {
+	void (*txrx8) (uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+	void (*txrx16) (uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+	void (*tx8) (uint8_t *wdat, uint32_t num_txpkts);
+	void (*tx16) (uint16_t *wdat, uint32_t num_txpkts);
+	void (*rx8) (uint8_t *rdat, uint32_t *num_rxpkts);
+	void (*rx16) (uint16_t *rdat, uint32_t *num_rxpkts);
+};
 
-#endif	/* __PL061_GPIO_H__ */
+void spi_txrx8 (uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+void spi_txrx16 (uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+void spi_tx8 (uint8_t *wdat, uint32_t num_txpkts);
+void spi_tx16 (uint16_t *wdat, uint32_t num_txpkts);
+void spi_rx8 (uint8_t *rdat, uint32_t *num_rxpkts);
+void spi_rx16 (uint16_t *rdat, uint32_t *num_rxpkts);
+void spi_init (const struct spi_ops *ops_ptr);
+
+#endif	/* __SPI_H__ */
+
