@@ -200,10 +200,10 @@ static void pl022_rx16 (uint16_t *rdat, uint32_t *num_rxpkts)
 
 void pl022_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask)
 {
-	DMSG ("addr: 0x%x\n", (uint32_t)reg);
-	DMSG ("before: 0x%x\n", read32 (reg));
+	FMSG ("addr: 0x%x\n", (uint32_t)reg);
+	FMSG ("before: 0x%x\n", read32 (reg));
 	write32 ((read32 (reg) & ~mask) | shifted_val, reg);
-	DMSG ("after: 0x%x\n", read32 (reg));
+	FMSG ("after: 0x%x\n", read32 (reg));
 }
 
 void pl022_print_peri_id (void)
