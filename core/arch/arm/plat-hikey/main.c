@@ -56,6 +56,9 @@ static const struct thread_handlers handlers = {
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 
 //speed
 //10000; //10khz
@@ -113,7 +116,29 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
-static TEE_Result peri_init (void)
+void hikey_spi_enable (void)
+{
+	uint32_t shifted_val, read_val;
+
+	DMSG ("peri_base = 0x%x\n", PERI_BASE);
+
+	/* take SPI0 out of reset */
+	/* no need to read SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
+	shifted_val = PERI_RST3_SSP;
+	write32 (shifted_val, PERI_SC_PERIPH_RSTDIS3);
+
+	/* wait until the requested device is out of reset, and ready to be used */
+	do {
+	  read_val = read32 (PERI_SC_PERIPH_RSTSTAT3);
+	} while (read_val & shifted_val);
+
+	DMSG ("read_val = 0x%x\n", read_val);
+	DMSG ("SC_PERIPH_RSTSTAT3 = 0x%x\n", read32 (PERI_SC_PERIPH_RSTSTAT3));
+	DMSG ("shifted_val = 0x%x\n", shifted_val);
+	DMSG ("SC_PERIPH_RSTDIS3 = 0x%x\n", read32 (PERI_SC_PERIPH_RSTDIS3));
+}
+
+void peri_init (void)
 {
 	pl061_gpio_init();
 	pl061_gpio_register(GPIO0_BASE, 0);
@@ -137,10 +162,15 @@ static TEE_Result peri_init (void)
 	pl061_gpio_register(GPIO18_BASE, 18);
 	pl061_gpio_register(GPIO19_BASE, 19);
 
+	hikey_spi_enable();
 	pl022_init (&hikey_spi_cfg);
-	pl022_configure ();
+	pl022_configure();
+}
 
+static TEE_Result spi_test (void)
+{
+	peri_init();
 	return TEE_SUCCESS;
 }
 
-service_init(peri_init);
+service_init(spi_test);

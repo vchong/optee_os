@@ -32,6 +32,8 @@
 #include <spi.h>
 #include <types_ext.h>
 
+#define PL022_REG_SIZE	0x10000
+
 struct pl022_spi_cfg {
 	vaddr_t		base;
 	vaddr_t		cs_gpio_base; /* gpio register base address for chip select */
