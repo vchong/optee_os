@@ -36,6 +36,9 @@
 #include <hi6220_regs_peri.h>
 #include <hi6220_regs_pmctrl.h>
 
+#define	SPI_BASE				0xF7106000
+#define SPI_CLK_HZ				150000000 /* 150mhz */
+
 #define PMUSSI_BASE				0xF8000000
 #define SP804_TIMER0_BASE		0xF8008000
 

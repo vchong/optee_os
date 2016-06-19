@@ -158,7 +158,7 @@ static void pl022_tx16 (uint16_t *wdat, uint32_t num_txpkts);
 static void pl022_rx8 (uint8_t *rdat, uint32_t *num_rxpkts);
 static void pl022_rx16 (uint16_t *rdat, uint32_t *num_rxpkts);
 
-static const struct pl022_spi_cfg *cfg;
+static const struct pl022_cfg *cfg;
 
 static const struct spi_ops pl022_ops = {
 	.txrx8 = pl022_txrx8,
@@ -230,11 +230,11 @@ void pl022_configure (void)
 	pl022_sanity_check ();
 }
 
-void pl022_init(const struct pl022_spi_cfg *cfg_ptr)
+void pl022_init(const struct pl022_cfg *cfg_ptr)
 {
 	assert(cfg_ptr != 0);
-	cfg = cfg_ptr;
 
+	cfg = cfg_ptr;
 	spi_init (&pl022_ops);
 }
 
