@@ -71,6 +71,9 @@ static const struct pl022_cfg platform_pl022_cfg = {
 	.data_size_nbits = 8,
 };
 
+void platform_spi_enable (void);
+void peri_init (void);
+
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
 	return &handlers;
