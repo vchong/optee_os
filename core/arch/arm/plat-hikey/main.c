@@ -60,19 +60,14 @@ register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 
-//speed
-//10000; //10khz
-//50000; //50khz
-//500000; //500khz
-
-static const struct pl022_spi_cfg hikey_spi_cfg = {
+static const struct pl022_cfg platform_pl022_cfg = {
 	.base = SPI_BASE,
 	.cs_gpio_base = GPIO6_BASE,
-	.spi_clk = HI6220_SPI_CLK,
-	.speed = 500000,
+	.clk_hz = SPI_CLK_HZ,
+	.speed_hz = 500000,
 	.cs_gpio_pin = 2,
-	.mode = 0,
-	.data_size = 8,
+	.mode = SPI_MODE0,
+	.data_size_nbits = 8,
 };
 
 const struct thread_handlers *generic_boot_get_handlers(void)
@@ -116,26 +111,51 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
-void hikey_spi_enable (void)
+void platform_spi_enable (void)
 {
 	uint32_t shifted_val, read_val;
 
-	DMSG ("peri_base = 0x%x\n", PERI_BASE);
+	DMSG ("peri_base: 0x%x\n", PERI_BASE);
 
 	/* take SPI0 out of reset */
-	/* no need to read SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
+	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_RST3_SSP;
 	write32 (shifted_val, PERI_SC_PERIPH_RSTDIS3);
+
+	DMSG ("shifted_val: 0x%x\n", shifted_val);
+	DMSG ("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32 (PERI_SC_PERIPH_RSTDIS3));
 
 	/* wait until the requested device is out of reset, and ready to be used */
 	do {
 	  read_val = read32 (PERI_SC_PERIPH_RSTSTAT3);
 	} while (read_val & shifted_val);
 
-	DMSG ("read_val = 0x%x\n", read_val);
-	DMSG ("SC_PERIPH_RSTSTAT3 = 0x%x\n", read32 (PERI_SC_PERIPH_RSTSTAT3));
-	DMSG ("shifted_val = 0x%x\n", shifted_val);
-	DMSG ("SC_PERIPH_RSTDIS3 = 0x%x\n", read32 (PERI_SC_PERIPH_RSTDIS3));
+	DMSG ("read_val: 0x%x\n", read_val);
+	DMSG ("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32 (PERI_SC_PERIPH_RSTSTAT3));
+
+	/* enable SPI clock */
+	/* no need to read PERI_SC_PERIPH_CLKEN3 first as all the bits are processed and cleared after writing */
+	shifted_val = PERI_CLK3_SSP;
+	write32 (shifted_val, PERI_SC_PERIPH_CLKEN3);
+
+	DMSG ("shifted_val: 0x%x\n", shifted_val);
+	DMSG ("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32 (PERI_SC_PERIPH_CLKEN3));
+
+	/* wait until the requested device is out of reset, and ready to be used */
+	do {
+	  read_val = read32 (PERI_SC_PERIPH_CLKSTAT3);
+	} while (read_val & shifted_val);
+
+	DMSG ("read_val: 0x%x\n", read_val);
+	DMSG ("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32 (PERI_SC_PERIPH_CLKSTAT3));
+
+	/* 0 nopull, 1 pullup, 2 pulldown */
+	DMSG ("configure gpio6_0-3 as nopull and 02ma drive\n");
+	pl061_set_register (0xf70109b0, 0, 0xffff);
+	write32 (0, 0xf70109b0);
+	write32 (0, 0xf70109b4);
+	write32 (0, 0xf70109b8);
+	write32 (0, 0xf70109bc);
 }
 
 void peri_init (void)
@@ -162,8 +182,8 @@ void peri_init (void)
 	pl061_gpio_register(GPIO18_BASE, 18);
 	pl061_gpio_register(GPIO19_BASE, 19);
 
-	hikey_spi_enable();
-	pl022_init (&hikey_spi_cfg);
+	platform_spi_enable();
+	pl022_init (&platform_pl022_cfg);
 	pl022_configure();
 }
 
