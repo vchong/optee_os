@@ -135,15 +135,6 @@
 #define SSPPCellID_1	SHIFT_U64(0xFF, 0) /* 0xF0 */
 #define SSPPPCellID_2	SHIFT_U64(0xFF, 0) /* 0x05 */
 #define SSPPPCellID_3	SHIFT_U64(0xFF, 0) /* 0xB1 */
-
-#define SSP_MASK_32	0xFFFFFFFF
-#define SSP_MASK_28	0xFFFFFFF
-#define SSP_MASK_24	0xFFFFFF
-#define SSP_MASK_20	0xFFFFF
-#define SSP_MASK_16	0xFFFF
-#define SSP_MASK_12	0xFFF
-#define SSP_MASK_8	0xFF
-#define SSP_MASK_4	0xF
 /* spi register masks */
 
 #define SSP_CPSDVR_MAX	254
