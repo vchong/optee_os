@@ -31,6 +31,7 @@
 #include <drivers/pl061_gpio.h>
 #include <hi6220.h>
 #include <initcall.h>
+#include <io.h>
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
