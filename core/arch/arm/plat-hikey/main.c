@@ -149,13 +149,20 @@ void platform_spi_enable (void)
 	DMSG ("read_val: 0x%x\n", read_val);
 	DMSG ("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32 (PERI_SC_PERIPH_CLKSTAT3));
 
-	/* 0 nopull, 1 pullup, 2 pulldown */
-	DMSG ("configure gpio6_0-3 as nopull and 02ma drive\n");
-	pl061_set_register (0xf70109b0, 0, 0xffff);
-	write32 (0, 0xf70109b0);
-	write32 (0, 0xf70109b4);
-	write32 (0, 0xf70109b8);
-	write32 (0, 0xf70109bc);
+	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
+	DMSG ("configure gpio6_{0:3} as nopull and 02ma drive\n");
+	write32 (0, 0xF70109B0);
+	write32 (0, 0xF70109B4);
+	write32 (0, 0xF70109B8);
+	write32 (0, 0xF70109BC);
+
+	/* configure pin mux: 0: gpio, 1: spi*/
+	DMSG ("configure gpio6_{0,1,3} as spi\n");
+	DMSG ("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
+	write32 (1, 0xF70101A0);
+	write32 (1, 0xF70101A4);
+	write32 (0, 0xF70101A8);
+	write32 (1, 0xF70101AC);
 }
 
 void peri_init (void)
