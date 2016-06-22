@@ -35,6 +35,6 @@
 
 void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev);
 void pl061_gpio_init(void);
-void pl061_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask);
+void pl061_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask);
 
 #endif	/* __PL061_GPIO_H__ */

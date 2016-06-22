@@ -142,12 +142,12 @@
 #define SSP_SCR_MAX		255
 #define SSP_SCR_MIN		0
 
-static void pl022_txrx8 (uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_txrx16 (uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_tx8 (uint8_t *wdat, uint32_t num_txpkts);
-static void pl022_tx16 (uint16_t *wdat, uint32_t num_txpkts);
-static void pl022_rx8 (uint8_t *rdat, uint32_t *num_rxpkts);
-static void pl022_rx16 (uint16_t *rdat, uint32_t *num_rxpkts);
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts);
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts);
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
 
 static const struct pl022_cfg *cfg;
 
@@ -160,65 +160,65 @@ static const struct spi_ops pl022_ops = {
 	.rx16 = pl022_rx16,
 };
 
-static void pl022_txrx8 (uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 
 }
 
-static void pl022_txrx16 (uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 }
 
-static void pl022_tx8 (uint8_t *wdat, uint32_t num_txpkts)
-{
-
-}
-
-static void pl022_tx16 (uint16_t *wdat, uint32_t num_txpkts)
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
 {
 
 }
 
-static void pl022_rx8 (uint8_t *rdat, uint32_t *num_rxpkts)
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
 {
 
 }
 
-static void pl022_rx16 (uint16_t *rdat, uint32_t *num_rxpkts)
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 {
 
 }
 
-void pl022_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 {
-	FMSG ("addr: 0x%x\n", (uint32_t)reg);
-	FMSG ("before: 0x%x\n", read32 (reg));
-	write32 ((read32 (reg) & ~mask) | shifted_val, reg);
-	FMSG ("after: 0x%x\n", read32 (reg));
+
 }
 
-void pl022_print_peri_id (void)
+void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
 {
-	DMSG ("Expected: 0x 22 10 #4 0");
-	DMSG ("Read: 0x %x %x %x %x\n", read32 (cfg->base + SSPPeriphID0), read32 (cfg->base + SSPPeriphID1), read32 (cfg->base + SSPPeriphID2), read32 (cfg->base + SSPPeriphID3));
+	FMSG("addr: 0x%x\n", (uint32_t)reg);
+	FMSG("before: 0x%x\n", read32(reg));
+	write32((read32(reg) & ~mask) | shifted_val, reg);
+	FMSG("after: 0x%x\n", read32(reg));
 }
 
-void pl022_print_cell_id (void)
+void pl022_print_peri_id(void)
 {
-	DMSG ("Expected: 0x 0D F0 05 B1");
-	DMSG ("Read: 0x %x %x %x %x\n", read32 (cfg->base + SSPPCellID0), read32 (cfg->base + SSPPCellID1), read32 (cfg->base + SSPPCellID2), read32 (cfg->base + SSPPCellID3));
+	DMSG("Expected: 0x 22 10 #4 0");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
 }
 
-void pl022_sanity_check (void)
+void pl022_print_cell_id(void)
 {
-	DMSG ("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32 (cfg->base + SSPB2BTRANS));
+	DMSG("Expected: 0x 0D F0 05 B1");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
+}
+
+void pl022_sanity_check(void)
+{
+	DMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
 	pl022_print_peri_id();
 	pl022_print_cell_id();
 }
 
-void pl022_configure (void)
+void pl022_configure(void)
 {
-	pl022_sanity_check ();
+	pl022_sanity_check();
 }
 
 void pl022_init(const struct pl022_cfg *cfg_ptr)
@@ -226,6 +226,6 @@ void pl022_init(const struct pl022_cfg *cfg_ptr)
 	assert(cfg_ptr != 0);
 
 	cfg = cfg_ptr;
-	spi_init (&pl022_ops);
+	spi_init(&pl022_ops);
 }
 

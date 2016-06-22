@@ -71,8 +71,8 @@ static const struct pl022_cfg platform_pl022_cfg = {
 	.data_size_nbits = 8,
 };
 
-void platform_spi_enable (void);
-void peri_init (void);
+void platform_spi_enable(void);
+void peri_init(void);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -115,61 +115,61 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
-void platform_spi_enable (void)
+void platform_spi_enable(void)
 {
 	uint32_t shifted_val, read_val;
 
-	DMSG ("peri_base: 0x%x\n", PERI_BASE);
+	DMSG("peri_base: 0x%x\n", PERI_BASE);
 
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_RST3_SSP;
-	write32 (shifted_val, PERI_SC_PERIPH_RSTDIS3);
+	write32(shifted_val, PERI_SC_PERIPH_RSTDIS3);
 
-	DMSG ("shifted_val: 0x%x\n", shifted_val);
-	DMSG ("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32 (PERI_SC_PERIPH_RSTDIS3));
+	DMSG("shifted_val: 0x%x\n", shifted_val);
+	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(PERI_SC_PERIPH_RSTDIS3));
 
 	/* wait until the requested device is out of reset, and ready to be used */
 	do {
-	  read_val = read32 (PERI_SC_PERIPH_RSTSTAT3);
+	  read_val = read32(PERI_SC_PERIPH_RSTSTAT3);
 	} while (read_val & shifted_val);
 
-	DMSG ("read_val: 0x%x\n", read_val);
-	DMSG ("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32 (PERI_SC_PERIPH_RSTSTAT3));
+	DMSG("read_val: 0x%x\n", read_val);
+	DMSG("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32(PERI_SC_PERIPH_RSTSTAT3));
 
 	/* enable SPI clock */
 	/* no need to read PERI_SC_PERIPH_CLKEN3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_CLK3_SSP;
-	write32 (shifted_val, PERI_SC_PERIPH_CLKEN3);
+	write32(shifted_val, PERI_SC_PERIPH_CLKEN3);
 
-	DMSG ("shifted_val: 0x%x\n", shifted_val);
-	DMSG ("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32 (PERI_SC_PERIPH_CLKEN3));
+	DMSG("shifted_val: 0x%x\n", shifted_val);
+	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(PERI_SC_PERIPH_CLKEN3));
 
 	/* wait until the requested device is out of reset, and ready to be used */
 	do {
-	  read_val = read32 (PERI_SC_PERIPH_CLKSTAT3);
+	  read_val = read32(PERI_SC_PERIPH_CLKSTAT3);
 	} while (read_val & shifted_val);
 
-	DMSG ("read_val: 0x%x\n", read_val);
-	DMSG ("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32 (PERI_SC_PERIPH_CLKSTAT3));
+	DMSG("read_val: 0x%x\n", read_val);
+	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(PERI_SC_PERIPH_CLKSTAT3));
 
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
-	DMSG ("configure gpio6_{0:3} as nopull and 02ma drive\n");
-	write32 (0, 0xF70109B0);
-	write32 (0, 0xF70109B4);
-	write32 (0, 0xF70109B8);
-	write32 (0, 0xF70109BC);
+	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
+	write32(0, 0xF70109B0);
+	write32(0, 0xF70109B4);
+	write32(0, 0xF70109B8);
+	write32(0, 0xF70109BC);
 
 	/* configure pin mux: 0: gpio, 1: spi*/
-	DMSG ("configure gpio6_{0,1,3} as spi\n");
-	DMSG ("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
-	write32 (1, 0xF70101A0);
-	write32 (1, 0xF70101A4);
-	write32 (0, 0xF70101A8);
-	write32 (1, 0xF70101AC);
+	DMSG("configure gpio6_{0,1,3} as spi\n");
+	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
+	write32(1, 0xF70101A0);
+	write32(1, 0xF70101A4);
+	write32(0, 0xF70101A8);
+	write32(1, 0xF70101AC);
 }
 
-void peri_init (void)
+void peri_init(void)
 {
 	pl061_gpio_init();
 	pl061_gpio_register(GPIO0_BASE, 0);
@@ -194,11 +194,17 @@ void peri_init (void)
 	pl061_gpio_register(GPIO19_BASE, 19);
 
 	platform_spi_enable();
-	pl022_init (&platform_pl022_cfg);
+	pl022_init(&platform_pl022_cfg);
 	pl022_configure();
 }
 
-static TEE_Result spi_test (void)
+void spi_test2(void)
+{
+	DMSG("Hello!\n");
+	peri_init();
+}
+
+static TEE_Result spi_test(void)
 {
 	peri_init();
 	return TEE_SUCCESS;
