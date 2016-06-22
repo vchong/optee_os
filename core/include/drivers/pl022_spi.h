@@ -67,12 +67,12 @@ struct pl022_cfg {
 	uint8_t		data_size_nbits;
 };
 
-void pl022_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask);
-void pl022_print_peri_id (void);
-void pl022_print_cell_id (void);
-void pl022_sanity_check (void);
-void pl022_configure (void);
-void pl022_init (const struct pl022_cfg *cfg_ptr);
+void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask);
+void pl022_print_peri_id(void);
+void pl022_print_cell_id(void);
+void pl022_sanity_check(void);
+void pl022_configure(void);
+void pl022_init(const struct pl022_cfg *cfg_ptr);
 
 #endif	/* __PL022_SPI_H__ */
 

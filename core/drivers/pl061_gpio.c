@@ -171,11 +171,11 @@ void pl061_gpio_init(void)
 	gpio_init(&pl061_gpio_ops);
 }
 
-void pl061_set_register (vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+void pl061_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
 {
-	FMSG ("addr = 0x%x\n", (uint32_t)reg);
-	FMSG ("before: 0x%x\n", read32 (reg));
-	write32 ((read32 (reg) & ~mask) | shifted_val, reg);
-	FMSG ("after: 0x%x\n", read32 (reg));
+	FMSG("addr = 0x%x\n", (uint32_t)reg);
+	FMSG("before: 0x%x\n", read32(reg));
+	write32((read32(reg) & ~mask) | shifted_val, reg);
+	FMSG("after: 0x%x\n", read32(reg));
 }
 
