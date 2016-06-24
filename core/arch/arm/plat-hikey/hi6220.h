@@ -36,6 +36,8 @@
 #include <hi6220_regs_peri.h>
 #include <hi6220_regs_pmctrl.h>
 
+
+#define PLAT_PL061_MAX_GPIOS	160
 #define	SPI_BASE				0xF7106000
 #define SPI_CLK_HZ				150000000 /* 150mhz */
 
