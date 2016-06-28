@@ -63,7 +63,7 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
-static const struct pl022_cfg platform_pl022_cfg = {
+static struct pl022_cfg platform_pl022_cfg = {
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
 	.cs_gpio_pin = 2,
