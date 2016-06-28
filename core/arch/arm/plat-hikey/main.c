@@ -213,12 +213,6 @@ void platform_spi_enable(void)
 
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_CLKEN3));
-
-	/* wait until the requested device is out of reset, and ready to be used */
-	do {
-	  read_val = read32(peri_sc_base + PERI_SC_PERIPH_CLKSTAT3);
-	} while (read_val & shifted_val);
-
 	DMSG("read_val: 0x%x\n", read_val);
 	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_CLKSTAT3));
 
