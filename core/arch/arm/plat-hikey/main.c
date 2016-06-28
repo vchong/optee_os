@@ -64,8 +64,6 @@ static const struct thread_handlers handlers = {
 };
 
 static const struct pl022_cfg platform_pl022_cfg = {
-	.base = spi_base(),
-	.cs_gpio_base = gpio6_base(),
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
 	.cs_gpio_pin = 2,
@@ -260,6 +258,9 @@ void peri_init(void)
 	pl061_gpio_register(gpio6_base(), 6);
 
 	platform_spi_enable();
+
+	platform_pl022_cfg.base = spi_base(),
+	platform_pl022_cfg.cs_gpio_base = gpio6_base(),
 	pl022_init(&platform_pl022_cfg);
 	pl022_configure();
 }
