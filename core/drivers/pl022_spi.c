@@ -191,7 +191,7 @@ static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 
 void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
 {
-	FMSG("addr: 0x%x\n", (uint32_t)reg);
+	FMSG("addr: 0x%" PRIxVA "\n", reg);
 	FMSG("before: 0x%x\n", read32(reg));
 	write32((read32(reg) & ~mask) | shifted_val, reg);
 	FMSG("after: 0x%x\n", read32(reg));

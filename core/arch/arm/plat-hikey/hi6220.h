@@ -39,6 +39,21 @@
 #define	SPI_BASE				0xF7106000
 #define SPI_CLK_HZ				150000000 /* 150mhz */
 
+#define PMX0_BASE				0xF7010000
+#define PMX1_BASE				0xF7010800
+
+#define PMX0_REG_SIZE			0x10000
+#define PMX1_REG_SIZE			0x10000
+
+#define PMX0_IOMG104			0x1a0
+#define PMX0_IOMG105			0x1a4
+#define PMX0_IOMG106			0x1a8
+#define PMX0_IOMG107			0x1ac
+#define PMX1_IOCG104			0x1b0
+#define PMX1_IOCG105			0x1b4
+#define PMX1_IOCG106			0x1b8
+#define PMX1_IOCG107			0x1bc
+
 #define PMUSSI_BASE				0xF8000000
 #define SP804_TIMER0_BASE		0xF8008000
 
