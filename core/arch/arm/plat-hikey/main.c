@@ -62,8 +62,8 @@ register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 
 static const struct pl022_cfg platform_pl022_cfg = {
-	.base = SPI_BASE,
-	.cs_gpio_base = GPIO6_BASE,
+	.base = spi_base(),
+	.cs_gpio_base = gpio6_base(),
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
 	.cs_gpio_pin = 2,
@@ -115,11 +115,47 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
+static vaddr_t peri_base(void)
+{
+	static void *va;
+
+	if (cpu_mmu_enabled()) {
+		if (!va)
+			va = phys_to_virt(PERI_BASE, MEM_AREA_IO_NSEC);
+		return (vaddr_t)va;
+	}
+	return PERI_BASE;
+}
+
+static vaddr_t spi_base(void)
+{
+	static void *va;
+
+	if (cpu_mmu_enabled()) {
+		if (!va)
+			va = phys_to_virt(SPI_BASE, MEM_AREA_IO_NSEC);
+		return (vaddr_t)va;
+	}
+	return SPI_BASE;
+}
+
+static vaddr_t gpio6_base(void)
+{
+	static void *va;
+
+	if (cpu_mmu_enabled()) {
+		if (!va)
+			va = phys_to_virt(GPIO6_BASE, MEM_AREA_IO_NSEC);
+		return (vaddr_t)va;
+	}
+	return GPIO6_BASE;
+}
+
 void platform_spi_enable(void)
 {
 	uint32_t shifted_val, read_val;
 
-	DMSG("peri_base: 0x%x\n", PERI_BASE);
+	DMSG("peri_base: 0x%x\n", peri_base());
 
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
@@ -172,26 +208,7 @@ void platform_spi_enable(void)
 void peri_init(void)
 {
 	pl061_gpio_init();
-	pl061_gpio_register(GPIO0_BASE, 0);
-	pl061_gpio_register(GPIO1_BASE, 1);
-	pl061_gpio_register(GPIO2_BASE, 2);
-	pl061_gpio_register(GPIO3_BASE, 3);
-	pl061_gpio_register(GPIO4_BASE, 4);
-	pl061_gpio_register(GPIO5_BASE, 5);
-	pl061_gpio_register(GPIO6_BASE, 6);
-	pl061_gpio_register(GPIO7_BASE, 7);
-	pl061_gpio_register(GPIO8_BASE, 8);
-	pl061_gpio_register(GPIO9_BASE, 9);
-	pl061_gpio_register(GPIO10_BASE, 10);
-	pl061_gpio_register(GPIO11_BASE, 11);
-	pl061_gpio_register(GPIO12_BASE, 12);
-	pl061_gpio_register(GPIO13_BASE, 13);
-	pl061_gpio_register(GPIO14_BASE, 14);
-	pl061_gpio_register(GPIO15_BASE, 15);
-	pl061_gpio_register(GPIO16_BASE, 16);
-	pl061_gpio_register(GPIO17_BASE, 17);
-	pl061_gpio_register(GPIO18_BASE, 18);
-	pl061_gpio_register(GPIO19_BASE, 19);
+	pl061_gpio_register(gpio6_base(), 6);
 
 	platform_spi_enable();
 	pl022_init(&platform_pl022_cfg);
