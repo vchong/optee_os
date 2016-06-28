@@ -43,6 +43,13 @@
 #include <tee/entry_fast.h>
 
 static void main_fiq(void);
+static vaddr_t peri_base(void);
+static vaddr_t spi_base(void);
+static vaddr_t gpio6_base(void);
+static vaddr_t pmx0_base(void);
+static vaddr_t pmx1_base(void);
+void platform_spi_enable(void);
+void peri_init(void);
 
 static const struct thread_handlers handlers = {
 	.std_smc = tee_entry_std,
@@ -56,13 +63,6 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
-register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
-
 static const struct pl022_cfg platform_pl022_cfg = {
 	.base = spi_base(),
 	.cs_gpio_base = gpio6_base(),
@@ -73,8 +73,12 @@ static const struct pl022_cfg platform_pl022_cfg = {
 	.data_size_nbits = 8,
 };
 
-void platform_spi_enable(void);
-void peri_init(void);
+register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
