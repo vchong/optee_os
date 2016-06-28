@@ -1,12 +1,18 @@
+# 64-bit flags
+arm64-platform-cflags		+= -DPLAT_PL061_MAX_GPIOS=160
+
 # 32-bit flags
 arm32-platform-cpuarch		:= cortex-a15
 arm32-platform-cflags		+= -mcpu=$(arm32-platform-cpuarch)
+arm32-platform-cflags		+= -DPLAT_PL061_MAX_GPIOS=160
 arm32-platform-aflags		+= -mcpu=$(arm32-platform-cpuarch)
 core_arm32-platform-aflags	+= -mfpu=neon
 
 $(call force,CFG_GENERIC_BOOT,y)
 $(call force,CFG_HWSUPP_MEM_PERM_PXN,y)
 $(call force,CFG_PL011,y)
+$(call force,CFG_PL061,y)
+$(call force,CFG_PL022,y)
 $(call force,CFG_PM_STUBS,y)
 $(call force,CFG_SECURE_TIME_SOURCE_CNTPCT,y)
 $(call force,CFG_WITH_ARM_TRUSTED_FW,y)

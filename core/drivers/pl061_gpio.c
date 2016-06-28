@@ -167,7 +167,8 @@ void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev)
  */
 void pl061_gpio_init(void)
 {
-	DMSG("PLAT_PL061_MAX_GPIOS = %d, MAX_GPIO_DEVICES = %d\n", PLAT_PL061_MAX_GPIOS, MAX_GPIO_DEVICES);
+	DMSG("PLAT_PL061_MAX_GPIOS = %d\n", PLAT_PL061_MAX_GPIOS);
+	DMSG("MAX_GPIO_DEVICES = %d\n", MAX_GPIO_DEVICES);
 
 	COMPILE_TIME_ASSERT(PLAT_PL061_MAX_GPIOS > 0);
 
