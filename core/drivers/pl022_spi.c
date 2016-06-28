@@ -135,6 +135,15 @@
 #define SSPPCellID_1	SHIFT_U64(0xFF, 0) /* 0xF0 */
 #define SSPPPCellID_2	SHIFT_U64(0xFF, 0) /* 0x05 */
 #define SSPPPCellID_3	SHIFT_U64(0xFF, 0) /* 0xB1 */
+
+#define MASK_32 0xFFFFFFFF
+#define MASK_28 0xFFFFFFF
+#define MASK_24 0xFFFFFF
+#define MASK_20 0xFFFFF
+#define MASK_16 0xFFFF
+#define MASK_12 0xFFF
+#define MASK_8 0xFF
+#define MASK_4 0xF
 /* spi register masks */
 
 #define SSP_CPSDVR_MAX	254
@@ -142,12 +151,28 @@
 #define SSP_SCR_MAX		255
 #define SSP_SCR_MIN		0
 
-static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts);
-static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts);
-static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
-static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
+enum pl022_data_size {
+	PL022_DATA_SIZE4 = 0x3,
+	PL022_DATA_SIZE5,
+	PL022_DATA_SIZE6,
+	PL022_DATA_SIZE7,
+	PL022_DATA_SIZE8,
+	PL022_DATA_SIZE9,
+	PL022_DATA_SIZE10,
+	PL022_DATA_SIZE11,
+	PL022_DATA_SIZE12,
+	PL022_DATA_SIZE13,
+	PL022_DATA_SIZE14,
+	PL022_DATA_SIZE15,
+	PL022_DATA_SIZE16
+};
+
+enum pl022_spi_mode {
+	PL022_SPI_MODE0 = SSPCR0_SPO0 | SSPCR0_SPH0, /* 0x00 */
+	PL022_SPI_MODE1 = SSPCR0_SPO0 | SSPCR0_SPH1, /* 0x80 */
+	PL022_SPI_MODE2 = SSPCR0_SPO1 | SSPCR0_SPH0, /* 0x40 */
+	PL022_SPI_MODE3 = SSPCR0_SPO1 | SSPCR0_SPH1  /* 0xC0 */
+};
 
 static const struct pl022_cfg *cfg;
 
@@ -159,6 +184,128 @@ static const struct spi_ops pl022_ops = {
 	.rx8 = pl022_rx8,
 	.rx16 = pl022_rx16,
 };
+
+static void pl022_print_peri_id(void)
+{
+	DMSG("Expected: 0x 22 10 #4 0");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
+}
+
+static void pl022_print_cell_id(void)
+{
+	DMSG("Expected: 0x 0D F0 05 B1");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
+}
+
+static void pl022_sanity_check(void)
+{
+	DMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
+	pl022_print_peri_id();
+	pl022_print_cell_id();
+}
+
+static inline uint32_t pl022_calc_freq(uint8_t cpsdvr, uint8_t scr)
+{
+	return cfg->clk_hz / (cpsdvr * (1 + scr));
+}
+
+static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
+{
+	uint32_t freq;
+	uint8_t tmp_cpsdvr, tmp_scr;
+
+	for (tmp_scr=SSP_SCR_MIN; tmp_scr<SSP_SCR_MAX; tmp_scr++)
+	{
+		for (tmp_cpsdvr=SSP_CPSDVR_MIN; tmp_cpsdvr<SSP_CPSDVR_MAX; tmp_cpsdvr++)
+		{
+			freq = pl022_calc_freq(tmp_cpsdvr,tmp_scr);
+			if (freq <= cfg->speed_hz)
+			{
+				goto done;
+			}
+		}
+	}
+
+done:
+	*cpsdvr = tmp_cpsdvr;
+	*scr = tmp_scr;
+	DMSG("cpsdvr: %u (0x%x), scr: %u (0x%x)\n", *cpsdvr, *cpsdvr, *scr, *scr);
+	DMSG("speed: requested: %u, closest = %u\n", cfg->speed_hz, freq);
+}
+
+static void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+{
+	FMSG("addr: 0x%" PRIxVA "\n", reg);
+	FMSG("before: 0x%x\n", read32(reg));
+	write32((read32(reg) & ~mask) | shifted_val, reg);
+	FMSG("after: 0x%x\n", read32(reg));
+}
+
+void pl022_configure(void)
+{
+	uint32_t mode, data_size;
+	uint8_t cpsdvr, scr;
+
+	assert(cfg);
+	pl022_sanity_check();
+	pl022_calc_clk_divisors(&cpsdvr, &scr);
+
+	/* configure ssp based on platform settings */
+	switch (cfg->mode)
+	{
+		case SPI_MODE0:
+			mode = PL022_SPI_MODE0;
+			break;
+		case SPI_MODE1:
+			mode = PL022_SPI_MODE1;
+			break;
+		case SPI_MODE2:
+			mode = PL022_SPI_MODE2;
+			break;
+		case SPI_MODE3:
+			mode = PL022_SPI_MODE3;
+			break;
+		default:
+			EMSG("Invalid spi mode: %u\n", cfg->mode);
+			return;
+	}
+	
+	switch (cfg->data_size_bits)
+	{
+		case 8:
+			data_size = PL022_DATA_SIZE8;
+			break;
+		case 16:
+			data_size = PL022_DATA_SIZE16;
+			break;
+		default:
+			EMSG("Unsupported data size: %u bits\n", cfg->data_size_bits);
+			return;
+	}
+
+	pl022_set_register(cfg->base + SSPCR0, (scr << 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
+
+	/* disable loopback */
+	pl022_set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_NO, MASK_4);
+
+	pl022_set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
+
+	/* disable interrupts */
+	pl022_set_register(cfg->base + SSPIMSC, 0, MASK_4);
+
+	DMSG("set cs gpio dir to out\n");
+	gpio_set_direction(cfg->cs_gpio_pin, GPIO_DIR_OUT);
+
+	DMSG("pull cs high\n");
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+}
+
+void pl022_init(const struct pl022_cfg *cfg_ptr)
+{
+	assert(cfg_ptr);
+	cfg = cfg_ptr;
+	spi_init(&pl022_ops);
+}
 
 static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
@@ -187,45 +334,5 @@ static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 {
 
-}
-
-void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
-{
-	FMSG("addr: 0x%" PRIxVA "\n", reg);
-	FMSG("before: 0x%x\n", read32(reg));
-	write32((read32(reg) & ~mask) | shifted_val, reg);
-	FMSG("after: 0x%x\n", read32(reg));
-}
-
-void pl022_print_peri_id(void)
-{
-	DMSG("Expected: 0x 22 10 #4 0");
-	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
-}
-
-void pl022_print_cell_id(void)
-{
-	DMSG("Expected: 0x 0D F0 05 B1");
-	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
-}
-
-void pl022_sanity_check(void)
-{
-	DMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
-	pl022_print_peri_id();
-	pl022_print_cell_id();
-}
-
-void pl022_configure(void)
-{
-	pl022_sanity_check();
-}
-
-void pl022_init(const struct pl022_cfg *cfg_ptr)
-{
-	assert(cfg_ptr != 0);
-
-	cfg = cfg_ptr;
-	spi_init(&pl022_ops);
 }
 

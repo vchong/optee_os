@@ -34,29 +34,6 @@
 
 #define PL022_REG_SIZE	0x10000
 
-enum pl022_data_size {
-	PL022_DATA_SIZE4 = 0x3,
-	PL022_DATA_SIZE5,
-	PL022_DATA_SIZE6,
-	PL022_DATA_SIZE7,
-	PL022_DATA_SIZE8,
-	PL022_DATA_SIZE9,
-	PL022_DATA_SIZE10,
-	PL022_DATA_SIZE11,
-	PL022_DATA_SIZE12,
-	PL022_DATA_SIZE13,
-	PL022_DATA_SIZE14,
-	PL022_DATA_SIZE15,
-	PL022_DATA_SIZE16
-};
-
-enum pl022_spi_mode {
-	PL022_SPI_MODE0,
-	PL022_SPI_MODE1 = 0x80,
-	PL022_SPI_MODE2 = 0x40,
-	PL022_SPI_MODE3 = 0xC0
-};
-
 struct pl022_cfg {
 	vaddr_t		base;
 	vaddr_t		cs_gpio_base; /* gpio register base address for chip select */
@@ -64,13 +41,9 @@ struct pl022_cfg {
 	uint32_t	speed_hz;
 	uint16_t	cs_gpio_pin; /* gpio pin number for chip select */
 	uint8_t		mode;
-	uint8_t		data_size_nbits;
+	uint8_t		data_size_bits;
 };
 
-void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask);
-void pl022_print_peri_id(void);
-void pl022_print_cell_id(void);
-void pl022_sanity_check(void);
 void pl022_configure(void);
 void pl022_init(const struct pl022_cfg *cfg_ptr);
 

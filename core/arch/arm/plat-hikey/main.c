@@ -43,13 +43,6 @@
 #include <tee/entry_fast.h>
 
 static void main_fiq(void);
-static vaddr_t peri_base(void);
-static vaddr_t spi_base(void);
-static vaddr_t gpio6_base(void);
-static vaddr_t pmx0_base(void);
-static vaddr_t pmx1_base(void);
-void platform_spi_enable(void);
-void peri_init(void);
 
 static const struct thread_handlers handlers = {
 	.std_smc = tee_entry_std,
@@ -66,9 +59,9 @@ static const struct thread_handlers handlers = {
 static struct pl022_cfg platform_pl022_cfg = {
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
-	.cs_gpio_pin = 2,
+	.cs_gpio_pin = 50, /* gpio6-2 */
 	.mode = SPI_MODE0,
-	.data_size_nbits = 8,
+	.data_size_bits = 8,
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
@@ -119,6 +112,7 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
+/*
 static vaddr_t peri_base(void)
 {
 	static void *va;
@@ -129,18 +123,6 @@ static vaddr_t peri_base(void)
 		return (vaddr_t)va;
 	}
 	return PERI_BASE;
-}
-
-static vaddr_t spi_base(void)
-{
-	static void *va;
-
-	if (cpu_mmu_enabled()) {
-		if (!va)
-			va = phys_to_virt(SPI_BASE, MEM_AREA_IO_NSEC);
-		return (vaddr_t)va;
-	}
-	return SPI_BASE;
 }
 
 static vaddr_t gpio6_base(void)
@@ -179,82 +161,103 @@ static vaddr_t pmx1_base(void)
 	return PMX1_BASE;
 }
 
-void platform_spi_enable(void)
+static vaddr_t spi_base(void)
 {
-	vaddr_t peri_sc_base = peri_base();
-	vaddr_t pmx0_iomg_base = pmx0_base();
-	vaddr_t pmx1_iocg_base = pmx1_base();
+	static void *va;
+
+	if (cpu_mmu_enabled()) {
+		if (!va)
+			va = phys_to_virt(SPI_BASE, MEM_AREA_IO_NSEC);
+		return (vaddr_t)va;
+	}
+	return SPI_BASE;
+}
+*/
+
+static vaddr_t get_va(paddr_t pa)
+{
+	static void *va;
+
+	if (cpu_mmu_enabled()) {
+		if (!va)
+			va = phys_to_virt(pa, MEM_AREA_IO_NSEC);
+		return (vaddr_t)va;
+	}
+	return (vaddr_t)pa;
+}
+
+void spi_enable(void)
+{
+	vaddr_t peri_base = get_va(PERI_BASE);
+	vaddr_t pmx0_base = get_va(PMX0_BASE);
+	vaddr_t pmx1_base = get_va(PMX1_BASE);
 	uint32_t shifted_val, read_val;
 
-	DMSG("peri_sc_base: 0x%" PRIxVA "\n", peri_sc_base);
-	DMSG("pmx0_iomg_base: 0x%" PRIxVA "\n", pmx0_iomg_base);
-	DMSG("pmx1_iocg_base: 0x%" PRIxVA "\n", pmx1_iocg_base);
+	DMSG("peri_base: 0x%" PRIxVA "\n", peri_base);
+	DMSG("pmx0_base: 0x%" PRIxVA "\n", pmx0_base);
+	DMSG("pmx1_base: 0x%" PRIxVA "\n", pmx1_base);
 
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_RST3_SSP;
-	write32(shifted_val, peri_sc_base + PERI_SC_PERIPH_RSTDIS3);
+	write32(shifted_val, peri_base + PERI_SC_PERIPH_RSTDIS3);
 
 	DMSG("shifted_val: 0x%x\n", shifted_val);
-	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_RSTDIS3));
+	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_RSTDIS3));
 
 	/* wait until the requested device is out of reset, and ready to be used */
 	do {
-	  read_val = read32(peri_sc_base + PERI_SC_PERIPH_RSTSTAT3);
+	  read_val = read32(peri_base + PERI_SC_PERIPH_RSTSTAT3);
 	} while (read_val & shifted_val);
 
 	DMSG("read_val: 0x%x\n", read_val);
-	DMSG("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_RSTSTAT3));
+	DMSG("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_RSTSTAT3));
 
 	/* enable SPI clock */
 	/* no need to read PERI_SC_PERIPH_CLKEN3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_CLK3_SSP;
-	write32(shifted_val, peri_sc_base + PERI_SC_PERIPH_CLKEN3);
+	write32(shifted_val, peri_base + PERI_SC_PERIPH_CLKEN3);
 
 	DMSG("shifted_val: 0x%x\n", shifted_val);
-	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_CLKEN3));
+	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_CLKEN3));
 	DMSG("read_val: 0x%x\n", read_val);
-	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peri_sc_base + PERI_SC_PERIPH_CLKSTAT3));
+	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_CLKSTAT3));
 
 	/* configure pin mux: 0: gpio, 1: spi*/
 	DMSG("configure gpio6_{0,1,3} as spi\n");
 	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
-	write32(0, pmx0_iomg_base + PMX0_IOMG104);
-	write32(0, pmx0_iomg_base + PMX0_IOMG105);
-	write32(0, pmx0_iomg_base + PMX0_IOMG106);
-	write32(0, pmx0_iomg_base + PMX0_IOMG107);
-
-	/*
-	write32(1, 0xF70101A0);
-	write32(1, 0xF70101A4);
-	write32(0, 0xF70101A8);
-	write32(1, 0xF70101AC);
-	*/
+	write32(0, pmx0_base + PMX0_IOMG104); /* 0xF70101A0 */
+	write32(0, pmx0_base + PMX0_IOMG105); /* 0xF70101A4 */
+	write32(0, pmx0_base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(0, pmx0_base + PMX0_IOMG107); /* 0xF70101AC */
 
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
-	write32(0, pmx1_iocg_base + PMX1_IOCG104);
-	write32(0, pmx1_iocg_base + PMX1_IOCG105);
-	write32(0, pmx1_iocg_base + PMX1_IOCG106);
-	write32(0, pmx1_iocg_base + PMX1_IOCG107);
-
-	/*
-	write32(0, 0xF70109B0);
-	write32(0, 0xF70109B4);
-	write32(0, 0xF70109B8);
-	write32(0, 0xF70109BC);
-	*/
+	write32(0, pmx1_base + PMX1_IOCG104); /* 0xF70109B0 */
+	write32(0, pmx1_base + PMX1_IOCG105); /* 0xF70109B4 */
+	write32(0, pmx1_base + PMX1_IOCG106); /* 0xF70109B8 */
+	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
 void peri_init(void)
 {
+	vaddr_t gpio6_base = get_va(GPIO6_BASE);
+	uint32_t cs_gpio_pin_offset = 2;
+
 	pl061_gpio_init();
-	pl061_gpio_register(gpio6_base(), 6);
+	pl061_gpio_register(gpio6_base, 6);
 
-	platform_spi_enable();
+	spi_enable();
 
-	platform_pl022_cfg.base = spi_base(),
-	platform_pl022_cfg.cs_gpio_base = gpio6_base(),
+	platform_pl022_cfg.base = get_va(SPI_BASE),
+	platform_pl022_cfg.cs_gpio_base = gpio6_base,
+
+	DMSG("mask/disable interrupt for cs\n");
+	pl061_set_register(gpio6_base + GPIOIE, (GPIOIE_MASKED << cs_gpio_pin_offset), (1 << cs_gpio_pin_offset));
+		
+	DMSG("enable software mode control for cs\n");
+	pl061_set_register(gpio6_base + GPIOAFSEL, (GPIOAFSEL_SW << cs_gpio_pin_offset), (1 << cs_gpio_pin_offset));
+
 	pl022_init(&platform_pl022_cfg);
 	pl022_configure();
 }
@@ -267,7 +270,7 @@ void spi_test2(void)
 
 static TEE_Result spi_test(void)
 {
-	peri_init();
+	spi_test2();
 	return TEE_SUCCESS;
 }
 
