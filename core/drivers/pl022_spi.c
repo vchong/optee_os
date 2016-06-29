@@ -32,6 +32,7 @@
 #include <drivers/pl061_gpio.h>
 #include <initcall.h>
 #include <io.h>
+#include <kernel/tee_time.h>
 #include <trace.h>
 #include <util.h>
 
@@ -203,19 +204,24 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 	{
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
+			/* tx 1 packet */
 			write32((uint32_t)wdat[i], cfg->base + SSPDR);
+
+			/* rx 1 packet */
+			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
+			{
+				rdat[j++] = (uint8_t)read32(cfg->base + SSPDR);
+			}
 		}
 		else
 		{
-			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
-			EMSG("Aborting transfer..\n");
-			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
-			return;
-		}
-
-		if (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
-			rdat[j++] = (uint8_t)read32(cfg->base + SSPDR);
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
 		}
 	}
 
@@ -241,19 +247,24 @@ static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, ui
 	{
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
+			/* tx 1 packet */
 			write32((uint32_t)wdat[i], cfg->base + SSPDR);
+
+			/* rx 1 packet */
+			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
+			{
+				rdat[j++] = (uint16_t)read32(cfg->base + SSPDR);
+			}
 		}
 		else
 		{
-			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
-			EMSG("Aborting transfer..\n");
-			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
-			return;
-		}
-
-		if (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
-			rdat[j++] = (uint16_t)read32(cfg->base + SSPDR);
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
 		}
 	}
 
@@ -279,14 +290,18 @@ static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
 	{
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
+			/* tx 1 packet */
 			write32((uint32_t)wdat[i], cfg->base + SSPDR);
 		}
 		else
 		{
-			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
-			EMSG("Aborting transfer..\n");
-			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
-			return;
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
 		}
 	}
 
@@ -303,14 +318,18 @@ static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
 	{
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
+			/* tx 1 packet */
 			write32((uint32_t)wdat[i], cfg->base + SSPDR);
 		}
 		else
 		{
-			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
-			EMSG("Aborting transfer..\n");
-			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
-			return;
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
 		}
 	}
 
