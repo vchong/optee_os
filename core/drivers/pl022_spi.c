@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <drivers/common.h>
 #include <drivers/pl022_spi.h>
+#include <drivers/pl061_gpio.h>
 #include <initcall.h>
 #include <io.h>
 #include <trace.h>
@@ -175,8 +176,14 @@ enum pl022_spi_mode {
 	PL022_SPI_MODE3 = SSPCR0_SPO1 | SSPCR0_SPH1  /* 0xC0 */
 };
 
-static const struct pl022_cfg *cfg;
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts);
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts);
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
 
+static const struct pl022_cfg *cfg;
 static const struct spi_ops pl022_ops = {
 	.txrx8 = pl022_txrx8,
 	.txrx16 = pl022_txrx16,
@@ -276,7 +283,7 @@ void pl022_configure(void)
 			return;
 	}
 
-	set_register(cfg->base + SSPCR0, (scr << 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
+	set_register(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
 	/* disable loopback */
 	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_NO, MASK_4);

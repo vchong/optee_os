@@ -186,7 +186,7 @@ void pl061_set_interrupt(unsigned int gpio_pin, enum pl061_interrupt ena_dis)
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
 
-	set_register(base_addr + GPIOIE, (GPIOIE_MASKED << offset), (1 << offset));
+	set_register(base_addr + GPIOIE, SHIFT_U32(ena_dis, offset), BIT(offset));
 }
 
 void pl061_set_mode_control(unsigned int gpio_pin, enum pl061_mode_control hw_sw)
@@ -199,5 +199,5 @@ void pl061_set_mode_control(unsigned int gpio_pin, enum pl061_mode_control hw_sw
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
 
-	set_register(base_addr + GPIOAFSEL, (GPIOAFSEL_SW << offset), (1 << offset));
+	set_register(base_addr + GPIOAFSEL, SHIFT_U32(hw_sw, offset), BIT(offset));
 }
