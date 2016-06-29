@@ -212,7 +212,7 @@ static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint
 			DMSG("TX FIFO full.. waiting..\n");
 			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
 			{
-				tee_time_wait(10);
+				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
 			i--; /* retry current packet in next loop */
@@ -242,14 +242,14 @@ static void pl022_tx(uint32_t *wdat, uint32_t num_txpkts)
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
 			/* tx 1 packet */
-			write32((uint32_t)wdat[i], cfg->base + SSPDR);
+			write32(wdat[i], cfg->base + SSPDR);
 		}
 		else
 		{
 			DMSG("TX FIFO full.. waiting..\n");
 			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
 			{
-				tee_time_wait(10);
+				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
 			i--; /* retry current packet in next loop */
@@ -388,16 +388,16 @@ void pl022_configure(void)
 
 static void pl022_flush_fifo(void)
 {
-	uint32_t rdata;
+	uint32_t rdat;
 
 	do
 	{
-		while (read32 (cfg->base + SSPSR) & SSPSR_RNE)
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
 		{
-			rdata = read32 (cfg->base + SSPDR);
-			DMSG("rdata = 0x%x\n", rdata);
+			rdat = read32(cfg->base + SSPDR);
+			FMSG("rdat = 0x%x\n", rdat);
 		}
-	} while (read32 (cfg->base + SSPSR) & SSPSR_BSY);
+	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 }
 
 void pl022_start(void)
