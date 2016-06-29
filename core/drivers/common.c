@@ -26,7 +26,7 @@
  *
  */
 
-#include <common.h>
+#include <drivers/common.h>
 #include <io.h>
 #include <trace.h>
 
