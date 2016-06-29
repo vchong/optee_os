@@ -46,6 +46,7 @@ struct pl022_cfg {
 
 void pl022_configure(void);
 void pl022_start(void);
+void pl022_end(void);
 void pl022_init(const struct pl022_cfg *cfg_ptr);
 
 #endif	/* __PL022_SPI_H__ */

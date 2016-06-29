@@ -250,6 +250,8 @@ void pl022_configure(void)
 	pl022_sanity_check();
 	pl022_calc_clk_divisors(&cpsdvr, &scr);
 
+	DMSG("PL022_SPI_MODEs: 0x%x 0x%x 0x%x 0x%x\n", PL022_SPI_MODE0, PL022_SPI_MODE1, PL022_SPI_MODE2, PL022_SPI_MODE3);
+
 	/* configure ssp based on platform settings */
 	switch (cfg->mode)
 	{
@@ -321,6 +323,12 @@ void pl022_start(void)
 
 	/* enable ssp */
 	set_register(cfg->base + SSPCR1, SSPCR1_SSE_ENABLE, SSPCR1_SSE);
+}
+
+void pl022_end(void)
+{
+	/* disable ssp */
+	set_register(cfg->base + SSPCR1, SSPCR1_SSE_DISABLE, SSPCR1_SSE);
 }
 
 void pl022_init(const struct pl022_cfg *cfg_ptr)

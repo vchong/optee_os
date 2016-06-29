@@ -266,6 +266,7 @@ void spi_test2(void)
 	DMSG("Hello!\n");
 	peri_init();
 	pl022_start();
+	pl022_end();
 }
 
 static TEE_Result spi_test(void)
