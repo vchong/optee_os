@@ -193,6 +193,102 @@ static const struct spi_ops pl022_ops = {
 	.rx16 = pl022_rx16,
 };
 
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+{
+	uint32_t i, j=0;
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
+
+	for (i=0; i<num_txpkts; i++)
+	{
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
+		{
+			write32((uint32_t)wdat[i], cfg->base + SSPDR);
+		}
+		else
+		{
+			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
+			EMSG("Aborting transfer..\n");
+			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+			return;
+		}
+
+		if (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = (uint8_t)read32(cfg->base + SSPDR);
+		}
+	}
+
+	do
+	{
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = (uint8_t)read32(cfg->base + SSPDR);
+		}
+	} while (read32 (cfg->base + SSPSR) & SSPSR_BSY);
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+	*num_rxpkts = j;
+}
+
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+{
+	uint32_t i, j=0;
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
+
+	for (i=0; i<num_txpkts; i++)
+	{
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
+		{
+			write32((uint32_t)wdat[i], cfg->base + SSPDR);
+		}
+		else
+		{
+			EMSG("Failed sending wdat[%u] = 0x%x due to TX FIFO full.\n", i, wdat[i]);
+			EMSG("Aborting transfer..\n");
+			gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+			return;
+		}
+
+		if (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = (uint16_t)read32(cfg->base + SSPDR);
+		}
+	}
+
+	do
+	{
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = (uint16_t)read32(cfg->base + SSPDR);
+		}
+	} while (read32 (cfg->base + SSPSR) & SSPSR_BSY);
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+	*num_rxpkts = j;
+}
+
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
+{
+
+}
+
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
+{
+
+}
+
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
+{
+
+}
+
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
+{
+
+}
+
 static void pl022_print_peri_id(void)
 {
 	IMSG("Expected: 0x 22 10 #4 0");
@@ -336,34 +432,5 @@ void pl022_init(const struct pl022_cfg *cfg_ptr)
 	assert(cfg_ptr);
 	cfg = cfg_ptr;
 	spi_init(&pl022_ops);
-}
-
-static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
-{
-
-}
-
-static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
-{
-}
-
-static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
-{
-
-}
-
-static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
-{
-
-}
-
-static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
-{
-
-}
-
-static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
-{
-
 }
 

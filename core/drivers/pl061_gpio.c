@@ -154,7 +154,7 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 /*
  * Register the PL061 GPIO controller with a base address and the offset
  * of start pin in this GPIO controller.
- * This function is called after pl061_gpio_ops_init().
+ * This function is called after pl061_gpio_init().
  */
 void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev)
 {
