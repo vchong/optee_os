@@ -27,6 +27,7 @@
  */
 
 #include <assert.h>
+#include <drivers/common.h>
 #include <drivers/pl022_spi.h>
 #include <initcall.h>
 #include <io.h>
@@ -233,14 +234,6 @@ done:
 	DMSG("speed: requested: %u, closest = %u\n", cfg->speed_hz, freq);
 }
 
-static void pl022_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
-{
-	FMSG("addr: 0x%" PRIxVA "\n", reg);
-	FMSG("before: 0x%x\n", read32(reg));
-	write32((read32(reg) & ~mask) | shifted_val, reg);
-	FMSG("after: 0x%x\n", read32(reg));
-}
-
 void pl022_configure(void)
 {
 	uint32_t mode, data_size;
@@ -283,15 +276,15 @@ void pl022_configure(void)
 			return;
 	}
 
-	pl022_set_register(cfg->base + SSPCR0, (scr << 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
+	set_register(cfg->base + SSPCR0, (scr << 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
 	/* disable loopback */
-	pl022_set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_NO, MASK_4);
+	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_NO, MASK_4);
 
-	pl022_set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
+	set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
 
 	/* disable interrupts */
-	pl022_set_register(cfg->base + SSPIMSC, 0, MASK_4);
+	set_register(cfg->base + SSPIMSC, 0, MASK_4);
 
 	DMSG("set cs gpio dir to out\n");
 	gpio_set_direction(cfg->cs_gpio_pin, GPIO_DIR_OUT);

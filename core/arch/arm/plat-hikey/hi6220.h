@@ -78,4 +78,6 @@
 #define GPIO18_BASE				0xF702E000
 #define GPIO19_BASE				0xF702F000
 
+#define GPIO6_2					50
+
 #endif	/* __HI6220_H__ */

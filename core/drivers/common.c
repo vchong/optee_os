@@ -23,29 +23,18 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-#ifndef __PL061_GPIO_H__
-#define __PL061_GPIO_H__
+#include <common.h>
+#include <io.h>
+#include <trace.h>
 
-#include <gpio.h>
-#include <types_ext.h>
+void set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+{
+	FMSG("addr: 0x%" PRIxVA "\n", reg);
+	FMSG("before: 0x%x\n", read32(reg));
+	write32((read32(reg) & ~mask) | shifted_val, reg);
+	FMSG("after: 0x%x\n", read32(reg));
+} 
 
-#define PL061_REG_SIZE	0x10000
-
-enum pl061_interrupt {
-	PL061_INTERRUPT_DISABLE,
-	PL061_INTERRUPT_ENABLE
-};
-
-enum pl061_mode_control {
-	PL061_MC_SW,
-	PL061_MC_HW
-};
-
-void pl061_gpio_register(vaddr_t base_addr, unsigned int gpio_dev);
-void pl061_gpio_init(void);
-void pl061_set_interrupt(unsigned int gpio_pin, enum pl061_interrupt ena_dis);
-void pl061_set_mode_control(unsigned int gpio_pin, enum pl061_mode_control hw_sw);
-
-#endif	/* __PL061_GPIO_H__ */

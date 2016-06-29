@@ -26,6 +26,7 @@
  */
 
 #include <assert.h>
+#include <drivers/common.h>
 #include <drivers/pl061_gpio.h>
 #include <io.h>
 #include <trace.h>
@@ -175,11 +176,28 @@ void pl061_gpio_init(void)
 	gpio_init(&pl061_gpio_ops);
 }
 
-void pl061_set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+void pl061_set_interrupt(unsigned int gpio_pin, enum pl061_interrupt ena_dis)
 {
-	FMSG("addr = 0x%" PRIxVA "\n", reg);
-	FMSG("before: 0x%x\n", read32(reg));
-	write32((read32(reg) & ~mask) | shifted_val, reg);
-	FMSG("after: 0x%x\n", read32(reg));
+	vaddr_t base_addr;
+	unsigned int offset;
+
+	assert(gpio_pin < PLAT_PL061_MAX_GPIOS);
+
+	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
+	offset = gpio_pin % GPIOS_PER_PL061;
+
+	set_register(base_addr + GPIOIE, (GPIOIE_MASKED << offset), (1 << offset));
 }
 
+void pl061_set_mode_control(unsigned int gpio_pin, enum pl061_mode_control hw_sw)
+{
+	vaddr_t base_addr;
+	unsigned int offset;
+
+	assert(gpio_pin < PLAT_PL061_MAX_GPIOS);
+
+	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
+	offset = gpio_pin % GPIOS_PER_PL061;
+
+	set_register(base_addr + GPIOAFSEL, (GPIOAFSEL_SW << offset), (1 << offset));
+}

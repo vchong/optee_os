@@ -59,7 +59,7 @@ static const struct thread_handlers handlers = {
 static struct pl022_cfg platform_pl022_cfg = {
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
-	.cs_gpio_pin = 50, /* gpio6-2 */
+	.cs_gpio_pin = GPIO6_2,
 	.mode = SPI_MODE0,
 	.data_size_bits = 8,
 };
@@ -242,7 +242,6 @@ void spi_enable(void)
 void peri_init(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
-	uint32_t cs_gpio_pin_offset = 2;
 
 	pl061_gpio_init();
 	pl061_gpio_register(gpio6_base, 6);
@@ -253,10 +252,10 @@ void peri_init(void)
 	platform_pl022_cfg.cs_gpio_base = gpio6_base,
 
 	DMSG("mask/disable interrupt for cs\n");
-	pl061_set_register(gpio6_base + GPIOIE, (GPIOIE_MASKED << cs_gpio_pin_offset), (1 << cs_gpio_pin_offset));
-		
+	pl061_set_interrupt(GPIO6_2, PL061_INTERRUPT_DISABLE);
+
 	DMSG("enable software mode control for cs\n");
-	pl061_set_register(gpio6_base + GPIOAFSEL, (GPIOAFSEL_SW << cs_gpio_pin_offset), (1 << cs_gpio_pin_offset));
+	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
 
 	pl022_init(&platform_pl022_cfg);
 	pl022_configure();
