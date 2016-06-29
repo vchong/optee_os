@@ -186,7 +186,7 @@ static vaddr_t get_va(paddr_t pa)
 	return (vaddr_t)pa;
 }
 
-void spi_enable(void)
+static void platform_spi_enable(void)
 {
 	vaddr_t peri_base = get_va(PERI_BASE);
 	vaddr_t pmx0_base = get_va(PMX0_BASE);
@@ -239,14 +239,14 @@ void spi_enable(void)
 	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
-void peri_init(void)
+static void peri_init(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
 
 	pl061_gpio_init();
 	pl061_gpio_register(gpio6_base, 6);
 
-	spi_enable();
+	platform_spi_enable();
 
 	platform_pl022_cfg.base = get_va(SPI_BASE),
 	platform_pl022_cfg.cs_gpio_base = gpio6_base,
@@ -265,6 +265,7 @@ void spi_test2(void)
 {
 	DMSG("Hello!\n");
 	peri_init();
+	pl022_start();
 }
 
 static TEE_Result spi_test(void)
