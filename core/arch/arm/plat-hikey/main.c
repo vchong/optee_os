@@ -298,6 +298,7 @@ void spi_test2(void)
 
 	uint8_t tx[3], rx[3];
 	uint32_t num_rxpkts, i;
+	uint32_t *x, *y;
 
 	DMSG("Hello!\n");
 	peri_init();
@@ -311,10 +312,12 @@ void spi_test2(void)
 	rx[1] = 0;
 	rx[2] = 0;
 
-	spi_txrx((uint32_t *)tx, (uint32_t *)rx, 3, &num_rxpkts);
+	x = (uint32_t *)tx;
+	y = (uint32_t *)rx
+	spi_txrx(x, y, 3, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i, rx[i]);
+		DMSG("rx[%u] = 0x%x\n", i, y[i]);
 	}
 
 	spi_txrx((uint32_t *)data8, (uint32_t *)rdata8, 10, &num_rxpkts);
