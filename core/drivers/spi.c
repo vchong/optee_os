@@ -45,7 +45,7 @@ void spi_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_
 	assert(ops->txrx8 != 0);
 	assert(wdat != 0 && rdat != 0 && num_rxpkts != 0);
 
-	ops->txrx(wdat, rdat, num_txpkts, num_rxpkts);
+	ops->txrx8(wdat, rdat, num_txpkts, num_rxpkts);
 }
 
 void spi_tx8(uint8_t *wdat, uint32_t num_txpkts)
@@ -54,7 +54,7 @@ void spi_tx8(uint8_t *wdat, uint32_t num_txpkts)
 	assert(ops->tx8 != 0);
 	assert(wdat != 0);
 
-	ops->tx(wdat, num_txpkts);
+	ops->tx8(wdat, num_txpkts);
 }
 
 void spi_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
@@ -63,7 +63,7 @@ void spi_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 	assert(ops->rx8 != 0);
 	assert(rdat != 0 && num_rxpkts != 0);
 
-	ops->rx(rdat, num_rxpkts);
+	ops->rx8(rdat, num_rxpkts);
 }
 
 void spi_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
@@ -72,7 +72,7 @@ void spi_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *n
 	assert(ops->txrx16 != 0);
 	assert(wdat != 0 && rdat != 0 && num_rxpkts != 0);
 
-	ops->txrx(wdat, rdat, num_txpkts, num_rxpkts);
+	ops->txrx16(wdat, rdat, num_txpkts, num_rxpkts);
 }
 
 void spi_tx16(uint16_t *wdat, uint32_t num_txpkts)
@@ -81,7 +81,7 @@ void spi_tx16(uint16_t *wdat, uint32_t num_txpkts)
 	assert(ops->tx16 != 0);
 	assert(wdat != 0);
 
-	ops->tx(wdat, num_txpkts);
+	ops->tx16(wdat, num_txpkts);
 }
 
 void spi_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
@@ -90,7 +90,7 @@ void spi_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 	assert(ops->rx16 != 0);
 	assert(rdat != 0 && num_rxpkts != 0);
 
-	ops->rx(rdat, num_rxpkts);
+	ops->rx16(rdat, num_rxpkts);
 }
 
 /*
