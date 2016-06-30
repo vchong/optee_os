@@ -262,7 +262,6 @@ static void peri_init(void)
 	platform_pl022_cfg.data_size_bits = 16;
 	#endif
 	pl022_init(&platform_pl022_cfg);
-
 	pl022_configure();
 }
 

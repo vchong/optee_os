@@ -39,18 +39,18 @@ enum spi_mode {
 
 struct spi_ops {
 	void (*txrx8)(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-	void (*tx8)(uint8_t *wdat, uint32_t num_txpkts);
-	void (*rx8)(uint8_t *rdat, uint32_t *num_rxpkts);
 	void (*txrx16)(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+	void (*tx8)(uint8_t *wdat, uint32_t num_txpkts);
 	void (*tx16)(uint16_t *wdat, uint32_t num_txpkts);
+	void (*rx8)(uint8_t *rdat, uint32_t *num_rxpkts);
 	void (*rx16)(uint16_t *rdat, uint32_t *num_rxpkts);
 };
 
 void spi_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-void spi_tx8(uint8_t *wdat, uint32_t num_txpkts);
-void spi_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
 void spi_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+void spi_tx8(uint8_t *wdat, uint32_t num_txpkts);
 void spi_tx16(uint16_t *wdat, uint32_t num_txpkts);
+void spi_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
 void spi_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
 void spi_init(const struct spi_ops *ops_ptr);
 void spi_test2(void);
