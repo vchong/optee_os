@@ -341,19 +341,19 @@ void spi_test2(void)
 	spi_txrx16(data16, rdata16, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
+		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 
 	spi_txrx16(data16_long, rdata16, 20, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
+		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 
 	spi_txrx16(data16_100, rdata16, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
+		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 	#endif
 

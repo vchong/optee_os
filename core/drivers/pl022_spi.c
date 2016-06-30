@@ -464,16 +464,16 @@ void pl022_configure(void)
 			return;
 	}
 
-	/* set serial clock rate (scr), spi mode (phase and clock), frame format (spi) and data size (8- or 16-bit) */
+	DMSG("set serial clock rate (scr), spi mode (phase and clock), frame format (spi) and data size (8- or 16-bit)\n");
 	set_register(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
-	/* disable loopback */
+	DMSG("disable loopback\n");
 	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_YES, MASK_4);
 
-	/* set clock prescale */
+	DMSG("set clock prescale\n");
 	set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
 
-	/* disable interrupts */
+	DMSG("disable interrupts\n");
 	set_register(cfg->base + SSPIMSC, 0, MASK_4);
 
 	DMSG("set cs gpio dir to out\n");
