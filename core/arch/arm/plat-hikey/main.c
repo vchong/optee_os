@@ -176,11 +176,11 @@ static vaddr_t spi_base(void)
 
 static vaddr_t get_va(paddr_t pa)
 {
-	static void *va;
+	/* WARNING: Make sure NOT static as in console_base */
+	void *va;
 
 	if (cpu_mmu_enabled()) {
-		if (!va)
-			va = phys_to_virt(pa, MEM_AREA_IO_NSEC);
+		va = phys_to_virt(pa, MEM_AREA_IO_NSEC);
 		return (vaddr_t)va;
 	}
 	return (vaddr_t)pa;
@@ -242,6 +242,10 @@ static void platform_spi_enable(void)
 static void peri_init(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
+	vaddr_t spi_base = get_va(SPI_BASE);
+
+	DMSG("gpio6_base: 0x%" PRIxVA "\n", gpio6_base);
+	DMSG("spi_base: 0x%" PRIxVA "\n", spi_base);
 
 	pl061_gpio_init();
 	pl061_gpio_register(gpio6_base, 6);
@@ -254,7 +258,7 @@ static void peri_init(void)
 
 	platform_spi_enable();
 
-	platform_pl022_cfg.base = get_va(SPI_BASE);
+	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
 	#if 1
 	platform_pl022_cfg.data_size_bits = 8;

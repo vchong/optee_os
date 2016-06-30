@@ -499,10 +499,10 @@ static void pl022_flush_fifo(void)
 
 void pl022_start(void)
 {
-	/* empty FIFO before starting */
+	DMSG("empty FIFO before starting");
 	pl022_flush_fifo();
 
-	/* enable ssp */
+	DMSG("enable SSP");
 	set_register(cfg->base + SSPCR1, SSPCR1_SSE_ENABLE, SSPCR1_SSE);
 }
 
