@@ -273,6 +273,11 @@ void spi_test2(void)
 {
 	uint8_t __maybe_unused data8[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	uint8_t __maybe_unused data8_long[20] = {0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xaa, 0xbb, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
+	/*
+	 * WARNING: too many arrays can cause error like below!!!!
+	 * ERROR: TEE-CORE: Assertion 'GET_START_CANARY(stack_tmp, n) == START_CANARY_VALUE' failed at core/arch/arm/kernel/thr0
+	 */
+	#if 0
 	uint8_t __maybe_unused data8_100[100] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, \
 									10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 									20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
@@ -284,9 +289,13 @@ void spi_test2(void)
 									80, 81, 82, 83, 84, 85, 86, 87, 88, 89, \
 									90, 91, 92, 93, 94, 95, 96, 97, 98, 99};
 	uint8_t __maybe_unused rdata8[100];
+	#else
+	uint8_t __maybe_unused rdata8[20];
+	#endif
 
 	uint16_t __maybe_unused data16[10] = {0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777, 0x8888, 0x9999, 0xaaaa};
 	uint16_t __maybe_unused data16_long[20] = {0xbbbb, 0xcccc, 0xdddd, 0xeeee, 0xffff, 0, 0x1111, 0x2222, 0x3333, 0x4444, 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777, 0x8888, 0x9999, 0xaaaa};
+	#if 0
 	uint16_t __maybe_unused data16_100[100] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, \
 									10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 									20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
@@ -298,6 +307,9 @@ void spi_test2(void)
 									80, 81, 82, 83, 84, 85, 86, 87, 88, 89, \
 									90, 91, 92, 93, 94, 95, 96, 97, 98, 99};
 	uint16_t __maybe_unused rdata16[100];
+	#else
+	uint16_t __maybe_unused rdata16[20];
+	#endif
 
 	uint8_t tx[3], rx[3];
 	uint32_t num_rxpkts, i;
@@ -332,11 +344,13 @@ void spi_test2(void)
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 
+	#if 0
 	spi_txrx8(data8_100, rdata8, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
+	#endif
 	//#else
 	spi_txrx16(data16, rdata16, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
@@ -350,11 +364,13 @@ void spi_test2(void)
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 
+	#if 0
 	spi_txrx16(data16_100, rdata16, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
+	#endif
 	#endif
 
 	pl022_end();
