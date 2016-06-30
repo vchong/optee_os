@@ -177,18 +177,24 @@ enum pl022_spi_mode {
 	PL022_SPI_MODE3 = SSPCR0_SPO1 | SSPCR0_SPH1  /* 0xC0 */
 };
 
-static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_tx(uint32_t *wdat, uint32_t num_txpkts);
-static void pl022_rx(uint32_t *rdat, uint32_t *num_rxpkts);
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts);
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts);
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
 
 static const struct pl022_cfg *cfg;
 static const struct spi_ops pl022_ops = {
-	.txrx = pl022_txrx,
-	.tx = pl022_tx,
-	.rx = pl022_rx,
+	.txrx8 = pl022_txrx8,
+	.tx8 = pl022_tx8,
+	.rx8 = pl022_rx8,
+	.txrx16 = pl022_txrx16,
+	.tx16 = pl022_tx16,
+	.rx16 = pl022_rx16,
 };
 
-static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 	uint32_t i, j=0;
 
@@ -199,12 +205,12 @@ static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
 			/* tx 1 packet */
-			write32(wdat[i], cfg->base + SSPDR);
+			write8(wdat[i], cfg->base + SSPDR);
 
 			/* rx 1 packet */
 			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
 			{
-				rdat[j++] = read32(cfg->base + SSPDR);
+				rdat[j++] = read8(cfg->base + SSPDR);
 			}
 		}
 		else
@@ -223,7 +229,7 @@ static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint
 	{
 		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
 		{
-			rdat[j++] = read32(cfg->base + SSPDR);
+			rdat[j++] = read8(cfg->base + SSPDR);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 
@@ -231,7 +237,7 @@ static void pl022_txrx(uint32_t *wdat, uint32_t *rdat, uint32_t num_txpkts, uint
 	*num_rxpkts = j;
 }
 
-static void pl022_tx(uint32_t *wdat, uint32_t num_txpkts)
+static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
 {
 	uint32_t i;
 
@@ -242,7 +248,7 @@ static void pl022_tx(uint32_t *wdat, uint32_t num_txpkts)
 		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
 		{
 			/* tx 1 packet */
-			write32(wdat[i], cfg->base + SSPDR);
+			write8(wdat[i], cfg->base + SSPDR);
 		}
 		else
 		{
@@ -259,7 +265,7 @@ static void pl022_tx(uint32_t *wdat, uint32_t num_txpkts)
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
 }
 
-static void pl022_rx(uint32_t *rdat, uint32_t *num_rxpkts)
+static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 {
 	uint32_t j=0;
 
@@ -269,7 +275,97 @@ static void pl022_rx(uint32_t *rdat, uint32_t *num_rxpkts)
 	{
 		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
 		{
-			rdat[j++] = read32(cfg->base + SSPDR);
+			rdat[j++] = read8(cfg->base + SSPDR);
+		}
+	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+	*num_rxpkts = j;
+}
+
+
+static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+{
+	uint32_t i, j=0;
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
+
+	for (i=0; i<num_txpkts; i++)
+	{
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
+		{
+			/* tx 1 packet */
+			write16(wdat[i], cfg->base + SSPDR);
+
+			/* rx 1 packet */
+			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
+			{
+				rdat[j++] = read16(cfg->base + SSPDR);
+			}
+		}
+		else
+		{
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
+		}
+	}
+
+	do
+	{
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = read16(cfg->base + SSPDR);
+		}
+	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+	*num_rxpkts = j;
+}
+
+static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
+{
+	uint32_t i;
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
+
+	for (i=0; i<num_txpkts; i++)
+	{
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
+		{
+			/* tx 1 packet */
+			write16(wdat[i], cfg->base + SSPDR);
+		}
+		else
+		{
+			DMSG("TX FIFO full.. waiting..\n");
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
+			{
+				tee_time_wait(1);
+			}
+			DMSG("TX FIFO available.. resuming..\n");
+			i--; /* retry current packet in next loop */
+		}
+	}
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
+}
+
+static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
+{
+	uint32_t j=0;
+
+	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
+
+	do
+	{
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat[j++] = read16(cfg->base + SSPDR);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 

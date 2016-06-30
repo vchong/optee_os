@@ -298,7 +298,6 @@ void spi_test2(void)
 
 	uint8_t tx[3], rx[3];
 	uint32_t num_rxpkts, i;
-	uint32_t *x, *y;
 
 	DMSG("Hello!\n");
 	peri_init();
@@ -312,45 +311,43 @@ void spi_test2(void)
 	rx[1] = 0;
 	rx[2] = 0;
 
-	x = (uint32_t *)tx;
-	y = (uint32_t *)rx
-	spi_txrx(x, y, 3, &num_rxpkts);
+	spi_txrx8(tx, rx, 3, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i, y[i]);
+		DMSG("rx[%u] = 0x%x\n", i,rx[i]);
 	}
 
-	spi_txrx((uint32_t *)data8, (uint32_t *)rdata8, 10, &num_rxpkts);
-	for (i=0; i<num_rxpkts; i++)
-	{
-		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
-	}
-
-	spi_txrx((uint32_t *)data8_long, (uint32_t *)rdata8, 20, &num_rxpkts);
+	spi_txrx8(data8, rdata8, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 
-	spi_txrx((uint32_t *)data8_100, (uint32_t *)rdata8, 100, &num_rxpkts);
+	spi_txrx8(data8_long, rdata8, 20, &num_rxpkts);
+	for (i=0; i<num_rxpkts; i++)
+	{
+		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
+	}
+
+	spi_txrx8(data8_100, rdata8, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 	//#else
-	spi_txrx((uint32_t *)data16, (uint32_t *)rdata16, 10, &num_rxpkts);
+	spi_txrx16(data16, rdata16, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
 	}
 
-	spi_txrx((uint32_t *)data16_long, (uint32_t *)rdata16, 20, &num_rxpkts);
+	spi_txrx16(data16_long, rdata16, 20, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
 	}
 
-	spi_txrx((uint32_t *)data16_100, (uint32_t *)rdata16, 100, &num_rxpkts);
+	spi_txrx16(data16_100, rdata16, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, data16[i]);
