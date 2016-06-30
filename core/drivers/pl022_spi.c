@@ -492,7 +492,7 @@ static void pl022_flush_fifo(void)
 		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
 		{
 			rdat = read32(cfg->base + SSPDR);
-			FMSG("rdat = 0x%x\n", rdat);
+			DMSG("rdat = 0x%x\n", rdat);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 }
