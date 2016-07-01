@@ -61,7 +61,7 @@ static struct pl022_cfg platform_pl022_cfg = {
 	.speed_hz = 500000,
 	.cs_gpio_pin = GPIO6_2,
 	.mode = SPI_MODE0,
-	.data_size_bits = 8,
+	.data_size_bits = 16,
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);

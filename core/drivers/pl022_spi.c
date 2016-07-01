@@ -398,15 +398,28 @@ static inline uint32_t pl022_calc_freq(uint8_t cpsdvr, uint8_t scr)
 
 static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
 {
-	uint32_t freq;
-	uint8_t tmp_cpsdvr, tmp_scr;
+	uint32_t freq1, freq2;
+	uint8_t tmp_cpsdvr1, tmp_scr1, tmp_cpsdvr2, tmp_scr2;
 
-	for (tmp_scr=SSP_SCR_MIN; tmp_scr<SSP_SCR_MAX; tmp_scr++)
+	for (tmp_scr1=SSP_SCR_MIN; tmp_scr1<SSP_SCR_MAX; tmp_scr1++)
 	{
-		for (tmp_cpsdvr=SSP_CPSDVR_MIN; tmp_cpsdvr<SSP_CPSDVR_MAX; tmp_cpsdvr++)
+		for (tmp_cpsdvr1=SSP_CPSDVR_MIN; tmp_cpsdvr1<SSP_CPSDVR_MAX; tmp_cpsdvr1++)
 		{
-			freq = pl022_calc_freq(tmp_cpsdvr,tmp_scr);
-			if (freq <= cfg->speed_hz)
+			freq1 = pl022_calc_freq(tmp_cpsdvr1,tmp_scr1);
+			if (freq1 <= cfg->speed_hz)
+			{
+				goto stage2;
+			}
+		}
+	}
+
+stage2:
+	for (tmp_cpsdvr2=SSP_CPSDVR_MIN; tmp_cpsdvr2<SSP_CPSDVR_MAX; tmp_cpsdvr2++)
+	{
+		for (tmp_scr2=SSP_SCR_MIN; tmp_scr2<SSP_SCR_MAX; tmp_scr2++)
+		{
+			freq2 = pl022_calc_freq(tmp_cpsdvr2,tmp_scr2);
+			if (freq2 <= cfg->speed_hz)
 			{
 				goto done;
 			}
@@ -414,10 +427,19 @@ static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
 	}
 
 done:
-	*cpsdvr = tmp_cpsdvr;
-	*scr = tmp_scr;
+	if (freq1 >= freq2)
+	{
+		*cpsdvr = tmp_cpsdvr1;
+		*scr = tmp_scr1;
+		DMSG("speed: requested: %u, closest1 = %u\n", cfg->speed_hz, freq1);
+	}
+	else
+	{
+		*cpsdvr = tmp_cpsdvr2;
+		*scr = tmp_scr2;
+		DMSG("speed: requested: %u, closest2 = %u\n", cfg->speed_hz, freq2);
+	}
 	DMSG("cpsdvr: %u (0x%x), scr: %u (0x%x)\n", *cpsdvr, *cpsdvr, *scr, *scr);
-	DMSG("speed: requested: %u, closest = %u\n", cfg->speed_hz, freq);
 }
 
 void pl022_configure(void)
