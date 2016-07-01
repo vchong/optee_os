@@ -43,7 +43,7 @@
 #include <tee/entry_fast.h>
 
 static void main_fiq(void);
-void peri_init(void);
+void peri_init_n_config(void);
 
 static const struct thread_handlers handlers = {
 	.std_smc = tee_entry_std,
@@ -242,7 +242,7 @@ static void platform_spi_enable(void)
 	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
-void peri_init(void)
+void peri_init_n_config(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
 	vaddr_t spi_base = get_va(SPI_BASE);
@@ -263,7 +263,7 @@ void peri_init(void)
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
-	#if 0
+	#if 1
 	platform_pl022_cfg.data_size_bits = 8;
 	platform_pl022_cfg.loopback = false;
 	#else
@@ -364,18 +364,25 @@ static void spi_test_lbm(void)
 static void spi_test_linksprite(void)
 {
 	uint8_t tx[3], rx[3] = {0};
-	uint32_t num_rxpkts, i;
+	uint32_t num_rxpkts, i, j;
 
 	tx[0] = 0x1;
 	tx[1] = 0x80;
 	tx[2] = 0;
 
-	spi_txrx8(tx, rx, 3, &num_rxpkts);
-	for (i=0; i<num_rxpkts; i++)
+	for (j=0; j<20; j++)
 	{
-		DMSG("rx[%u] = 0x%x\n", i,rx[i]);
-	}
+		spi_txrx8(tx, rx, 3, &num_rxpkts);
+		for (i=0; i<num_rxpkts; i++)
+		{
+			DMSG("rx[%u] = 0x%x\n", i,rx[i]);
+		}
 
+		//sleep some, ~1-2s
+		for (i=0; i<100000000; i++)
+		{
+		}
+	}
 }
 
 void spi_test2(void)
@@ -414,7 +421,7 @@ void spi_test2(void)
 	DMSG("sizeof(unsigned long long): %lu\n", sizeof(unsigned long long));
 	DMSG("sizeof(float): %lu\n", sizeof(float));
 
-	peri_init();
+	peri_init_n_config();
 	pl022_start();
 
 	if (platform_pl022_cfg.loopback)
