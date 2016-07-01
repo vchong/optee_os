@@ -398,15 +398,19 @@ static inline uint32_t pl022_calc_freq(uint8_t cpsdvr, uint8_t scr)
 
 static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
 {
-	uint32_t freq1, freq2;
-	uint8_t tmp_cpsdvr1, tmp_scr1, tmp_cpsdvr2, tmp_scr2;
+	uint32_t freq1 = 0, freq2 = 0;
+	uint8_t tmp_cpsdvr1, tmp_scr1, tmp_cpsdvr2 = 0, tmp_scr2 = 0;
 
 	for (tmp_scr1=SSP_SCR_MIN; tmp_scr1<SSP_SCR_MAX; tmp_scr1++)
 	{
 		for (tmp_cpsdvr1=SSP_CPSDVR_MIN; tmp_cpsdvr1<SSP_CPSDVR_MAX; tmp_cpsdvr1++)
 		{
 			freq1 = pl022_calc_freq(tmp_cpsdvr1,tmp_scr1);
-			if (freq1 <= cfg->speed_hz)
+			if (freq1 == cfg->speed_hz)
+			{
+				goto done;
+			}
+			else if (freq1 < cfg->speed_hz)
 			{
 				goto stage2;
 			}
