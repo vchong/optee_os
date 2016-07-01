@@ -56,6 +56,7 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
+/* default preset values that can be overwritten */
 static struct pl022_cfg platform_pl022_cfg = {
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
@@ -260,7 +261,7 @@ static void peri_init(void)
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
-	#if 0
+	#if 1
 	platform_pl022_cfg.data_size_bits = 8;
 	#else
 	platform_pl022_cfg.data_size_bits = 16;
