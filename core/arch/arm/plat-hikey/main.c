@@ -380,11 +380,29 @@ static void spi_test_linksprite(void)
 
 void spi_test2(void)
 {
+	#if 0
+	sizeof(bool): 1
+	sizeof(uint8_t): 1
+	sizeof(uint16_t): 2
+	sizeof(uint32_t): 4
+	sizeof(uint64_t): 8
+	sizeof(vaddr_t): 8
+	sizeof(paddr_t): 8
+	sizeof(int): 4
+	sizeof(unsigned int ): 4
+	sizeof(unsigned): 4
+	sizeof(long): 8
+	sizeof(unsigned long): 8
+	sizeof(long long): 8
+	sizeof(unsigned long long): 8
+	sizeof(float): 4
+	#endif
 	DMSG("Hello!\n");
 	DMSG("sizeof(bool): %lu\n", sizeof(bool));
 	DMSG("sizeof(uint8_t): %lu\n", sizeof(uint8_t));
 	DMSG("sizeof(uint16_t): %lu\n", sizeof(uint16_t));
 	DMSG("sizeof(uint32_t): %lu\n", sizeof(uint32_t));
+	DMSG("sizeof(uint64_t): %lu\n", sizeof(uint64_t));
 	DMSG("sizeof(vaddr_t): %lu\n", sizeof(vaddr_t));
 	DMSG("sizeof(paddr_t): %lu\n", sizeof(paddr_t));
 	DMSG("sizeof(int): %lu\n", sizeof(int));

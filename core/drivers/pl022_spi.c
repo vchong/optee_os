@@ -475,15 +475,19 @@ void pl022_configure(void)
 	switch (cfg->mode)
 	{
 		case SPI_MODE0:
+			DMSG("SPI_MODE0\n");
 			mode = PL022_SPI_MODE0;
 			break;
 		case SPI_MODE1:
+			DMSG("SPI_MODE1\n");
 			mode = PL022_SPI_MODE1;
 			break;
 		case SPI_MODE2:
+			DMSG("SPI_MODE2\n");
 			mode = PL022_SPI_MODE2;
 			break;
 		case SPI_MODE3:
+			DMSG("SPI_MODE3\n");
 			mode = PL022_SPI_MODE3;
 			break;
 		default:
@@ -494,9 +498,11 @@ void pl022_configure(void)
 	switch (cfg->data_size_bits)
 	{
 		case 8:
+			DMSG("Data size: 8\n");
 			data_size = PL022_DATA_SIZE8;
 			break;
 		case 16:
+			DMSG("Data size: 16\n");
 			data_size = PL022_DATA_SIZE16;
 			break;
 		default:
@@ -505,9 +511,15 @@ void pl022_configure(void)
 	}
 
 	if (cfg->loopback)
+	{
+		DMSG("Starting in loopback mode!\n");
 		lbm = SSPCR1_LBM_YES;
+	}
 	else
+	{
+		DMSG("Starting in regular (non-loopback) mode!\n");
 		lbm = SSPCR1_LBM_NO;
+	}
 
 	DMSG("set serial clock rate (scr), spi mode (phase and clock)\n");
 	DMSG("set frame format (spi) and data size (8- or 16-bit)\n");
