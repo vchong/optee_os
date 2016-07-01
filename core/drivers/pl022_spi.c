@@ -462,7 +462,7 @@ static void pl022_flush_fifo(void)
 
 void pl022_configure(void)
 {
-	uint32_t mode, data_size;
+	uint32_t mode, data_size, lbm;
 	uint8_t cpsdvr, scr;
 
 	assert(cfg);
@@ -504,12 +504,17 @@ void pl022_configure(void)
 			return;
 	}
 
+	if (cfg->loopback)
+		lbm = SSPCR1_LBM_YES;
+	else
+		lbm = SSPCR1_LBM_NO;
+
 	DMSG("set serial clock rate (scr), spi mode (phase and clock)\n");
 	DMSG("set frame format (spi) and data size (8- or 16-bit)\n");
 	set_register(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
-	DMSG("disable loopback\n");
-	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | SSPCR1_LBM_YES, MASK_4);
+	DMSG("set master mode, disable ssp, set loopback mode\n");
+	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | lbm, MASK_4);
 
 	DMSG("set clock prescale\n");
 	set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);

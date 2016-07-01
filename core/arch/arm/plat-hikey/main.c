@@ -63,6 +63,7 @@ static struct pl022_cfg platform_pl022_cfg = {
 	.cs_gpio_pin = GPIO6_2,
 	.mode = SPI_MODE0,
 	.data_size_bits = 8,
+	.loopback = false,
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
@@ -240,7 +241,7 @@ static void platform_spi_enable(void)
 	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
-static void peri_init(void)
+void peri_init(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
 	vaddr_t spi_base = get_va(SPI_BASE);
@@ -261,16 +262,18 @@ static void peri_init(void)
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
-	#if 1
+	#if 0
 	platform_pl022_cfg.data_size_bits = 8;
+	platform_pl022_cfg.loopback = false;
 	#else
 	platform_pl022_cfg.data_size_bits = 16;
+	platform_pl022_cfg.loopback = true;
 	#endif
 	pl022_init(&platform_pl022_cfg);
 	pl022_configure();
 }
 
-void spi_test2(void)
+static void spi_test_lbm(void)
 {
 	uint8_t __maybe_unused data8[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	uint8_t __maybe_unused data8_long[20] = {0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xaa, 0xbb, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
@@ -312,27 +315,9 @@ void spi_test2(void)
 	uint16_t __maybe_unused rdata16[20];
 	#endif
 
-	uint8_t tx[3], rx[3];
 	uint32_t num_rxpkts, i;
 
-	DMSG("Hello!\n");
-	peri_init();
-	pl022_start();
-
 	#if 1
-	tx[0] = 0x1;
-	tx[1] = 0x80;
-	tx[2] = 0;
-	rx[0] = 0;
-	rx[1] = 0;
-	rx[2] = 0;
-
-	spi_txrx8(tx, rx, 3, &num_rxpkts);
-	for (i=0; i<num_rxpkts; i++)
-	{
-		DMSG("rx[%u] = 0x%x\n", i,rx[i]);
-	}
-
 	spi_txrx8(data8, rdata8, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
@@ -373,6 +358,50 @@ void spi_test2(void)
 	}
 	#endif
 	#endif
+}
+
+static void spi_test_linksprite(void)
+{
+	uint8_t tx[3], rx[3] = {0};
+	uint32_t num_rxpkts, i;
+
+	tx[0] = 0x1;
+	tx[1] = 0x80;
+	tx[2] = 0;
+
+	spi_txrx8(tx, rx, 3, &num_rxpkts);
+	for (i=0; i<num_rxpkts; i++)
+	{
+		DMSG("rx[%u] = 0x%x\n", i,rx[i]);
+	}
+
+}
+
+void spi_test2(void)
+{
+	DMSG("Hello!\n");
+	DMSG("sizeof(bool): %d\n", sizeof(bool));
+	DMSG("sizeof(uint8_t): %d\n", sizeof(uint8_t));
+	DMSG("sizeof(uint16_t): %d\n", sizeof(uint16_t));
+	DMSG("sizeof(uint32_t): %d\n", sizeof(uint32_t));
+	DMSG("sizeof(vaddr_t): %d\n", sizeof(vaddr_t));
+	DMSG("sizeof(paddr_t): %d\n", sizeof(paddr_t));
+	DMSG("sizeof(int): %d\n", sizeof(int));
+	DMSG("sizeof(unsigned int ): %d\n", sizeof(unsigned int));
+	DMSG("sizeof(unsigned): %d\n", sizeof(unsigned));
+	DMSG("sizeof(long): %d\n", sizeof(long));
+	DMSG("sizeof(unsigned long): %d\n", sizeof(unsigned long));
+	DMSG("sizeof(long long): %d\n", sizeof(long long));
+	DMSG("sizeof(unsigned long long): %d\n", sizeof(unsigned long long));
+	DMSG("sizeof(float): %d\n", sizeof(float));
+
+	peri_init();
+	pl022_start();
+
+	if (platform_pl022_cfg.loopback)
+		spi_test_lbm();
+	else
+		spi_test_linksprite();
 
 	pl022_end();
 }

@@ -42,6 +42,7 @@ struct pl022_cfg {
 	uint16_t	cs_gpio_pin; /* gpio pin number for chip select */
 	uint8_t		mode;
 	uint8_t		data_size_bits;
+	bool		loopback;
 };
 
 void pl022_configure(void);
