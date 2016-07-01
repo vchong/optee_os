@@ -43,6 +43,7 @@
 #include <tee/entry_fast.h>
 
 static void main_fiq(void);
+void peri_init(void);
 
 static const struct thread_handlers handlers = {
 	.std_smc = tee_entry_std,
@@ -380,20 +381,20 @@ static void spi_test_linksprite(void)
 void spi_test2(void)
 {
 	DMSG("Hello!\n");
-	DMSG("sizeof(bool): %d\n", sizeof(bool));
-	DMSG("sizeof(uint8_t): %d\n", sizeof(uint8_t));
-	DMSG("sizeof(uint16_t): %d\n", sizeof(uint16_t));
-	DMSG("sizeof(uint32_t): %d\n", sizeof(uint32_t));
-	DMSG("sizeof(vaddr_t): %d\n", sizeof(vaddr_t));
-	DMSG("sizeof(paddr_t): %d\n", sizeof(paddr_t));
-	DMSG("sizeof(int): %d\n", sizeof(int));
-	DMSG("sizeof(unsigned int ): %d\n", sizeof(unsigned int));
-	DMSG("sizeof(unsigned): %d\n", sizeof(unsigned));
-	DMSG("sizeof(long): %d\n", sizeof(long));
-	DMSG("sizeof(unsigned long): %d\n", sizeof(unsigned long));
-	DMSG("sizeof(long long): %d\n", sizeof(long long));
-	DMSG("sizeof(unsigned long long): %d\n", sizeof(unsigned long long));
-	DMSG("sizeof(float): %d\n", sizeof(float));
+	DMSG("sizeof(bool): %lu\n", sizeof(bool));
+	DMSG("sizeof(uint8_t): %lu\n", sizeof(uint8_t));
+	DMSG("sizeof(uint16_t): %lu\n", sizeof(uint16_t));
+	DMSG("sizeof(uint32_t): %lu\n", sizeof(uint32_t));
+	DMSG("sizeof(vaddr_t): %lu\n", sizeof(vaddr_t));
+	DMSG("sizeof(paddr_t): %lu\n", sizeof(paddr_t));
+	DMSG("sizeof(int): %lu\n", sizeof(int));
+	DMSG("sizeof(unsigned int ): %lu\n", sizeof(unsigned int));
+	DMSG("sizeof(unsigned): %lu\n", sizeof(unsigned));
+	DMSG("sizeof(long): %lu\n", sizeof(long));
+	DMSG("sizeof(unsigned long): %lu\n", sizeof(unsigned long));
+	DMSG("sizeof(long long): %lu\n", sizeof(long long));
+	DMSG("sizeof(unsigned long long): %lu\n", sizeof(unsigned long long));
+	DMSG("sizeof(float): %lu\n", sizeof(float));
 
 	peri_init();
 	pl022_start();
