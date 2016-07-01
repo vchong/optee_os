@@ -61,7 +61,7 @@ static struct pl022_cfg platform_pl022_cfg = {
 	.speed_hz = 500000,
 	.cs_gpio_pin = GPIO6_2,
 	.mode = SPI_MODE0,
-	.data_size_bits = 16,
+	.data_size_bits = 8,
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
@@ -260,7 +260,7 @@ static void peri_init(void)
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
-	#if 1
+	#if 0
 	platform_pl022_cfg.data_size_bits = 8;
 	#else
 	platform_pl022_cfg.data_size_bits = 16;

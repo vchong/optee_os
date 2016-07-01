@@ -159,7 +159,7 @@ enum pl022_data_size {
 	PL022_DATA_SIZE5,
 	PL022_DATA_SIZE6,
 	PL022_DATA_SIZE7,
-	PL022_DATA_SIZE8,
+	PL022_DATA_SIZE8 = SSPCR0_DSS_8BIT,
 	PL022_DATA_SIZE9,
 	PL022_DATA_SIZE10,
 	PL022_DATA_SIZE11,
@@ -167,7 +167,7 @@ enum pl022_data_size {
 	PL022_DATA_SIZE13,
 	PL022_DATA_SIZE14,
 	PL022_DATA_SIZE15,
-	PL022_DATA_SIZE16
+	PL022_DATA_SIZE16 = SSPCR0_DSS_16BIT
 };
 
 enum pl022_spi_mode {
@@ -435,15 +435,29 @@ done:
 	{
 		*cpsdvr = tmp_cpsdvr1;
 		*scr = tmp_scr1;
-		DMSG("speed: requested: %u, closest1 = %u\n", cfg->speed_hz, freq1);
+		DMSG("speed: requested: %u, closest1: %u\n", cfg->speed_hz, freq1);
 	}
 	else
 	{
 		*cpsdvr = tmp_cpsdvr2;
 		*scr = tmp_scr2;
-		DMSG("speed: requested: %u, closest2 = %u\n", cfg->speed_hz, freq2);
+		DMSG("speed: requested: %u, closest2: %u\n", cfg->speed_hz, freq2);
 	}
 	DMSG("cpsdvr: %u (0x%x), scr: %u (0x%x)\n", *cpsdvr, *cpsdvr, *scr, *scr);
+}
+
+static void pl022_flush_fifo(void)
+{
+	uint32_t rdat;
+
+	do
+	{
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
+		{
+			rdat = read32(cfg->base + SSPDR);
+			DMSG("rdat: 0x%x\n", rdat);
+		}
+	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 }
 
 void pl022_configure(void)
@@ -490,7 +504,8 @@ void pl022_configure(void)
 			return;
 	}
 
-	DMSG("set serial clock rate (scr), spi mode (phase and clock), frame format (spi) and data size (8- or 16-bit)\n");
+	DMSG("set serial clock rate (scr), spi mode (phase and clock)\n");
+	DMSG("set frame format (spi) and data size (8- or 16-bit)\n");
 	set_register(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
 	DMSG("disable loopback\n");
@@ -507,20 +522,6 @@ void pl022_configure(void)
 
 	DMSG("pull cs high\n");
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
-}
-
-static void pl022_flush_fifo(void)
-{
-	uint32_t rdat;
-
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
-			rdat = read32(cfg->base + SSPDR);
-			DMSG("rdat = 0x%x\n", rdat);
-		}
-	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 }
 
 void pl022_start(void)
