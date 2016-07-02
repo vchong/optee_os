@@ -26,6 +26,7 @@
  */
 
 #include <console.h>
+#include <drivers/common.h>
 #include <drivers/pl011.h>
 #include <drivers/pl022_spi.h>
 #include <drivers/pl061_gpio.h>
