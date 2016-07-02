@@ -243,10 +243,13 @@ static void platform_spi_enable(void)
 	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
+static vaddr_t gpio6base;
 void peri_init_n_config(void)
 {
 	vaddr_t gpio6_base = get_va(GPIO6_BASE);
 	vaddr_t spi_base = get_va(SPI_BASE);
+
+	gpio6base = gpio6_base;
 
 	DMSG("gpio6_base: 0x%" PRIxVA "\n", gpio6_base);
 	DMSG("spi_base: 0x%" PRIxVA "\n", spi_base);
@@ -404,6 +407,12 @@ static void spi_test_linksprite(void)
 				break;
 			case 'u':
 				gpio_set_value(platform_pl022_cfg.cs_gpio_pin, GPIO_LEVEL_HIGH);
+				break;
+			case 'v':
+				set_register(gpio6base + (1<<4), 0, (1<<2));
+				break;
+			case 'w':
+				set_register(gpio6base + (1<<4), (1<<2), (1<<2));
 				break;
 			default:
 				break;
