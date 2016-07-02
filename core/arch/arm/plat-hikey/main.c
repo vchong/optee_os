@@ -365,6 +365,7 @@ static void spi_test_linksprite(void)
 {
 	uint8_t tx[3], rx[3] = {0};
 	uint32_t num_rxpkts, i, j;
+	int ch = 'c';
 
 	tx[0] = 0x1;
 	tx[1] = 0x80;
@@ -372,6 +373,12 @@ static void spi_test_linksprite(void)
 
 	for (j=0; j<20; j++)
 	{
+		while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+		{
+			ch = pl011_getchar(CONSOLE_UART_BASE);
+			DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
+		}
+
 		spi_txrx8(tx, rx, 3, &num_rxpkts);
 		for (i=0; i<num_rxpkts; i++)
 		{
