@@ -29,8 +29,8 @@
 #define __GPIO_H__
 
 enum gpio_dir {
-	GPIO_DIR_OUT,
-	GPIO_DIR_IN
+	GPIO_DIR_IN,
+	GPIO_DIR_OUT
 };
 
 enum gpio_level {

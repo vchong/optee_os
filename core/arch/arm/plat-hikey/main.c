@@ -386,6 +386,7 @@ static void spi_test_linksprite(void)
 			case 'c':
 				for (j=0; j<20; j++)
 				{
+					DMSG("cycle: %u\n", j);
 					spi_txrx8(tx, rx, 3, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
