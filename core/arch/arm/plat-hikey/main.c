@@ -264,6 +264,7 @@ void peri_init_n_config(void)
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
+	platform_pl022_cfg.cs_gpio_pin = GPIO6_2;
 	#if 1
 	platform_pl022_cfg.data_size_bits = 8;
 	platform_pl022_cfg.loopback = false;

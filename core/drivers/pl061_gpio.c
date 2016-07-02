@@ -137,6 +137,7 @@ static enum gpio_level pl061_get_value(unsigned int gpio_pin)
 
 	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
 	DMSG("offset: %u\n", offset);
+	DMSG("base_addr + BIT(offset + 2): %u\n", base_addr + BIT(offset + 2));
 
 	if (read8(base_addr + BIT(offset + 2)))
 		return GPIO_LEVEL_HIGH;
@@ -157,6 +158,11 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 
 	base_addr = pl061_reg_base[gpio_pin / GPIOS_PER_PL061];
 	offset = gpio_pin % GPIOS_PER_PL061;
+
+	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
+	DMSG("offset: %u\n", offset);
+	DMSG("base_addr + BIT(offset + 2): %u\n", base_addr + BIT(offset + 2));
+
 	if (value == GPIO_LEVEL_HIGH)
 		write8(BIT(offset), base_addr + BIT(offset + 2));
 	else
