@@ -230,10 +230,10 @@ static void platform_spi_enable(void)
 	/* configure pin mux: 0: gpio, 1: spi*/
 	DMSG("configure gpio6_{0,1,3} as spi\n");
 	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
-	write32(0, pmx0_base + PMX0_IOMG104); /* 0xF70101A0 */
-	write32(0, pmx0_base + PMX0_IOMG105); /* 0xF70101A4 */
+	write32(1, pmx0_base + PMX0_IOMG104); /* 0xF70101A0 */
+	write32(1, pmx0_base + PMX0_IOMG105); /* 0xF70101A4 */
 	write32(0, pmx0_base + PMX0_IOMG106); /* 0xF70101A8 */
-	write32(0, pmx0_base + PMX0_IOMG107); /* 0xF70101AC */
+	write32(1, pmx0_base + PMX0_IOMG107); /* 0xF70101AC */
 
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
@@ -392,13 +392,13 @@ static void spi_test_linksprite(void)
 						ch = pl011_getchar(uart_base);
 						DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
 					}
-				
+
 					spi_txrx8(tx, rx, 3, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
 						DMSG("rx[%u] = 0x%x\n", i,rx[i]);
 					}
-				
+
 					//sleep some, ~1-2s
 					for (i=0; i<100000000; i++)
 					{
