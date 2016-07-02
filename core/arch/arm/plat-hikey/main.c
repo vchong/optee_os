@@ -377,22 +377,15 @@ static void spi_test_linksprite(void)
 	while (1)
 	{
 		while (!pl011_have_rx_data(uart_base));
-		{
-			ch = pl011_getchar(uart_base);
-			DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
-		}
+
+		ch = pl011_getchar(uart_base);
+		DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
 
 		switch (ch)
 		{
 			case 'c':
 				for (j=0; j<20; j++)
 				{
-					while (!pl011_have_rx_data(uart_base));
-					{
-						ch = pl011_getchar(uart_base);
-						DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
-					}
-
 					spi_txrx8(tx, rx, 3, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
