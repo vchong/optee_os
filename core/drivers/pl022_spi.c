@@ -206,11 +206,13 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 		{
 			/* tx 1 packet */
 			write8(wdat[i], cfg->base + SSPDR);
+			DMSG("wdat[%u] = 0x%x\n", i, wdat[i]);
 
 			/* rx 1 packet */
 			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
 			{
 				rdat[j++] = read8(cfg->base + SSPDR);
+				DMSG("rdat1[%u] = 0x%x\n", j-1, rdat[j-1]);
 			}
 		}
 		else
@@ -230,6 +232,7 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
 		{
 			rdat[j++] = read8(cfg->base + SSPDR);
+			DMSG("rdat2[%u] = 0x%x\n", j-1, rdat[j-1]);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 
