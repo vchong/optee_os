@@ -169,7 +169,7 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 	offset = gpio_pin % GPIOS_PER_PL061;
 
 	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
-	DMSG("offset: %u\n", offset);
+	DMSG("offset: %u, BIT(offset) = 0x%x\n", offset, BIT(offset));
 	DMSG("base_addr + BIT(offset + 2): 0x%" PRIxVA "\n", base_addr + BIT(offset + 2));
 	DMSG("value: %u\n", value);
 

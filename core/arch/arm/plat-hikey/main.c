@@ -374,7 +374,7 @@ static void spi_test_linksprite(void)
 	tx[1] = 0x80;
 	tx[2] = 0;
 
-	for (j=0; j<20; j++)
+	while (1)
 	{
 		while (!pl011_have_rx_data(uart_base));
 		{
@@ -382,16 +382,41 @@ static void spi_test_linksprite(void)
 			DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
 		}
 
-		spi_txrx8(tx, rx, 3, &num_rxpkts);
-		for (i=0; i<num_rxpkts; i++)
+		switch (ch)
 		{
-			DMSG("rx[%u] = 0x%x\n", i,rx[i]);
+			case 'c':
+				for (j=0; j<20; j++)
+				{
+					while (!pl011_have_rx_data(uart_base));
+					{
+						ch = pl011_getchar(uart_base);
+						DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
+					}
+				
+					spi_txrx8(tx, rx, 3, &num_rxpkts);
+					for (i=0; i<num_rxpkts; i++)
+					{
+						DMSG("rx[%u] = 0x%x\n", i,rx[i]);
+					}
+				
+					//sleep some, ~1-2s
+					for (i=0; i<100000000; i++)
+					{
+					}
+				}
+				break;
+			case 't':
+				gpio_set_value(platform_pl022_cfg.cs_gpio_pin, GPIO_LEVEL_LOW);
+				break;
+			case 'u':
+				gpio_set_value(platform_pl022_cfg.cs_gpio_pin, GPIO_LEVEL_HIGH);
+				break;
+			default:
+				break;
 		}
 
-		//sleep some, ~1-2s
-		for (i=0; i<100000000; i++)
-		{
-		}
+		if (ch == 'q')
+			break;
 	}
 }
 
