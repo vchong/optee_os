@@ -33,6 +33,7 @@
 #include <initcall.h>
 #include <io.h>
 #include <kernel/generic_boot.h>
+#include <kernel/misc.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
 #include <mm/tee_pager.h>
@@ -366,6 +367,7 @@ static void spi_test_linksprite(void)
 	uint8_t tx[3], rx[3] = {0};
 	uint32_t num_rxpkts, i, j;
 	int ch = 'c';
+	paddr_t uart_base = console_base();
 
 	tx[0] = 0x1;
 	tx[1] = 0x80;
@@ -373,9 +375,9 @@ static void spi_test_linksprite(void)
 
 	for (j=0; j<20; j++)
 	{
-		while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+		while (!pl011_have_rx_data(uart_base));
 		{
-			ch = pl011_getchar(CONSOLE_UART_BASE);
+			ch = pl011_getchar(uart_base);
 			DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
 		}
 
