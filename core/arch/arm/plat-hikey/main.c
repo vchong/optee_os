@@ -207,9 +207,6 @@ static void platform_spi_enable(void)
 	shifted_val = PERI_RST3_SSP;
 	write32(shifted_val, peri_base + PERI_SC_PERIPH_RSTDIS3);
 
-	DMSG("shifted_val: 0x%x\n", shifted_val);
-	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_RSTDIS3));
-
 	/* wait until the requested device is out of reset, and ready to be used */
 	do {
 	  read_val = read32(peri_base + PERI_SC_PERIPH_RSTSTAT3);
@@ -217,16 +214,24 @@ static void platform_spi_enable(void)
 
 	DMSG("read_val: 0x%x\n", read_val);
 	DMSG("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_RSTSTAT3));
+	DMSG("shifted_val: 0x%x\n", shifted_val);
+	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_RSTDIS3));
 
 	/* enable SPI clock */
 	/* no need to read PERI_SC_PERIPH_CLKEN3 first as all the bits are processed and cleared after writing */
 	shifted_val = PERI_CLK3_SSP;
 	write32(shifted_val, peri_base + PERI_SC_PERIPH_CLKEN3);
 
+	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_CLKSTAT3));
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_CLKEN3));
-	DMSG("read_val: 0x%x\n", read_val);
-	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peri_base + PERI_SC_PERIPH_CLKSTAT3));
+
+	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
+	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
+	write32(0, pmx1_base + PMX1_IOCG104); /* 0xF70109B0 */
+	write32(0, pmx1_base + PMX1_IOCG105); /* 0xF70109B4 */
+	write32(0, pmx1_base + PMX1_IOCG106); /* 0xF70109B8 */
+	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 
 	/* configure pin mux: 0: gpio, 1: spi*/
 	DMSG("configure gpio6_{0,1,3} as spi\n");
@@ -235,13 +240,6 @@ static void platform_spi_enable(void)
 	write32(1, pmx0_base + PMX0_IOMG105); /* 0xF70101A4 */
 	write32(0, pmx0_base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0_base + PMX0_IOMG107); /* 0xF70101AC */
-
-	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
-	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
-	write32(0, pmx1_base + PMX1_IOCG104); /* 0xF70109B0 */
-	write32(0, pmx1_base + PMX1_IOCG105); /* 0xF70109B4 */
-	write32(0, pmx1_base + PMX1_IOCG106); /* 0xF70109B8 */
-	write32(0, pmx1_base + PMX1_IOCG107); /* 0xF70109BC */
 }
 
 static vaddr_t gpio6base;
@@ -255,6 +253,7 @@ void peri_init_n_config(void)
 	DMSG("gpio6_base: 0x%" PRIxVA "\n", gpio6_base);
 	DMSG("spi_base: 0x%" PRIxVA "\n", spi_base);
 
+	/* WARNING: Do this FIRST before anything else, even if gpio stuffs!!!!!! */
 	platform_spi_enable();
 
 	pl061_gpio_init();
