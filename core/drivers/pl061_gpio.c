@@ -53,12 +53,12 @@
 #define GPIOAFSEL	0x420
 
 /* gpio register masks */
-#define GPIOIE_ENABLED		SHIFT_U64(1, 0)
-#define GPIOIE_MASKED		SHIFT_U64(0, 0)
-#define GPIOAFSEL_HW		SHIFT_U64(1, 0)
-#define GPIOAFSEL_SW		SHIFT_U64(0, 0)
-#define GPIODIR_OUT			SHIFT_U64(1, 0)
-#define GPIODIR_IN			SHIFT_U64(0, 0)
+#define GPIOIE_ENABLED		SHIFT_U32(1, 0)
+#define GPIOIE_MASKED		SHIFT_U32(0, 0)
+#define GPIOAFSEL_HW		SHIFT_U32(1, 0)
+#define GPIOAFSEL_SW		SHIFT_U32(0, 0)
+#define GPIODIR_OUT			SHIFT_U32(1, 0)
+#define GPIODIR_IN			SHIFT_U32(0, 0)
 
 static enum gpio_dir pl061_get_direction(unsigned int gpio_pin);
 static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction);

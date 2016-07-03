@@ -255,6 +255,8 @@ void peri_init_n_config(void)
 	DMSG("gpio6_base: 0x%" PRIxVA "\n", gpio6_base);
 	DMSG("spi_base: 0x%" PRIxVA "\n", spi_base);
 
+	platform_spi_enable();
+
 	pl061_gpio_init();
 	pl061_gpio_register(gpio6_base, 6);
 
@@ -262,8 +264,6 @@ void peri_init_n_config(void)
 	pl061_set_interrupt(GPIO6_2, PL061_INTERRUPT_DISABLE);
 	DMSG("enable software mode control for cs\n");
 	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
-
-	platform_spi_enable();
 
 	platform_pl022_cfg.base = spi_base;
 	platform_pl022_cfg.cs_gpio_base = gpio6_base;
@@ -414,10 +414,10 @@ static void spi_test_linksprite(void)
 			case 'w':
 				set_register(gpio6base + (1<<4), (1<<2), (1<<2));
 				break;
-			case 'y':
+			case 'x':
 				write8(0, gpio6base + (1<<4));
 				break;
-			case 'z':
+			case 'y':
 				write8(4, gpio6base + (1<<4));
 			default:
 				break;
