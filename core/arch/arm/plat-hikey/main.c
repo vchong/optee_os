@@ -260,7 +260,6 @@ void peri_init_n_config(void)
 
 	DMSG("mask/disable interrupt for cs\n");
 	pl061_set_interrupt(GPIO6_2, PL061_INTERRUPT_DISABLE);
-
 	DMSG("enable software mode control for cs\n");
 	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
 
@@ -415,6 +414,11 @@ static void spi_test_linksprite(void)
 			case 'w':
 				set_register(gpio6base + (1<<4), (1<<2), (1<<2));
 				break;
+			case 'y':
+				write8(0, gpio6base + (1<<4));
+				break;
+			case 'z':
+				write8(4, gpio6base + (1<<4));
 			default:
 				break;
 		}
