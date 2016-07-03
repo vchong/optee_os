@@ -31,7 +31,7 @@
 #include <gpio.h>
 #include <types_ext.h>
 
-#define PL061_REG_SIZE	0x10000
+#define PL061_REG_SIZE	0x1000
 
 enum pl061_interrupt {
 	PL061_INTERRUPT_DISABLE,
