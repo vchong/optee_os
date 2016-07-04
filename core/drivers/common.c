@@ -30,7 +30,7 @@
 #include <io.h>
 #include <trace.h>
 
-void set_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
+void rw_register(vaddr_t reg, uint32_t shifted_val, uint32_t mask)
 {
 	DMSG("addr: 0x%" PRIxVA "\n", reg);
 	DMSG("before: 0x%x\n", read32(reg));

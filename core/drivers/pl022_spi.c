@@ -379,19 +379,19 @@ static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 
 static void pl022_print_peri_id(void)
 {
-	IMSG("Expected: 0x 22 10 #4 0");
-	IMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
+	DMSG("Expected: 0x 22 10 #4 0");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
 }
 
 static void pl022_print_cell_id(void)
 {
-	IMSG("Expected: 0x 0D F0 05 B1");
-	IMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
+	DMSG("Expected: 0x 0D F0 05 B1");
+	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
 }
 
 static void pl022_sanity_check(void)
 {
-	IMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
+	DMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
 	pl022_print_peri_id();
 	pl022_print_cell_id();
 }
