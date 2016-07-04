@@ -125,6 +125,7 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
+#if 1
 static vaddr_t peri_base(void)
 {
 	static void *va1;
@@ -184,6 +185,7 @@ static vaddr_t spi_base(void)
 	}
 	return SPI_BASE;
 }
+#endif
 
 static vaddr_t get_va(paddr_t pa)
 {
@@ -199,7 +201,7 @@ static vaddr_t get_va(paddr_t pa)
 
 static void platform_spi_enable(void)
 {
-	#if 1
+	#if 0
 	vaddr_t peribase = get_va(PERI_BASE);
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
