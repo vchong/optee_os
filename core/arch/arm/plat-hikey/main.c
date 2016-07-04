@@ -441,10 +441,10 @@ static void spi_test_linksprite(void)
 				gpio_set_value(platform_pl022_cfg.cs_gpio_pin, GPIO_LEVEL_HIGH);
 				break;
 			case 'v':
-				set_register(gp6bs + (1<<4), 0, (1<<2));
+				io_mask32(gp6bs + (1<<4), 0, (1<<2));
 				break;
 			case 'w':
-				set_register(gp6bs + (1<<4), (1<<2), (1<<2));
+				io_mask32(gp6bs + (1<<4), (1<<2), (1<<2));
 				break;
 			case 'x':
 				write8(0, gp6bs + (1<<4));

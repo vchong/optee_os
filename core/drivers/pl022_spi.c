@@ -467,8 +467,8 @@ static void pl022_flush_fifo(void)
 
 void pl022_configure(void)
 {
-	uint32_t mode, data_size, lbm;
-	uint8_t cpsdvr, scr;
+	uint16_t mode, data_size;
+	uint8_t cpsdvr, scr, lbm;
 
 	assert(cfg);
 	pl022_sanity_check();
@@ -528,16 +528,16 @@ void pl022_configure(void)
 
 	DMSG("set serial clock rate (scr), spi mode (phase and clock)\n");
 	DMSG("set frame format (spi) and data size (8- or 16-bit)\n");
-	set_register(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
+	io_mask16(cfg->base + SSPCR0, SHIFT_U32(scr, 8) | mode | SSPCR0_FRF_SPI | data_size, MASK_16);
 
 	DMSG("set master mode, disable ssp, set loopback mode\n");
-	set_register(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | lbm, MASK_4);
+	io_mask8(cfg->base + SSPCR1, SSPCR1_SOD_DISABLE | SSPCR1_MS_MASTER | SSPCR1_SSE_DISABLE | lbm, MASK_4);
 
 	DMSG("set clock prescale\n");
-	set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
+	io_mask8(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
 
 	DMSG("disable interrupts\n");
-	set_register(cfg->base + SSPIMSC, 0, MASK_4);
+	io_mask8(cfg->base + SSPIMSC, 0, MASK_4);
 
 	DMSG("set cs gpio dir to out\n");
 	gpio_set_direction(cfg->cs_gpio_pin, GPIO_DIR_OUT);
@@ -552,13 +552,13 @@ void pl022_start(void)
 	pl022_flush_fifo();
 
 	DMSG("enable SSP");
-	set_register(cfg->base + SSPCR1, SSPCR1_SSE_ENABLE, SSPCR1_SSE);
+	io_mask8(cfg->base + SSPCR1, SSPCR1_SSE_ENABLE, SSPCR1_SSE);
 }
 
 void pl022_end(void)
 {
 	/* disable ssp */
-	set_register(cfg->base + SSPCR1, SSPCR1_SSE_DISABLE, SSPCR1_SSE);
+	io_mask8(cfg->base + SSPCR1, SSPCR1_SSE_DISABLE, SSPCR1_SSE);
 }
 
 void pl022_init(const struct pl022_cfg *cfg_ptr)
