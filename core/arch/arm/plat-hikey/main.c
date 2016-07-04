@@ -196,9 +196,9 @@ static void platform_spi_enable(void)
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
 	#else
-	vaddr_t peribase = peri_base(PERI_BASE);
-	vaddr_t pmx0base = pmx0_base(PMX0_BASE);
-	vaddr_t pmx1base = pmx1_base(PMX1_BASE);
+	vaddr_t peribase = peri_base();
+	vaddr_t pmx0base = pmx0_base();
+	vaddr_t pmx1base = pmx1_base();
 	#endif
 	vaddr_t tst1 = get_va(CONSOLE_UART_BASE);
 	vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
@@ -259,8 +259,8 @@ void peri_init_n_config(void)
 	vaddr_t gpio6base = get_va(GPIO6_BASE);
 	vaddr_t spibase = get_va(SPI_BASE);
 	#else
-	vaddr_t gpio6base = gpio6_base(GPIO6_BASE);
-	vaddr_t spibase = spi_base(SPI_BASE);
+	vaddr_t gpio6base = gpio6_base();
+	vaddr_t spibase = spi_base();
 	#endif
 
 	gp6bs = gpio6base;
