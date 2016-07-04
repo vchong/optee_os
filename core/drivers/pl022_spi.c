@@ -536,8 +536,8 @@ void pl022_configure(void)
 	DMSG("set clock prescale\n");
 	set_register(cfg->base + SSPCPSR, cpsdvr, SSPCPSR_CPSDVR);
 
-	//DMSG("disable interrupts\n");
-	//set_register(cfg->base + SSPIMSC, 0, MASK_4);
+	DMSG("disable interrupts\n");
+	set_register(cfg->base + SSPIMSC, 0, MASK_4);
 
 	DMSG("set cs gpio dir to out\n");
 	gpio_set_direction(cfg->cs_gpio_pin, GPIO_DIR_OUT);

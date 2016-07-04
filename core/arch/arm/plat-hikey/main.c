@@ -70,7 +70,7 @@ static struct pl022_cfg platform_pl022_cfg = {
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
-#if 0
+#if 1
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
@@ -125,7 +125,7 @@ void console_flush(void)
 	pl011_flush(console_base());
 }
 
-#if 1
+#if 0
 static vaddr_t peri_base(void)
 {
 	static void *va1;
@@ -201,7 +201,7 @@ static vaddr_t get_va(paddr_t pa)
 
 static void platform_spi_enable(void)
 {
-	#if 0
+	#if 1
 	vaddr_t peribase = get_va(PERI_BASE);
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
@@ -252,6 +252,10 @@ static void platform_spi_enable(void)
 	write32(0, pmx1base + PMX1_IOCG105); /* 0xF70109B4 */
 	write32(0, pmx1base + PMX1_IOCG106); /* 0xF70109B8 */
 	write32(0, pmx1base + PMX1_IOCG107); /* 0xF70109BC */
+	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
+	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
+	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
 
 	/* configure pin mux: 0: gpio, 1: spi*/
 	DMSG("configure gpio6_{0,1,3} as spi\n");
@@ -260,12 +264,16 @@ static void platform_spi_enable(void)
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
 	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
+	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
+	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
+	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 }
 
 static vaddr_t gp6bs;
 void peri_init_n_config(void)
 {
-	#if 0
+	#if 1
 	vaddr_t gpio6base = get_va(GPIO6_BASE);
 	vaddr_t spibase = get_va(SPI_BASE);
 	#else
