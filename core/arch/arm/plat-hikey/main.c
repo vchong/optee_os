@@ -70,11 +70,19 @@ static struct pl022_cfg platform_pl022_cfg = {
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+#if 1
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
+#else
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, CORE_MMU_DEVICE_SIZE);
+#endif
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -191,7 +199,7 @@ static vaddr_t get_va(paddr_t pa)
 
 static void platform_spi_enable(void)
 {
-	#if 0
+	#if 1
 	vaddr_t peribase = get_va(PERI_BASE);
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
@@ -200,13 +208,13 @@ static void platform_spi_enable(void)
 	vaddr_t pmx0base = pmx0_base();
 	vaddr_t pmx1base = pmx1_base();
 	#endif
-	vaddr_t tst1 = get_va(CONSOLE_UART_BASE);
-	vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
+	//vaddr_t tst1 = get_va(CONSOLE_UART_BASE);
+	//vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
 
 	uint32_t shifted_val, read_val;
 
-	DMSG("tst1: 0x%" PRIxVA "\n", tst1);
-	DMSG("tst2: 0x%" PRIxVA "\n", tst2);
+	//DMSG("tst1: 0x%" PRIxVA "\n", tst1);
+	//DMSG("tst2: 0x%" PRIxVA "\n", tst2);
 
 	DMSG("peribase: 0x%" PRIxVA "\n", peribase);
 	DMSG("pmx0base: 0x%" PRIxVA "\n", pmx0base);
