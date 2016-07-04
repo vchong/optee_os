@@ -55,6 +55,7 @@
 #define PMX1_IOCG107			0x1bc
 
 #define PMUSSI_BASE				0xF8000000
+
 #define SP804_TIMER0_BASE		0xF8008000
 
 #define GPIO0_BASE				0xF8011000

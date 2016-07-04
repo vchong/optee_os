@@ -88,6 +88,8 @@ static enum gpio_dir pl061_get_direction(unsigned int gpio_pin)
 	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
 	DMSG("offset: %u\n", offset);
 
+	DMSG("addr: 0x%" PRIxVA "\n", base_addr + GPIODIR);
+
 	data = read8(base_addr + GPIODIR);
 	if (data & BIT(offset))
 	{
@@ -112,6 +114,9 @@ static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction)
 	DMSG("base_addr: 0x%" PRIxVA "\n", base_addr);
 	DMSG("offset: %u\n", offset);
 
+	DMSG("addr: 0x%" PRIxVA "\n", base_addr + GPIODIR);
+	DMSG("before: 0x%x\n", read32(base_addr + GPIODIR));
+
 	if (direction == GPIO_DIR_OUT) {
 		DMSG("dir: GPIO_DIR_OUT: %u\n", direction);
 		data = read8(base_addr + GPIODIR) | BIT(offset);
@@ -121,6 +126,8 @@ static void pl061_set_direction(unsigned int gpio_pin, enum gpio_dir direction)
 		data = read8(base_addr + GPIODIR) & ~BIT(offset);
 		write8(data, base_addr + GPIODIR);
 	}
+
+	DMSG("after: 0x%x\n", read32(base_addr + GPIODIR));
 }
 
 /*
@@ -174,16 +181,20 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 	DMSG("base_addr + BIT(offset + 2): 0x%" PRIxVA "\n", base_addr + BIT(offset + 2));
 	DMSG("value: %u\n", value);
 
+	DMSG("before: 0x%x\n", read32(BIT(offset + 2));
+
 	if (value == GPIO_LEVEL_HIGH)
 	{
 		DMSG("value: GPIO_LEVEL_HIGH: %u\n", value);
-		write8(BIT(offset), base_addr + BIT(offset + 2));
+		write32(BIT(offset), base_addr + BIT(offset + 2));
 	}
 	else
 	{
 		DMSG("value: GPIO_LEVEL_LOW: %u\n", value);
-		write8(0, base_addr + BIT(offset + 2));
+		write32(0, base_addr + BIT(offset + 2));
 	}
+
+	DMSG("before: 0x%x\n", read32(BIT(offset + 2));
 }
 
 /*

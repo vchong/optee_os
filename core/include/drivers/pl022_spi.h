@@ -32,7 +32,7 @@
 #include <spi.h>
 #include <types_ext.h>
 
-#define PL022_REG_SIZE	0x10000
+#define PL022_REG_SIZE	0x1000
 
 struct pl022_cfg {
 	vaddr_t		base;
