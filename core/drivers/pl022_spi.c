@@ -196,31 +196,25 @@ static const struct spi_ops pl022_ops = {
 
 static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
-	uint32_t i, j=0;
+	uint32_t i, j = 0;
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	for (i=0; i<num_txpkts; i++)
-	{
-		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
-		{
+	for (i = 0; i < num_txpkts; i++) {
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
 			write8(wdat[i], cfg->base + SSPDR);
 			DMSG("wdat[%u] = 0x%x\n", i, wdat[i]);
 
 			/* rx 1 packet */
-			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
-			{
+			if (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 				//DMSG("rdat1[%u] = 0x%x\n", j++, read32(cfg->base + SSPDR));
 				rdat[j++] = read8(cfg->base + SSPDR);
 				DMSG("rdat1[%u] = 0x%x\n", j-1, rdat[j-1]);
 			}
-		}
-		else
-		{
+		} else {
 			DMSG("TX FIFO full.. waiting..\n");
-			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
-			{
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0) {
 				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
@@ -228,10 +222,8 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 		}
 	}
 
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
+	do {
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 			//DMSG("rdat2[%u] = 0x%x\n", j++, read32(cfg->base + SSPDR));
 			rdat[j++] = read8(cfg->base + SSPDR);
 			DMSG("rdat2[%u] = 0x%x\n", j-1, rdat[j-1]);
@@ -244,28 +236,22 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 
 static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
-	uint32_t i, j=0;
+	uint32_t i, j = 0;
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	for (i=0; i<num_txpkts; i++)
-	{
-		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
-		{
+	for (i = 0; i < num_txpkts; i++) {
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
 			write16(wdat[i], cfg->base + SSPDR);
 
 			/* rx 1 packet */
-			if (read32(cfg->base + SSPSR) & SSPSR_RNE)
-			{
+			if (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 				rdat[j++] = read16(cfg->base + SSPDR);
 			}
-		}
-		else
-		{
+		} else {
 			DMSG("TX FIFO full.. waiting..\n");
-			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
-			{
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0) {
 				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
@@ -273,10 +259,8 @@ static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, ui
 		}
 	}
 
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
+	do {
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 			rdat[j++] = read16(cfg->base + SSPDR);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
@@ -291,18 +275,13 @@ static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	for (i=0; i<num_txpkts; i++)
-	{
-		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
-		{
+	for (i = 0; i < num_txpkts; i++) {
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
 			write8(wdat[i], cfg->base + SSPDR);
-		}
-		else
-		{
+		} else {
 			DMSG("TX FIFO full.. waiting..\n");
-			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
-			{
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0) {
 				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
@@ -319,18 +298,13 @@ static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	for (i=0; i<num_txpkts; i++)
-	{
-		if (read32(cfg->base + SSPSR) & SSPSR_TNF)
-		{
+	for (i = 0; i < num_txpkts; i++) {
+		if (read32(cfg->base + SSPSR) & SSPSR_TNF) {
 			/* tx 1 packet */
 			write16(wdat[i], cfg->base + SSPDR);
-		}
-		else
-		{
+		} else {
 			DMSG("TX FIFO full.. waiting..\n");
-			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0)
-			{
+			while ((read32(cfg->base + SSPSR) & SSPSR_TNF) == 0) {
 				tee_time_wait(1);
 			}
 			DMSG("TX FIFO available.. resuming..\n");
@@ -343,14 +317,12 @@ static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
 
 static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 {
-	uint32_t j=0;
+	uint32_t j = 0;
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
+	do {
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 			rdat[j++] = read8(cfg->base + SSPDR);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
@@ -361,14 +333,12 @@ static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 
 static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 {
-	uint32_t j=0;
+	uint32_t j = 0;
 
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_LOW);
 
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
+	do {
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 			rdat[j++] = read16(cfg->base + SSPDR);
 		}
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
@@ -380,13 +350,21 @@ static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 static void pl022_print_peri_id(void)
 {
 	DMSG("Expected: 0x 22 10 #4 0");
-	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPeriphID0), read32(cfg->base + SSPPeriphID1), read32(cfg->base + SSPPeriphID2), read32(cfg->base + SSPPeriphID3));
+	DMSG("Read: 0x %x %x %x %x\n", \
+		read32(cfg->base + SSPPeriphID0), \
+		read32(cfg->base + SSPPeriphID1), \
+		read32(cfg->base + SSPPeriphID2), \
+		read32(cfg->base + SSPPeriphID3));
 }
 
 static void pl022_print_cell_id(void)
 {
 	DMSG("Expected: 0x 0D F0 05 B1");
-	DMSG("Read: 0x %x %x %x %x\n", read32(cfg->base + SSPPCellID0), read32(cfg->base + SSPPCellID1), read32(cfg->base + SSPPCellID2), read32(cfg->base + SSPPCellID3));
+	DMSG("Read: 0x %x %x %x %x\n", \
+		read32(cfg->base + SSPPCellID0), \
+		read32(cfg->base + SSPPCellID1), \
+		read32(cfg->base + SSPPCellID2), \
+		read32(cfg->base + SSPPCellID3));
 }
 
 static void pl022_sanity_check(void)
@@ -406,44 +384,33 @@ static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
 	uint32_t freq1 = 0, freq2 = 0;
 	uint8_t tmp_cpsdvr1, tmp_scr1, tmp_cpsdvr2 = 0, tmp_scr2 = 0;
 
-	for (tmp_scr1=SSP_SCR_MIN; tmp_scr1<SSP_SCR_MAX; tmp_scr1++)
-	{
-		for (tmp_cpsdvr1=SSP_CPSDVR_MIN; tmp_cpsdvr1<SSP_CPSDVR_MAX; tmp_cpsdvr1++)
-		{
-			freq1 = pl022_calc_freq(tmp_cpsdvr1,tmp_scr1);
-			if (freq1 == cfg->speed_hz)
-			{
+	for (tmp_scr1 = SSP_SCR_MIN; tmp_scr1 < SSP_SCR_MAX; tmp_scr1++) {
+		for (tmp_cpsdvr1 = SSP_CPSDVR_MIN; tmp_cpsdvr1 < SSP_CPSDVR_MAX; tmp_cpsdvr1++) {
+			freq1 = pl022_calc_freq(tmp_cpsdvr1, tmp_scr1);
+			if (freq1 == cfg->speed_hz) {
 				goto done;
-			}
-			else if (freq1 < cfg->speed_hz)
-			{
+			} else if (freq1 < cfg->speed_hz) {
 				goto stage2;
 			}
 		}
 	}
 
 stage2:
-	for (tmp_cpsdvr2=SSP_CPSDVR_MIN; tmp_cpsdvr2<SSP_CPSDVR_MAX; tmp_cpsdvr2++)
-	{
-		for (tmp_scr2=SSP_SCR_MIN; tmp_scr2<SSP_SCR_MAX; tmp_scr2++)
-		{
-			freq2 = pl022_calc_freq(tmp_cpsdvr2,tmp_scr2);
-			if (freq2 <= cfg->speed_hz)
-			{
+	for (tmp_cpsdvr2 = SSP_CPSDVR_MIN; tmp_cpsdvr2 < SSP_CPSDVR_MAX; tmp_cpsdvr2++) {
+		for (tmp_scr2 = SSP_SCR_MIN; tmp_scr2 < SSP_SCR_MAX; tmp_scr2++) {
+			freq2 = pl022_calc_freq(tmp_cpsdvr2, tmp_scr2);
+			if (freq2 <= cfg->speed_hz) {
 				goto done;
 			}
 		}
 	}
 
 done:
-	if (freq1 >= freq2)
-	{
+	if (freq1 >= freq2) {
 		*cpsdvr = tmp_cpsdvr1;
 		*scr = tmp_scr1;
 		DMSG("speed: requested: %u, closest1: %u\n", cfg->speed_hz, freq1);
-	}
-	else
-	{
+	} else {
 		*cpsdvr = tmp_cpsdvr2;
 		*scr = tmp_scr2;
 		DMSG("speed: requested: %u, closest2: %u\n", cfg->speed_hz, freq2);
@@ -455,10 +422,8 @@ static void pl022_flush_fifo(void)
 {
 	uint32_t rdat;
 
-	do
-	{
-		while (read32(cfg->base + SSPSR) & SSPSR_RNE)
-		{
+	do {
+		while (read32(cfg->base + SSPSR) & SSPSR_RNE) {
 			rdat = read32(cfg->base + SSPDR);
 			DMSG("rdat: 0x%x\n", rdat);
 		}
@@ -477,51 +442,46 @@ void pl022_configure(void)
 	DMSG("PL022_SPI_MODEs: 0x%x 0x%x 0x%x 0x%x\n", PL022_SPI_MODE0, PL022_SPI_MODE1, PL022_SPI_MODE2, PL022_SPI_MODE3);
 
 	/* configure ssp based on platform settings */
-	switch (cfg->mode)
-	{
-		case SPI_MODE0:
-			DMSG("SPI_MODE0\n");
-			mode = PL022_SPI_MODE0;
-			break;
-		case SPI_MODE1:
-			DMSG("SPI_MODE1\n");
-			mode = PL022_SPI_MODE1;
-			break;
-		case SPI_MODE2:
-			DMSG("SPI_MODE2\n");
-			mode = PL022_SPI_MODE2;
-			break;
-		case SPI_MODE3:
-			DMSG("SPI_MODE3\n");
-			mode = PL022_SPI_MODE3;
-			break;
-		default:
-			EMSG("Invalid spi mode: %u\n", cfg->mode);
-			return;
-	}
-	
-	switch (cfg->data_size_bits)
-	{
-		case 8:
-			DMSG("Data size: 8\n");
-			data_size = PL022_DATA_SIZE8;
-			break;
-		case 16:
-			DMSG("Data size: 16\n");
-			data_size = PL022_DATA_SIZE16;
-			break;
-		default:
-			EMSG("Unsupported data size: %u bits\n", cfg->data_size_bits);
-			return;
+	switch (cfg->mode) {
+	case SPI_MODE0:
+		DMSG("SPI_MODE0\n");
+		mode = PL022_SPI_MODE0;
+		break;
+	case SPI_MODE1:
+		DMSG("SPI_MODE1\n");
+		mode = PL022_SPI_MODE1;
+		break;
+	case SPI_MODE2:
+		DMSG("SPI_MODE2\n");
+		mode = PL022_SPI_MODE2;
+		break;
+	case SPI_MODE3:
+		DMSG("SPI_MODE3\n");
+		mode = PL022_SPI_MODE3;
+		break;
+	default:
+		EMSG("Invalid spi mode: %u\n", cfg->mode);
+		return;
 	}
 
-	if (cfg->loopback)
-	{
+	switch (cfg->data_size_bits) {
+	case 8:
+		DMSG("Data size: 8\n");
+		data_size = PL022_DATA_SIZE8;
+		break;
+	case 16:
+		DMSG("Data size: 16\n");
+		data_size = PL022_DATA_SIZE16;
+		break;
+	default:
+		EMSG("Unsupported data size: %u bits\n", cfg->data_size_bits);
+		return;
+	}
+
+	if (cfg->loopback) {
 		DMSG("Starting in loopback mode!\n");
 		lbm = SSPCR1_LBM_YES;
-	}
-	else
-	{
+	} else {
 		DMSG("Starting in regular (non-loopback) mode!\n");
 		lbm = SSPCR1_LBM_NO;
 	}
