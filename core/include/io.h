@@ -28,6 +28,7 @@
 #define IO_H
 
 #include <stdint.h>
+#include <trace.h>
 #include <types_ext.h>
 
 /*
