@@ -177,14 +177,13 @@ enum pl022_spi_mode {
 	PL022_SPI_MODE3 = SSPCR0_SPO1 | SSPCR0_SPH1  /* 0xC0 */
 };
 
-static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts);
-static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts);
-static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts);
-static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts);
+static void pl022_txrx8(struct pl022_cfg *cfg, uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_txrx16(struct pl022_cfg *cfg, uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+static void pl022_tx8(struct pl022_cfg *cfg, uint8_t *wdat, uint32_t num_txpkts);
+static void pl022_tx16(struct pl022_cfg *cfg, uint16_t *wdat, uint32_t num_txpkts);
+static void pl022_rx8(struct pl022_cfg *cfg, uint8_t *rdat, uint32_t *num_rxpkts);
+static void pl022_rx16(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpkts);
 
-static const struct pl022_cfg *cfg;
 static const struct spi_ops pl022_ops = {
 	.txrx8 = pl022_txrx8,
 	.txrx16 = pl022_txrx16,
@@ -194,7 +193,7 @@ static const struct spi_ops pl022_ops = {
 	.rx16 = pl022_rx16,
 };
 
-static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+static void pl022_txrx8(struct pl022_cfg *cfg, uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 	uint32_t i, j = 0;
 
@@ -234,7 +233,7 @@ static void pl022_txrx8(uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint3
 	*num_rxpkts = j;
 }
 
-static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
+static void pl022_txrx16(struct pl022_cfg *cfg, uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 	uint32_t i, j = 0;
 
@@ -269,7 +268,7 @@ static void pl022_txrx16(uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, ui
 	*num_rxpkts = j;
 }
 
-static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
+static void pl022_tx8(struct pl022_cfg *cfg, uint8_t *wdat, uint32_t num_txpkts)
 {
 	uint32_t i;
 
@@ -292,7 +291,7 @@ static void pl022_tx8(uint8_t *wdat, uint32_t num_txpkts)
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
 }
 
-static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
+static void pl022_tx16(struct pl022_cfg *cfg, uint16_t *wdat, uint32_t num_txpkts)
 {
 	uint32_t i;
 
@@ -315,7 +314,7 @@ static void pl022_tx16(uint16_t *wdat, uint32_t num_txpkts)
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
 }
 
-static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
+static void pl022_rx8(struct pl022_cfg *cfg, uint8_t *rdat, uint32_t *num_rxpkts)
 {
 	uint32_t j = 0;
 
@@ -331,7 +330,7 @@ static void pl022_rx8(uint8_t *rdat, uint32_t *num_rxpkts)
 	*num_rxpkts = j;
 }
 
-static void pl022_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
+static void pl022_rx16(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpkts)
 {
 	uint32_t j = 0;
 
@@ -418,7 +417,7 @@ done:
 	DMSG("cpsdvr: %u (0x%x), scr: %u (0x%x)\n", *cpsdvr, *cpsdvr, *scr, *scr);
 }
 
-static void pl022_flush_fifo(void)
+static void pl022_flush_fifo(struct pl022_cfg *cfg)
 {
 	uint32_t rdat;
 
@@ -430,7 +429,7 @@ static void pl022_flush_fifo(void)
 	} while (read32(cfg->base + SSPSR) & SSPSR_BSY);
 }
 
-void pl022_configure(void)
+void pl022_configure(struct pl022_cfg *cfg)
 {
 	uint16_t mode, data_size;
 	uint8_t cpsdvr, scr, lbm;
@@ -506,27 +505,23 @@ void pl022_configure(void)
 	gpio_set_value(cfg->cs_gpio_pin, GPIO_LEVEL_HIGH);
 }
 
-void pl022_start(void)
+void pl022_start(struct pl022_cfg *cfg)
 {
 	DMSG("empty FIFO before starting");
-	pl022_flush_fifo();
+	pl022_flush_fifo(cfg);
 
 	DMSG("enable SSP");
 	io_mask8(cfg->base + SSPCR1, SSPCR1_SSE_ENABLE, SSPCR1_SSE);
 }
 
-void pl022_end(void)
+void pl022_end(struct pl022_cfg *cfg)
 {
 	/* disable ssp */
 	io_mask8(cfg->base + SSPCR1, SSPCR1_SSE_DISABLE, SSPCR1_SSE);
 }
 
-void pl022_init(const struct pl022_cfg *cfg_ptr)
+void pl022_init(struct pl022_cfg *cfg)
 {
-	assert(cfg_ptr);
-	assert(!cfg);
-
-	cfg = cfg_ptr;
-	spi_init(&pl022_ops);
+	cfg->ops = &pl022_ops;
 }
 

@@ -35,20 +35,21 @@
 #define PL022_REG_SIZE	0x1000
 
 struct pl022_cfg {
-	vaddr_t		base;
-	vaddr_t		cs_gpio_base; /* gpio register base address for chip select */
-	uint32_t	clk_hz;
-	uint32_t	speed_hz;
-	uint16_t	cs_gpio_pin; /* gpio pin number for chip select */
-	uint8_t		mode;
-	uint8_t		data_size_bits;
-	bool		loopback;
+	struct spi_ops	ops;
+	vaddr_t			base;
+	vaddr_t			cs_gpio_base; /* gpio register base address for chip select */
+	uint32_t		clk_hz;
+	uint32_t		speed_hz;
+	uint16_t		cs_gpio_pin; /* gpio pin number for chip select */
+	uint8_t			mode;
+	uint8_t			data_size_bits;
+	bool			loopback;
 };
 
-void pl022_configure(void);
-void pl022_start(void);
-void pl022_end(void);
-void pl022_init(const struct pl022_cfg *cfg_ptr);
+void pl022_configure(struct pl022_cfg *cfg);
+void pl022_start(struct pl022_cfg *cfg);
+void pl022_end(struct pl022_cfg *cfg);
+void pl022_init(struct pl022_cfg *cfg);
 
 #endif	/* __PL022_SPI_H__ */
 
