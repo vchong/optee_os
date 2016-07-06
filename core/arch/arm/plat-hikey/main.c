@@ -59,11 +59,8 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
-static struct spi_ops *platform_spi_ops;
-
 /* default preset values that can be overwritten */
 static struct pl022_cfg platform_pl022_cfg = {
-	.ops = platform_spi_ops,
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
 	.cs_gpio_pin = GPIO6_2,
@@ -299,7 +296,7 @@ void peri_init_n_config(void)
 	pl061_set_interrupt(GPIO6_2, PL061_INTERRUPT_DISABLE);
 	DMSG("enable software mode control for cs\n");
 	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
-
+	
 	platform_pl022_cfg.base = spibase;
 	platform_pl022_cfg.cs_gpio_base = gpio6base;
 	platform_pl022_cfg.cs_gpio_pin = GPIO6_2;
@@ -359,40 +356,40 @@ static void spi_test_lbm(void)
 	uint32_t num_rxpkts, i;
 
 	#if 1
-	platform_spi_ops->spi_txrx8(platform_spi_ops, data8, rdata8, 10, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx8(&platform_pl022_cfg, data8, rdata8, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 
-	platform_spi_ops->spi_txrx8(data8_long, rdata8, 20, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx8(&platform_pl022_cfg, data8_long, rdata8, 20, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 
 	#if 0
-	platform_spi_ops->spi_txrx8(data8_100, rdata8, 100, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx8(&platform_pl022_cfg, data8_100, rdata8, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata8[i]);
 	}
 	#endif
 	//#else
-	platform_spi_ops->spi_txrx16(data16, rdata16, 10, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx16(&platform_pl022_cfg, data16, rdata16, 10, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 
-	platform_spi_ops->spi_txrx16(data16_long, rdata16, 20, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx16(&platform_pl022_cfg, data16_long, rdata16, 20, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
 
 	#if 0
-	platform_spi_ops->spi_txrx16(data16_100, rdata16, 100, &num_rxpkts);
+	platform_pl022_cfg->ops->spi_txrx16(&platform_pl022_cfg, data16_100, rdata16, 100, &num_rxpkts);
 	for (i=0; i<num_rxpkts; i++)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
@@ -425,7 +422,7 @@ static void spi_test_linksprite(void)
 				for (j=0; j<20; j++)
 				{
 					DMSG("cycle: %u\n", j);
-					platform_spi_ops->spi_txrx8(tx, rx, 3, &num_rxpkts);
+					platform_pl022_cfg->ops->spi_txrx8(&platform_pl022_cfg, tx, rx, 3, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
 						DMSG("rx[%u] = 0x%x\n", i,rx[i]);
