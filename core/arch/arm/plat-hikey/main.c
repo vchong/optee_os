@@ -63,7 +63,7 @@ static struct spi_ops *platform_spi_ops;
 
 /* default preset values that can be overwritten */
 static struct pl022_cfg platform_pl022_cfg = {
-	.spi_ops = platform_spi_ops,
+	.ops = platform_spi_ops,
 	.clk_hz = SPI_CLK_HZ,
 	.speed_hz = 500000,
 	.cs_gpio_pin = GPIO6_2,
@@ -311,7 +311,7 @@ void peri_init_n_config(void)
 	platform_pl022_cfg.loopback = true;
 	#endif
 	pl022_init(&platform_pl022_cfg);
-	pl022_configure();
+	pl022_configure(&platform_pl022_cfg);
 }
 
 static void spi_test_lbm(void)
@@ -500,14 +500,14 @@ void spi_test2(void)
 	DMSG("sizeof(float): %lu\n", sizeof(float));
 
 	peri_init_n_config();
-	pl022_start();
+	pl022_start(&platform_pl022_cfg);
 
 	if (platform_pl022_cfg.loopback)
 		spi_test_lbm();
 	else
 		spi_test_linksprite();
 
-	pl022_end();
+	pl022_end(&platform_pl022_cfg);
 }
 
 static TEE_Result spi_test(void)
