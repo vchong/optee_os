@@ -100,6 +100,7 @@ void spi_rx16(uint16_t *rdat, uint32_t *num_rxpkts)
 void spi_init(const struct spi_ops *ops_ptr)
 {
 	assert(ops_ptr);
+	assert(!ops);
 
 	ops = ops_ptr;
 }

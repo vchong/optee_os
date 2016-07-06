@@ -524,6 +524,8 @@ void pl022_end(void)
 void pl022_init(const struct pl022_cfg *cfg_ptr)
 {
 	assert(cfg_ptr);
+	assert(!cfg);
+
 	cfg = cfg_ptr;
 	spi_init(&pl022_ops);
 }

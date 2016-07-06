@@ -4,6 +4,7 @@ endif
 
 ifeq ($(CFG_PL022),y)
 $(call force,CFG_SPI,y,required by CFG_PL022)
+$(call force,CFG_GPIO,y,required by CFG_PL022)
 endif
 
 srcs-y += common.c
