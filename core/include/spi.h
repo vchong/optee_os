@@ -37,6 +37,16 @@ enum spi_mode {
 	SPI_MODE3
 };
 
+// TODO: How to + struct pl022_cfg *cfg here?
+struct spi_ops {
+	void (*txrx8)(struct pl022_cfg *cfg, uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+	void (*txrx16)(struct pl022_cfg *cfg, uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
+	void (*tx8)(struct pl022_cfg *cfg, uint8_t *wdat, uint32_t num_txpkts);
+	void (*tx16)(struct pl022_cfg *cfg, uint16_t *wdat, uint32_t num_txpkts);
+	void (*rx8)(struct pl022_cfg *cfg, uint8_t *rdat, uint32_t *num_rxpkts);
+	void (*rx16)(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpkts);
+};
+
 struct pl022_cfg {
 	struct spi_ops	ops;
 	vaddr_t			base;
@@ -49,15 +59,7 @@ struct pl022_cfg {
 	bool			loopback;
 };
 
-// TODO: How to + struct pl022_cfg *cfg here?
-struct spi_ops {
-	void (*txrx8)(struct pl022_cfg *cfg, uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-	void (*txrx16)(struct pl022_cfg *cfg, uint16_t *wdat, uint16_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts);
-	void (*tx8)(struct pl022_cfg *cfg, uint8_t *wdat, uint32_t num_txpkts);
-	void (*tx16)(struct pl022_cfg *cfg, uint16_t *wdat, uint32_t num_txpkts);
-	void (*rx8)(struct pl022_cfg *cfg, uint8_t *rdat, uint32_t *num_rxpkts);
-	void (*rx16)(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpkts);
-};
+void spi_test2(void);
 
 #endif	/* __SPI_H__ */
 
