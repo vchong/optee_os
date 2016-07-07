@@ -39,15 +39,15 @@ enum spi_mode {
 
 // TODO: How to + struct pl022_cfg *cfg here?
 struct pl022_cfg {
-	struct spi_ops	*ops;
-	vaddr_t			base;
-	vaddr_t			cs_gpio_base; /* gpio register base address for chip select */
-	uint32_t		clk_hz;
-	uint32_t		speed_hz;
-	uint16_t		cs_gpio_pin; /* gpio pin number for chip select */
-	uint8_t			mode;
-	uint8_t			data_size_bits;
-	bool			loopback;
+	const struct spi_ops	*ops;
+	vaddr_t					base;
+	vaddr_t					cs_gpio_base; /* gpio register base address for chip select */
+	uint32_t				clk_hz;
+	uint32_t				speed_hz;
+	uint16_t				cs_gpio_pin; /* gpio pin number for chip select */
+	uint8_t					mode;
+	uint8_t					data_size_bits;
+	bool					loopback;
 };
 
 struct spi_ops {

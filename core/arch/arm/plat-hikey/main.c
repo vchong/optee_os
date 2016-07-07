@@ -45,7 +45,6 @@
 #include <tee/entry_fast.h>
 
 static void main_fiq(void);
-void peri_init_n_config(void);
 
 static const struct thread_handlers handlers = {
 	.std_smc = tee_entry_std,
@@ -57,16 +56,6 @@ static const struct thread_handlers handlers = {
 	.cpu_resume = pm_do_nothing,
 	.system_off = pm_do_nothing,
 	.system_reset = pm_do_nothing,
-};
-
-/* default preset values that can be overwritten */
-static struct pl022_cfg platform_pl022_cfg = {
-	.clk_hz = SPI_CLK_HZ,
-	.speed_hz = 500000,
-	.cs_gpio_pin = GPIO6_2,
-	.mode = SPI_MODE0,
-	.data_size_bits = 8,
-	.loopback = false,
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
@@ -270,8 +259,19 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 }
 
+
+/* default preset values that can be overwritten */
+static struct pl022_cfg platform_pl022_cfg = {
+	.clk_hz = SPI_CLK_HZ,
+	.speed_hz = 500000,
+	.cs_gpio_pin = GPIO6_2,
+	.mode = SPI_MODE0,
+	.data_size_bits = 8,
+	.loopback = false,
+};
+
 static vaddr_t gp6bs;
-void peri_init_n_config(void)
+static void peri_init_n_config(void)
 {
 	#if 1
 	vaddr_t gpio6base = get_va(GPIO6_BASE);

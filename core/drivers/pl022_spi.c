@@ -184,15 +184,6 @@ static void pl022_tx16(struct pl022_cfg *cfg, uint16_t *wdat, uint32_t num_txpkt
 static void pl022_rx8(struct pl022_cfg *cfg, uint8_t *rdat, uint32_t *num_rxpkts);
 static void pl022_rx16(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpkts);
 
-static const struct spi_ops pl022_ops = {
-	.txrx8 = pl022_txrx8,
-	.txrx16 = pl022_txrx16,
-	.tx8 = pl022_tx8,
-	.tx16 = pl022_tx16,
-	.rx8 = pl022_rx8,
-	.rx16 = pl022_rx16,
-};
-
 static void pl022_txrx8(struct pl022_cfg *cfg, uint8_t *wdat, uint8_t *rdat, uint32_t num_txpkts, uint32_t *num_rxpkts)
 {
 	uint32_t i, j = 0;
@@ -519,6 +510,15 @@ void pl022_end(struct pl022_cfg *cfg)
 	/* disable ssp */
 	io_mask8(cfg->base + SSPCR1, SSPCR1_SSE_DISABLE, SSPCR1_SSE);
 }
+
+static const struct spi_ops pl022_ops = {
+	.txrx8 = pl022_txrx8,
+	.txrx16 = pl022_txrx16,
+	.tx8 = pl022_tx8,
+	.tx16 = pl022_tx16,
+	.rx8 = pl022_rx8,
+	.rx16 = pl022_rx16,
+};
 
 void pl022_init(struct pl022_cfg *cfg)
 {
