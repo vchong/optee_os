@@ -347,7 +347,7 @@ static void pl022_print_peri_id(struct pl022_cfg *cfg __maybe_unused)
 		read32(cfg->base + SSPPeriphID3));
 }
 
-static void pl022_print_cell_id(struct pl022_cfg *cfg__maybe_unused)
+static void pl022_print_cell_id(struct pl022_cfg *cfg __maybe_unused)
 {
 	DMSG("Expected: 0x 0D F0 05 B1");
 	DMSG("Read: 0x %x %x %x %x\n", \
