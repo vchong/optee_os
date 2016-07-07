@@ -337,7 +337,7 @@ static void pl022_rx16(struct pl022_cfg *cfg, uint16_t *rdat, uint32_t *num_rxpk
 	*num_rxpkts = j;
 }
 
-static void pl022_print_peri_id(void)
+static void pl022_print_peri_id(struct pl022_cfg *cfg __maybe_unused)
 {
 	DMSG("Expected: 0x 22 10 #4 0");
 	DMSG("Read: 0x %x %x %x %x\n", \
@@ -347,7 +347,7 @@ static void pl022_print_peri_id(void)
 		read32(cfg->base + SSPPeriphID3));
 }
 
-static void pl022_print_cell_id(void)
+static void pl022_print_cell_id(struct pl022_cfg *cfg__maybe_unused)
 {
 	DMSG("Expected: 0x 0D F0 05 B1");
 	DMSG("Read: 0x %x %x %x %x\n", \
@@ -357,26 +357,26 @@ static void pl022_print_cell_id(void)
 		read32(cfg->base + SSPPCellID3));
 }
 
-static void pl022_sanity_check(void)
+static void pl022_sanity_check(struct pl022_cfg *cfg)
 {
 	DMSG("SSPB2BTRANS: Expected: 0x2. Read: 0x%x\n", read32(cfg->base + SSPB2BTRANS));
-	pl022_print_peri_id();
-	pl022_print_cell_id();
+	pl022_print_peri_id(cfg);
+	pl022_print_cell_id(cfg);
 }
 
-static inline uint32_t pl022_calc_freq(uint8_t cpsdvr, uint8_t scr)
+static inline uint32_t pl022_calc_freq(struct pl022_cfg *cfg, uint8_t cpsdvr, uint8_t scr)
 {
 	return cfg->clk_hz / (cpsdvr * (1 + scr));
 }
 
-static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
+static void pl022_calc_clk_divisors(struct pl022_cfg *cfg, uint8_t *cpsdvr, uint8_t *scr)
 {
 	uint32_t freq1 = 0, freq2 = 0;
 	uint8_t tmp_cpsdvr1, tmp_scr1, tmp_cpsdvr2 = 0, tmp_scr2 = 0;
 
 	for (tmp_scr1 = SSP_SCR_MIN; tmp_scr1 < SSP_SCR_MAX; tmp_scr1++) {
 		for (tmp_cpsdvr1 = SSP_CPSDVR_MIN; tmp_cpsdvr1 < SSP_CPSDVR_MAX; tmp_cpsdvr1++) {
-			freq1 = pl022_calc_freq(tmp_cpsdvr1, tmp_scr1);
+			freq1 = pl022_calc_freq(cfg, tmp_cpsdvr1, tmp_scr1);
 			if (freq1 == cfg->speed_hz) {
 				goto done;
 			} else if (freq1 < cfg->speed_hz) {
@@ -388,7 +388,7 @@ static void pl022_calc_clk_divisors(uint8_t *cpsdvr, uint8_t *scr)
 stage2:
 	for (tmp_cpsdvr2 = SSP_CPSDVR_MIN; tmp_cpsdvr2 < SSP_CPSDVR_MAX; tmp_cpsdvr2++) {
 		for (tmp_scr2 = SSP_SCR_MIN; tmp_scr2 < SSP_SCR_MAX; tmp_scr2++) {
-			freq2 = pl022_calc_freq(tmp_cpsdvr2, tmp_scr2);
+			freq2 = pl022_calc_freq(cfg, tmp_cpsdvr2, tmp_scr2);
 			if (freq2 <= cfg->speed_hz) {
 				goto done;
 			}
@@ -426,8 +426,8 @@ void pl022_configure(struct pl022_cfg *cfg)
 	uint8_t cpsdvr, scr, lbm;
 
 	assert(cfg);
-	pl022_sanity_check();
-	pl022_calc_clk_divisors(&cpsdvr, &scr);
+	pl022_sanity_check(cfg);
+	pl022_calc_clk_divisors(cfg, &cpsdvr, &scr);
 
 	DMSG("PL022_SPI_MODEs: 0x%x 0x%x 0x%x 0x%x\n", PL022_SPI_MODE0, PL022_SPI_MODE1, PL022_SPI_MODE2, PL022_SPI_MODE3);
 
