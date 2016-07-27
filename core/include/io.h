@@ -30,6 +30,11 @@
 #include <stdint.h>
 #include <trace.h>
 #include <types_ext.h>
+#ifdef ARM64
+#include <arm64.h>
+#else
+#include <arm32.h>
+#endif
 
 /*
  * IO access macro, please avoid using this macro, since it's going to be
@@ -39,32 +44,48 @@
 
 static inline void write8(uint8_t val, vaddr_t addr)
 {
+	dsb();
 	*(volatile uint8_t *)addr = val;
 }
 
 static inline void write16(uint16_t val, vaddr_t addr)
 {
+	dsb();
 	*(volatile uint16_t *)addr = val;
 }
 
 static inline void write32(uint32_t val, vaddr_t addr)
 {
+	dsb();
 	*(volatile uint32_t *)addr = val;
 }
 
 static inline uint8_t read8(vaddr_t addr)
 {
-	return *(volatile uint8_t *)addr;
+	uint8_t val;
+
+	val = *(volatile uint8_t *)addr;
+	dsb();
+	return val;
 }
 
 static inline uint16_t read16(vaddr_t addr)
 {
-	return *(volatile uint16_t *)addr;
+	uint16_t val;
+
+	val = *(volatile uint16_t *)addr;
+	dsb();
+	return val;
 }
 
 static inline uint32_t read32(vaddr_t addr)
 {
-	return *(volatile uint32_t *)addr;
+	uint32_t val;
+
+	val = *(volatile uint32_t *)addr;
+
+	dsb();
+	return val;
 }
 
 static inline void io_mask8(vaddr_t addr, uint8_t val, uint8_t mask)
