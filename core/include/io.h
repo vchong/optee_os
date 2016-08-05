@@ -45,18 +45,21 @@
 static inline void write8(uint8_t val, vaddr_t addr)
 {
 	dsb();
+	isb();
 	*(volatile uint8_t *)addr = val;
 }
 
 static inline void write16(uint16_t val, vaddr_t addr)
 {
 	dsb();
+	isb();
 	*(volatile uint16_t *)addr = val;
 }
 
 static inline void write32(uint32_t val, vaddr_t addr)
 {
 	dsb();
+	isb();
 	*(volatile uint32_t *)addr = val;
 }
 
@@ -66,6 +69,7 @@ static inline uint8_t read8(vaddr_t addr)
 
 	val = *(volatile uint8_t *)addr;
 	dsb();
+	isb();
 	return val;
 }
 
@@ -75,6 +79,7 @@ static inline uint16_t read16(vaddr_t addr)
 
 	val = *(volatile uint16_t *)addr;
 	dsb();
+	isb();
 	return val;
 }
 
@@ -83,8 +88,8 @@ static inline uint32_t read32(vaddr_t addr)
 	uint32_t val;
 
 	val = *(volatile uint32_t *)addr;
-
 	dsb();
+	isb();
 	return val;
 }
 

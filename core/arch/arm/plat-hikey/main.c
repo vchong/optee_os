@@ -464,6 +464,7 @@ static void spi_test_linksprite(void)
 void spi_test2(void)
 {
 	#if 0
+	sizeof(void *): 8
 	sizeof(bool): 1
 	sizeof(uint8_t): 1
 	sizeof(uint16_t): 2
@@ -481,6 +482,7 @@ void spi_test2(void)
 	sizeof(float): 4
 	#endif
 	DMSG("Hello!\n");
+	DMSG("sizeof(void *): %lu\n", sizeof(void *));
 	DMSG("sizeof(bool): %lu\n", sizeof(bool));
 	DMSG("sizeof(uint8_t): %lu\n", sizeof(uint8_t));
 	DMSG("sizeof(uint16_t): %lu\n", sizeof(uint16_t));
