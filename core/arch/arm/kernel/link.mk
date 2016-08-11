@@ -128,7 +128,7 @@ define update-buildcount
 	fi
 endef
 
-version-o-cflags = $(filter-out -g3,$(core-platform-cflags) \
+version-o-cflags = $(filter-out -g3 -save-temps,$(core-platform-cflags) \
 			$(platform-cflags)) # Workaround objdump warning
 DATE_STR = `date -u`
 BUILD_COUNT_STR = `cat $(link-out-dir)/.buildcount`

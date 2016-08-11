@@ -306,8 +306,6 @@ void pl061_set_mode_control(unsigned int gpio_pin,
 }
 
 void pl061_set_mode_control2(unsigned int gpio_pin,
-	enum pl061_mode_control hw_sw);
-void pl061_set_mode_control2(unsigned int gpio_pin,
 	enum pl061_mode_control hw_sw)
 {
 	vaddr_t base_addr;

@@ -480,6 +480,13 @@ void spi_test2(void)
 	sizeof(long long): 8
 	sizeof(unsigned long long): 8
 	sizeof(float): 4
+	sizeof(struct gpio_ops): 48
+	sizeof(struct gpio_chip): 8
+	sizeof(struct pl061_data): 8
+	sizeof(struct spi_ops): 48
+	sizeof(struct spi_chip): 8
+	sizeof(struct pl022_data): 56
+
 	#endif
 	DMSG("Hello!\n");
 	DMSG("sizeof(void *): %lu\n", sizeof(void *));
@@ -498,7 +505,7 @@ void spi_test2(void)
 	DMSG("sizeof(long long): %lu\n", sizeof(long long));
 	DMSG("sizeof(unsigned long long): %lu\n", sizeof(unsigned long long));
 	DMSG("sizeof(float): %lu\n", sizeof(float));
-	DMSG("sizeof(struct gpio_ops): %lu\n", sizeof(struct spi_ops));
+	DMSG("sizeof(struct gpio_ops): %lu\n", sizeof(struct gpio_ops));
 	DMSG("sizeof(struct gpio_chip): %lu\n", sizeof(struct gpio_chip));
 	DMSG("sizeof(struct pl061_data): %lu\n", sizeof(struct pl061_data));
 	DMSG("sizeof(struct spi_ops): %lu\n", sizeof(struct spi_ops));
