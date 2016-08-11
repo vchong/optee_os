@@ -305,6 +305,9 @@ void pl061_set_mode_control(unsigned int gpio_pin,
 	io_mask8(base_addr + GPIOAFSEL, SHIFT_U32(hw_sw, offset), BIT(offset));
 }
 
+//fix warning
+void pl061_set_mode_control2(unsigned int gpio_pin,
+	enum pl061_mode_control hw_sw);
 void pl061_set_mode_control2(unsigned int gpio_pin,
 	enum pl061_mode_control hw_sw)
 {
