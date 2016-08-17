@@ -57,21 +57,21 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
-static enum teecore_memtypes g_memtype_dev = MEM_AREA_IO_SEC;
+static enum teecore_memtypes g_memtype_dev = MEM_AREA_IO_NSEC;
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
 #if 1
-register_phys_mem(MEM_AREA_IO_SEC, PERI_BASE, PERI_BASE_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_SEC, SPI_BASE, PL022_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_SEC, GPIO6_BASE, PL061_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_SEC, PMX0_BASE, PMX0_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_SEC, PMX1_BASE, PMX1_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
 #else
-register_phys_mem(g_memtype_dev, PERI_BASE, CORE_MMU_DEVICE_SIZE);
-register_phys_mem(g_memtype_dev, SPI_BASE, CORE_MMU_DEVICE_SIZE);
-register_phys_mem(g_memtype_dev, GPIO6_BASE, CORE_MMU_DEVICE_SIZE);
-register_phys_mem(g_memtype_dev, PMX0_BASE, CORE_MMU_DEVICE_SIZE);
-register_phys_mem(g_memtype_dev, PMX1_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, CORE_MMU_DEVICE_SIZE);
 #endif
 
 const struct thread_handlers *generic_boot_get_handlers(void)
