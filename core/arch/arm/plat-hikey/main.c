@@ -490,6 +490,16 @@ static void spi_test_linksprite(void)
 				varm_va2pa_helper((void *)gpio6bs, &chk_pa);
 				varm_va2pa_helper((void *)peribs, &chk_pa);
 				varm_va2pa_helper((void *)spibs, &chk_pa);
+				DMSG("pmx0bs VA: 0x%" PRIxVA "\n", phys_to_virt(PMX0_BASE, g_memtype_dev));
+				DMSG("pmx1bs VA: 0x%" PRIxVA "\n", phys_to_virt(PMX1_BASE, g_memtype_dev));
+				DMSG("gpio6bs VA: 0x%" PRIxPA "\n", phys_to_virt(GPIO6_BASE, g_memtype_dev));
+				DMSG("peribs VA: 0x%" PRIxVA "\n", phys_to_virt(PERI_BASE, g_memtype_dev));
+				DMSG("spibs VA: 0x%" PRIxVA "\n", phys_to_virt(SPI_BASE, g_memtype_dev));
+				DMSG("pmx0bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx0bs));
+				DMSG("pmx1bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx1bs));
+				DMSG("gpio6bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)gpio6bs));
+				DMSG("peribs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)peribs));
+				DMSG("spibs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)spibs));
 				break;
 			case 'c':
 				for (j=0; j<20; j++)
