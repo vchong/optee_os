@@ -453,7 +453,7 @@ static bool varm_va2pa_helper(void *va, paddr_t *pa)
 	}
 	*pa = (par & (par_pa_mask << PAR_PA_SHIFT)) |
 		((vaddr_t)va & ((1 << PAR_PA_SHIFT) - 1));
-	DMSG("va: 0x%p\n", va);
+	DMSG("va: %p\n", va);
 	DMSG("*pa: 0x%" PRIxPA "\n", *pa);
 	DMSG("par: 0x%016" PRIxPA "\n", par);
 
@@ -491,11 +491,11 @@ static void spi_test_linksprite(void)
 				varm_va2pa_helper((void *)gpio6bs, &chk_pa);
 				varm_va2pa_helper((void *)peribs, &chk_pa);
 				varm_va2pa_helper((void *)spibs, &chk_pa);
-				DMSG("pmx0bs VA: 0x%p\n", phys_to_virt(PMX0_BASE, g_memtype_dev));
-				DMSG("pmx1bs VA: 0x%p\n", phys_to_virt(PMX1_BASE, g_memtype_dev));
-				DMSG("gpio6bs VA: 0x%p\n", phys_to_virt(GPIO6_BASE, g_memtype_dev));
-				DMSG("peribs VA: 0x%p\n", phys_to_virt(PERI_BASE, g_memtype_dev));
-				DMSG("spibs VA: 0x%p\n", phys_to_virt(SPI_BASE, g_memtype_dev));
+				DMSG("pmx0bs VA: %p\n", phys_to_virt(PMX0_BASE, g_memtype_dev));
+				DMSG("pmx1bs VA: %p\n", phys_to_virt(PMX1_BASE, g_memtype_dev));
+				DMSG("gpio6bs VA: %p\n", phys_to_virt(GPIO6_BASE, g_memtype_dev));
+				DMSG("peribs VA: %p\n", phys_to_virt(PERI_BASE, g_memtype_dev));
+				DMSG("spibs VA: %p\n", phys_to_virt(SPI_BASE, g_memtype_dev));
 				DMSG("pmx0bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx0bs));
 				DMSG("pmx1bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx1bs));
 				DMSG("gpio6bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)gpio6bs));
