@@ -485,6 +485,7 @@ static void spi_test_linksprite(void)
 		switch (ch)
 		{
 			case 'a':
+				varm_va2pa_helper((void *)console_base(),&chk_pa);
 				varm_va2pa_helper((void *)pmx0bs, &chk_pa);
 				varm_va2pa_helper((void *)pmx1bs, &chk_pa);
 				varm_va2pa_helper((void *)gpio6bs, &chk_pa);
