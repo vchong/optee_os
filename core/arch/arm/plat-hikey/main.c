@@ -195,6 +195,10 @@ static vaddr_t get_va(paddr_t pa)
 	return (vaddr_t)pa;
 }
 
+static vaddr_t peribs;
+static vaddr_t pmx0bs;
+static vaddr_t pmx1bs;
+
 static void platform_spi_enable(void)
 {
 	#if 1
@@ -210,6 +214,10 @@ static void platform_spi_enable(void)
 	//vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
 
 	uint32_t shifted_val, read_val;
+
+	peribs = peribase;
+	pmx0bs = pmx0base;
+	pmx1bs = pmx1base;
 
 	//DMSG("tst1: 0x%" PRIxVA "\n", tst1);
 	//DMSG("tst2: 0x%" PRIxVA "\n", tst2);
@@ -279,7 +287,9 @@ static struct pl022_data platform_pl022_data = {
 	.loopback = false,
 };
 
-static vaddr_t gp6bs;
+static vaddr_t gpio6bs;
+static vaddr_t spibs;
+
 static void peri_init_n_config(void)
 {
 	#if 1
@@ -290,7 +300,8 @@ static void peri_init_n_config(void)
 	vaddr_t spibase = spi_base();
 	#endif
 
-	gp6bs = gpio6base;
+	gpio6bs = gpio6base;
+	spibs = spibase;
 
 	DMSG("gpio6base: 0x%" PRIxVA "\n", gpio6base);
 	DMSG("spibase: 0x%" PRIxVA "\n", spibase);
@@ -407,12 +418,58 @@ static void spi_test_lbm(void)
 	#endif
 }
 
+#include <arm.h>
+#include <kernel/thread.h>
+
+static bool varm_va2pa_helper(void *va, paddr_t *pa)
+{
+	uint32_t exceptions = thread_mask_exceptions(THREAD_EXCP_ALL);
+	paddr_t par;
+	paddr_t par_pa_mask;
+	bool ret = false;
+
+#ifdef ARM32
+	write_ats1cpr((vaddr_t)va);
+	isb();
+#ifdef CFG_WITH_LPAE
+	par = read_par64();
+	par_pa_mask = PAR64_PA_MASK;
+#else
+	par = read_par32();
+	par_pa_mask = PAR32_PA_MASK;
+#endif
+#endif /*ARM32*/
+
+#ifdef ARM64
+	write_at_s1e1r((vaddr_t)va);
+	isb();
+	par = read_par_el1();
+	par_pa_mask = PAR_PA_MASK;
+#endif
+	if (par & PAR_F)
+	{
+		DMSG("par & PAR_F\n");
+		goto out;
+	}
+	*pa = (par & (par_pa_mask << PAR_PA_SHIFT)) |
+		((vaddr_t)va & ((1 << PAR_PA_SHIFT) - 1));
+	DMSG("va: 0x%" PRIxVA "\n", va);
+	DMSG("*pa: 0x%" PRIxPA "\n", *pa);
+	DMSG("par: 0x%" PRIxPA "\n", par);
+
+	ret = true;
+out:
+	thread_unmask_exceptions(exceptions);
+	return ret;
+}
+
 static void spi_test_linksprite(void)
 {
 	uint8_t tx[3], rx[3] = {0};
 	size_t num_rxpkts = 3, i, j;
 	int ch = 'c';
 	paddr_t uart_base = console_base();
+	paddr_t chk_pa;
 
 	tx[0] = 0x1;
 	tx[1] = 0x80;
@@ -427,6 +484,13 @@ static void spi_test_linksprite(void)
 
 		switch (ch)
 		{
+			case 'a':
+				varm_va2pa_helper((void *)pmx0bs, &chk_pa);
+				varm_va2pa_helper((void *)pmx1bs, &chk_pa);
+				varm_va2pa_helper((void *)gpio6bs, &chk_pa);
+				varm_va2pa_helper((void *)peribs, &chk_pa);
+				varm_va2pa_helper((void *)spibs, &chk_pa);
+				break;
 			case 'c':
 				for (j=0; j<20; j++)
 				{
@@ -450,16 +514,16 @@ static void spi_test_linksprite(void)
 				platform_pl061_data.chip.ops->set_value(platform_pl022_data.cs_gpio_pin, GPIO_LEVEL_HIGH);
 				break;
 			case 'v':
-				io_mask32(gp6bs + (1<<4), 0, (1<<2));
+				io_mask32(gpio6bs + (1<<4), 0, (1<<2));
 				break;
 			case 'w':
-				io_mask32(gp6bs + (1<<4), (1<<2), (1<<2));
+				io_mask32(gpio6bs + (1<<4), (1<<2), (1<<2));
 				break;
 			case 'x':
-				write8(0, gp6bs + (1<<4));
+				write8(0, gpio6bs + (1<<4));
 				break;
 			case 'y':
-				write8(4, gp6bs + (1<<4));
+				write8(4, gpio6bs + (1<<4));
 			default:
 				break;
 		}
@@ -533,6 +597,10 @@ void spi_test2(void)
 
 static TEE_Result spi_test(void)
 {
+	if (cpu_mmu_enabled())
+		DMSG("cpu_mmu_enabled true\n");
+	else
+		DMSG("cpu_mmu_enabled false\n");
 	spi_test2();
 	return TEE_SUCCESS;
 }
