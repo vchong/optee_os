@@ -63,13 +63,18 @@ register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
 
 #if defined(CFG_CONSOLE_UART) && (CFG_CONSOLE_UART == 0)
 register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
+#else
+register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, PMX2_REG_SIZE);
 #endif
 
 #if 0
+register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, PMX2_REG_SIZE);
+
 #endif
 
 #if 0
@@ -78,6 +83,7 @@ register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, CORE_MMU_DEVICE_SIZE);
 #endif
 
 const struct thread_handlers *generic_boot_get_handlers(void)
@@ -181,6 +187,19 @@ static vaddr_t spi_base(void)
 	}
 	return SPI_BASE;
 }
+
+static vaddr_t pmx2_base(void)
+{
+	static void *va6;
+
+	if (cpu_mmu_enabled()) {
+		if (!va6)
+			va6 = phys_to_virt(PMX2_BASE, g_memtype_dev);
+		return (vaddr_t)va6;
+	}
+	return PMX2_BASE;
+}
+
 #endif
 
 static vaddr_t get_va(paddr_t pa)
@@ -198,6 +217,7 @@ static vaddr_t get_va(paddr_t pa)
 static vaddr_t peribs;
 static vaddr_t pmx0bs;
 static vaddr_t pmx1bs;
+static vaddr_t pmx2bs;
 
 static void platform_spi_enable(void)
 {
@@ -205,10 +225,12 @@ static void platform_spi_enable(void)
 	vaddr_t peribase = get_va(PERI_BASE);
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
+	vaddr_t pmx2base = get_va(PMX2_BASE);
 	#else
 	vaddr_t peribase = peri_base();
 	vaddr_t pmx0base = pmx0_base();
 	vaddr_t pmx1base = pmx1_base();
+	vaddr_t pmx1base = pmx2_base();
 	#endif
 	//vaddr_t tst1 = get_va(CONSOLE_UART_BASE);
 	//vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
@@ -218,6 +240,7 @@ static void platform_spi_enable(void)
 	peribs = peribase;
 	pmx0bs = pmx0base;
 	pmx1bs = pmx1base;
+	pmx2bs = pmx2base;
 
 	//DMSG("tst1: 0x%" PRIxVA "\n", tst1);
 	//DMSG("tst2: 0x%" PRIxVA "\n", tst2);
@@ -225,6 +248,7 @@ static void platform_spi_enable(void)
 	DMSG("peribase: 0x%" PRIxVA "\n", peribase);
 	DMSG("pmx0base: 0x%" PRIxVA "\n", pmx0base);
 	DMSG("pmx1base: 0x%" PRIxVA "\n", pmx1base);
+	DMSG("pmx2base: 0x%" PRIxVA "\n", pmx2base);
 
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
@@ -250,25 +274,51 @@ static void platform_spi_enable(void)
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKEN3));
 
+	/* configure pmx2 */
+	DMSG("configure pmx2\n");
+	DMSG("before\npmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx0base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx0base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx0base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx0base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx0base + PMX2_IOCG29));
+	write32(0, pmx2base + PMX2_IOCG0); /* 0xF8001800 */
+	write32(0, pmx2base + PMX2_IOCG1); /* 0xF8001804 */
+	write32(0, pmx2base + PMX2_IOCG2); /* 0xF8001808 */
+	write32(0, pmx2base + PMX2_IOCG28); /* 0xF8001870 */
+	write32(0, pmx2base + PMX2_IOCG29); /* 0xF8001874 */
+	DMSG("after\npmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx0base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx0base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx0base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx0base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx0base + PMX2_IOCG29));
+
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
+	DMSG("before\npmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
+	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
+	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
 	write32(0, pmx1base + PMX1_IOCG104); /* 0xF70109B0 */
 	write32(0, pmx1base + PMX1_IOCG105); /* 0xF70109B4 */
 	write32(0, pmx1base + PMX1_IOCG106); /* 0xF70109B8 */
 	write32(0, pmx1base + PMX1_IOCG107); /* 0xF70109BC */
-	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("after\npmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
 	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
 	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
 	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
 
-	/* configure pin mux: 0: gpio, 1: spi*/
+	/* configure pin mux: 0: gpio, 1: spi */
 	DMSG("configure gpio6_{0,1,3} as spi\n");
 	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
+	DMSG("before\npmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
+	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
+	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
 	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
-	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("after\npmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
 	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));

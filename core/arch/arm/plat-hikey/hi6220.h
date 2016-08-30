@@ -41,9 +41,11 @@
 
 #define PMX0_BASE				0xF7010000
 #define PMX1_BASE				0xF7010800
+#define PMX2_BASE				0xF8001800
 
 #define PMX0_REG_SIZE			0x400
 #define PMX1_REG_SIZE			0x400
+#define PMX2_REG_SIZE			0x400
 
 #define PMX0_IOMG104			0x1a0
 #define PMX0_IOMG105			0x1a4
@@ -53,6 +55,11 @@
 #define PMX1_IOCG105			0x1b4
 #define PMX1_IOCG106			0x1b8
 #define PMX1_IOCG107			0x1bc
+#define PMX2_IOCG0				0
+#define PMX2_IOCG1				4
+#define PMX2_IOCG2				8
+#define PMX2_IOCG28				0x70
+#define PMX2_IOCG29				0x74
 
 #define PMUSSI_BASE				0xF8000000
 
