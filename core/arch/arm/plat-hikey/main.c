@@ -266,7 +266,7 @@ static void platform_spi_enable(void)
 	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
@@ -333,6 +333,9 @@ static void peri_init_n_config(void)
 
 static void spi_test_lbm(void)
 {
+	#if 1
+	return;
+	#else
 	uint8_t __maybe_unused data8[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	uint8_t __maybe_unused data8_long[20] = {0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xaa, 0xbb, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19};
 	/*
@@ -414,6 +417,7 @@ static void spi_test_lbm(void)
 	{
 		DMSG("rx[%u] = 0x%x\n", i, rdata16[i]);
 	}
+	#endif
 	#endif
 	#endif
 }
