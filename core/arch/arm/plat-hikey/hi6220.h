@@ -55,9 +55,10 @@
 #define PMX1_IOCG105			0x1b4
 #define PMX1_IOCG106			0x1b8
 #define PMX1_IOCG107			0x1bc
-#define PMX2_IOCG0				0
-#define PMX2_IOCG1				4
-#define PMX2_IOCG2				8
+#define PMX2_IOCG0				0x0
+#define PMX2_IOCG1				0x4
+#define PMX2_IOCG2				0x8
+#define PMX2_IOCG3				0xc
 #define PMX2_IOCG28				0x70
 #define PMX2_IOCG29				0x74
 

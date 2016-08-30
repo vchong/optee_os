@@ -256,17 +256,20 @@ static void platform_spi_enable(void)
 	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
 	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
 	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 	write32(0, pmx2base + PMX2_IOCG0); /* 0xF8001800 */
 	write32(0, pmx2base + PMX2_IOCG1); /* 0xF8001804 */
 	write32(0, pmx2base + PMX2_IOCG2); /* 0xF8001808 */
+	write32(0, pmx2base + PMX2_IOCG3); /* 0xF800180c */
 	write32(0, pmx2base + PMX2_IOCG28); /* 0xF8001870 */
 	write32(0, pmx2base + PMX2_IOCG29); /* 0xF8001874 */
 	DMSG("after\n");
 	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
 	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
 	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 
@@ -297,7 +300,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
@@ -335,17 +338,20 @@ static void platform_spi_enable(void)
 	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
 	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
 	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 	write32(0, pmx2base + PMX2_IOCG0); /* 0xF8001800 */
 	write32(0, pmx2base + PMX2_IOCG1); /* 0xF8001804 */
 	write32(0, pmx2base + PMX2_IOCG2); /* 0xF8001808 */
+	write32(0, pmx2base + PMX2_IOCG3); /* 0xF800180c */
 	write32(0, pmx2base + PMX2_IOCG28); /* 0xF8001870 */
 	write32(0, pmx2base + PMX2_IOCG29); /* 0xF8001874 */
 	DMSG("after\n");
 	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
 	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
 	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 
@@ -376,7 +382,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
