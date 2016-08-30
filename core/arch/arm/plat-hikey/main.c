@@ -219,7 +219,7 @@ static vaddr_t pmx0bs;
 static vaddr_t pmx1bs;
 static vaddr_t pmx2bs;
 
-#define SPI_PULL 0x2
+#define SPI_PULL 0x0
 
 static void platform_spi_enable(void)
 {
@@ -302,7 +302,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
@@ -384,7 +384,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
