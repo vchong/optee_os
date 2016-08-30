@@ -250,9 +250,64 @@ static void platform_spi_enable(void)
 	DMSG("pmx1base: 0x%" PRIxVA "\n", pmx1base);
 	DMSG("pmx2base: 0x%" PRIxVA "\n", pmx2base);
 
+	/* configure pmx2 */
+	DMSG("configure pmx2\n");
+	DMSG("before\n");
+	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
+	write32(0, pmx2base + PMX2_IOCG0); /* 0xF8001800 */
+	write32(0, pmx2base + PMX2_IOCG1); /* 0xF8001804 */
+	write32(0, pmx2base + PMX2_IOCG2); /* 0xF8001808 */
+	write32(0, pmx2base + PMX2_IOCG28); /* 0xF8001870 */
+	write32(0, pmx2base + PMX2_IOCG29); /* 0xF8001874 */
+	DMSG("after\n");
+	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
+
+	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
+	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
+	DMSG("before\n");
+	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
+	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
+	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
+	write32(0, pmx1base + PMX1_IOCG104); /* 0xF70109B0 */
+	write32(0, pmx1base + PMX1_IOCG105); /* 0xF70109B4 */
+	write32(0, pmx1base + PMX1_IOCG106); /* 0xF70109B8 */
+	write32(0, pmx1base + PMX1_IOCG107); /* 0xF70109BC */
+	DMSG("after\n");
+	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
+	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
+	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
+
+	/* configure pin mux: 0: gpio, 1: spi */
+	DMSG("configure gpio6_{0,1,3} as spi\n");
+	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
+	DMSG("before\n");
+	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
+	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
+	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
+	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
+	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
+	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
+	DMSG("after\n");
+	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
+	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
+	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
+
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
-	shifted_val = PERI_RST3_SSP;
+	shifted_val = (1 << 9); //PERI_RST3_SSP;
 	write32(shifted_val, peribase + PERI_SC_PERIPH_RSTDIS3);
 
 	/* wait until the requested device is out of reset, and ready to be used */
@@ -359,6 +414,7 @@ static void peri_init_n_config(void)
 	gpio6bs = gpio6base;
 	spibs = spibase;
 
+	DMSG("consolebase: 0x%" PRIxVA "\n", console_base());
 	DMSG("gpio6base: 0x%" PRIxVA "\n", gpio6base);
 	DMSG("spibase: 0x%" PRIxVA "\n", spibase);
 
@@ -551,16 +607,19 @@ static void spi_test_linksprite(void)
 				varm_va2pa_helper((void *)gpio6bs, &chk_pa);
 				varm_va2pa_helper((void *)peribs, &chk_pa);
 				varm_va2pa_helper((void *)spibs, &chk_pa);
+				varm_va2pa_helper((void *)pmx2bs, &chk_pa);
 				DMSG("pmx0bs VA: %p\n", phys_to_virt(PMX0_BASE, g_memtype_dev));
 				DMSG("pmx1bs VA: %p\n", phys_to_virt(PMX1_BASE, g_memtype_dev));
 				DMSG("gpio6bs VA: %p\n", phys_to_virt(GPIO6_BASE, g_memtype_dev));
 				DMSG("peribs VA: %p\n", phys_to_virt(PERI_BASE, g_memtype_dev));
 				DMSG("spibs VA: %p\n", phys_to_virt(SPI_BASE, g_memtype_dev));
+				DMSG("pmx2bs VA: %p\n", phys_to_virt(PMX2_BASE, g_memtype_dev));
 				DMSG("pmx0bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx0bs));
 				DMSG("pmx1bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx1bs));
 				DMSG("gpio6bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)gpio6bs));
 				DMSG("peribs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)peribs));
 				DMSG("spibs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)spibs));
+				DMSG("pmx2bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx2bs));
 				break;
 			case 'c':
 				for (j=0; j<20; j++)
