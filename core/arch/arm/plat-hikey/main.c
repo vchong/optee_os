@@ -276,25 +276,28 @@ static void platform_spi_enable(void)
 
 	/* configure pmx2 */
 	DMSG("configure pmx2\n");
-	DMSG("before\npmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx0base + PMX2_IOCG0));
-	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx0base + PMX2_IOCG1));
-	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx0base + PMX2_IOCG2));
-	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx0base + PMX2_IOCG28));
-	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx0base + PMX2_IOCG29));
+	DMSG("before\n");
+	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 	write32(0, pmx2base + PMX2_IOCG0); /* 0xF8001800 */
 	write32(0, pmx2base + PMX2_IOCG1); /* 0xF8001804 */
 	write32(0, pmx2base + PMX2_IOCG2); /* 0xF8001808 */
 	write32(0, pmx2base + PMX2_IOCG28); /* 0xF8001870 */
 	write32(0, pmx2base + PMX2_IOCG29); /* 0xF8001874 */
-	DMSG("after\npmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx0base + PMX2_IOCG0));
-	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx0base + PMX2_IOCG1));
-	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx0base + PMX2_IOCG2));
-	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx0base + PMX2_IOCG28));
-	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx0base + PMX2_IOCG29));
+	DMSG("after\n");
+	DMSG("pmx2base + PMX2_IOCG0: 0x%x\n", read32(pmx2base + PMX2_IOCG0));
+	DMSG("pmx2base + PMX2_IOCG1: 0x%x\n", read32(pmx2base + PMX2_IOCG1));
+	DMSG("pmx2base + PMX2_IOCG2: 0x%x\n", read32(pmx2base + PMX2_IOCG2));
+	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
+	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
 
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
-	DMSG("before\npmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("before\n");
+	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
 	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
 	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
 	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
@@ -302,7 +305,8 @@ static void platform_spi_enable(void)
 	write32(0, pmx1base + PMX1_IOCG105); /* 0xF70109B4 */
 	write32(0, pmx1base + PMX1_IOCG106); /* 0xF70109B8 */
 	write32(0, pmx1base + PMX1_IOCG107); /* 0xF70109BC */
-	DMSG("after\npmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
+	DMSG("after\n");
+	DMSG("pmx1base + PMX1_IOCG104: 0x%x\n", read32(pmx1base + PMX1_IOCG104));
 	DMSG("pmx1base + PMX1_IOCG105: 0x%x\n", read32(pmx1base + PMX1_IOCG105));
 	DMSG("pmx1base + PMX1_IOCG106: 0x%x\n", read32(pmx1base + PMX1_IOCG106));
 	DMSG("pmx1base + PMX1_IOCG107: 0x%x\n", read32(pmx1base + PMX1_IOCG107));
@@ -310,7 +314,8 @@ static void platform_spi_enable(void)
 	/* configure pin mux: 0: gpio, 1: spi */
 	DMSG("configure gpio6_{0,1,3} as spi\n");
 	DMSG("configure gpio6_2 as gpio, else hw ip will try to control it as well, causing interference\n");
-	DMSG("before\npmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("before\n");
+	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
 	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
@@ -318,7 +323,8 @@ static void platform_spi_enable(void)
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
 	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
-	DMSG("after\npmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
+	DMSG("after\n");
+	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
 	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
