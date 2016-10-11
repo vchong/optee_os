@@ -219,6 +219,7 @@ static vaddr_t pmx0bs;
 static vaddr_t pmx1bs;
 static vaddr_t pmx2bs;
 
+//0 nopull, 1 pullup, 2 pulldown
 #define SPI_PULL 0x0
 
 static void platform_spi_enable(void)
@@ -590,14 +591,21 @@ out:
 static void spi_test_linksprite(void)
 {
 	uint8_t tx[3], rx[3] = {0};
-	size_t num_rxpkts = 3, i, j;
+	size_t num_rxpkts = 3, i, j, len;
 	int ch = 'c';
 	paddr_t uart_base = console_base();
 	paddr_t chk_pa;
 
+	#if 0
 	tx[0] = 0x1;
 	tx[1] = 0x80;
 	tx[2] = 0;
+	len = 3;
+	#else
+	tx[0] = 0xf5; // 1st bit is 1 = R, 0 = W, followd by 7-bit o reg addr, reg addr = 0x75 is whoami reg shld ret val o 0x71
+	tx[1] = 0x00;
+	len = 2;
+	#endif
 
 	while (1)
 	{
@@ -630,10 +638,33 @@ static void spi_test_linksprite(void)
 				DMSG("pmx2bs PA: 0x%" PRIxPA "\n", virt_to_phys((void *)pmx2bs));
 				break;
 			case 'c':
+				tx[0] = 0x1;
+				tx[1] = 0x80;
+				tx[2] = 0;
+				len = 3;
 				for (j=0; j<20; j++)
 				{
 					DMSG("cycle: %zu\n", j);
-					platform_pl022_data.chip.ops->txrx8(&platform_pl022_data.chip, tx, rx, 3, &num_rxpkts);
+					platform_pl022_data.chip.ops->txrx8(&platform_pl022_data.chip, tx, rx, len, &num_rxpkts);
+					for (i=0; i<num_rxpkts; i++)
+					{
+						DMSG("rx[%zu] = 0x%x\n", i,rx[i]);
+					}
+
+					//sleep some, ~1-2s
+					for (i=0; i<100000000; i++)
+					{
+					}
+				}
+				break;
+			case 'd':
+				tx[0] = 0xf5; // 1st bit is 1 = R, 0 = W, followd by 7-bit o reg addr, reg addr = 0x75 is whoami reg shld ret val o 0x71
+				tx[1] = 0;
+				len = 2;
+				for (j=0; j<20; j++)
+				{
+					DMSG("cycle: %zu\n", j);
+					platform_pl022_data.chip.ops->txrx8(&platform_pl022_data.chip, tx, rx, len, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
 						DMSG("rx[%zu] = 0x%x\n", i,rx[i]);
