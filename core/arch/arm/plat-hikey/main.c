@@ -142,8 +142,8 @@ static void peri_init_n_config(void)
 	platform_pl061_data.chip.ops->set_interrupt(GPIO6_2, GPIO_INTERRUPT_DISABLE);
 	DMSG("enable software mode control for cs\n");
 	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
-	pl061_set_direction(GPIO6_2, GPIO_DIR_OUT);
-	pl061_set_value(GPIO6_2, GPIO_LEVEL_HIGH);
+	platform_pl061_data.chip.ops->set_direction(GPIO6_2, GPIO_DIR_OUT);
+	platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_HIGH);
 }
 
 static void spi_test_linksprite(void)
