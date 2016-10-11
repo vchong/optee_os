@@ -27,7 +27,7 @@ cppflags$(sm)	+= -Icore/include
 cppflags$(sm)	+= -include $(conf-file)
 cppflags$(sm)	+= -I$(out-dir)/core/include/generated
 cppflags$(sm)	+= $(core-platform-cppflags)
-cflags$(sm)	+= $(core-platform-cflags) -Wa,-alh #-save-temps
+cflags$(sm)	+= $(core-platform-cflags) -Wa,-alh=save-temps.log #-save-temps
 ifeq ($(CFG_CORE_SANITIZE_UNDEFINED),y)
 cflags$(sm)	+= -fsanitize=undefined
 endif
