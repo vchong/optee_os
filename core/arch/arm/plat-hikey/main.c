@@ -61,6 +61,7 @@ static enum teecore_memtypes g_memtype_dev = MEM_AREA_IO_NSEC;
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -119,7 +120,52 @@ static vaddr_t get_va(paddr_t pa)
 
 static void platform_spi_enable(void)
 {
+	vaddr_t peribase = get_va(PERI_BASE);
+	vaddr_t pmx0base = get_va(PMX0_BASE);
+	vaddr_t pmx1base = get_va(PMX1_BASE);
+	vaddr_t pmx2base = get_va(PMX2_BASE);
 
+	uint32_t shifted_val, read_val;
+
+	DMSG("peribase: 0x%" PRIxVA "\n", peribase);
+	DMSG("pmx0base: 0x%" PRIxVA "\n", pmx0base);
+	DMSG("pmx1base: 0x%" PRIxVA "\n", pmx1base);
+	DMSG("pmx2base: 0x%" PRIxVA "\n", pmx2base);
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* take SPI0 out of reset */
+	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
+	shifted_val = PERI_RST3_SSP;
+	write32(shifted_val, peribase + PERI_SC_PERIPH_RSTDIS3);
+
+	/* wait until the requested device is out of reset, and ready to be used */
+	do {
+	  read_val = read32(peribase + PERI_SC_PERIPH_RSTSTAT3);
+	} while (read_val & shifted_val);
+
+	DMSG("read_val: 0x%x\n", read_val);
+	DMSG("PERI_SC_PERIPH_RSTSTAT3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_RSTSTAT3));
+	DMSG("shifted_val: 0x%x\n", shifted_val);
+	DMSG("PERI_SC_PERIPH_RSTDIS3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_RSTDIS3));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* enable SPI clock */
+	/* no need to read PERI_SC_PERIPH_CLKEN3 first as all the bits are processed and cleared after writing */
+	shifted_val = PERI_CLK3_SSP;
+	write32(shifted_val, peribase + PERI_SC_PERIPH_CLKEN3);
+
+	DMSG("PERI_SC_PERIPH_CLKSTAT3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKSTAT3));
+	DMSG("shifted_val: 0x%x\n", shifted_val);
+	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKEN3));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	DMSG ("configure fr dt\n");
 }
 
 static struct pl061_data platform_pl061_data;
