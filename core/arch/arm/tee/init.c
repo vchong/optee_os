@@ -47,6 +47,8 @@ static void call_initcalls(void)
 {
 	initcall_t *call;
 
+	DMSG("call_initcalls\n");
+
 	for (call = &__initcall_start; call < &__initcall_end; call++) {
 		TEE_Result ret;
 		ret = (*call)();
