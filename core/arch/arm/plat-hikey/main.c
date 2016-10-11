@@ -57,6 +57,8 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
+static enum teecore_memtypes g_memtype_dev = MEM_AREA_IO_NSEC;
+
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 
