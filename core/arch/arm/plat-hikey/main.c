@@ -87,8 +87,8 @@ static vaddr_t console_base(void)
 static TEE_Result spi_test(void);
 void console_init(void)
 {
-	spi_test();
 	pl011_init(console_base(), CONSOLE_UART_CLK_IN_HZ, CONSOLE_BAUDRATE);
+	spi_test();
 }
 
 void console_putc(int ch)
