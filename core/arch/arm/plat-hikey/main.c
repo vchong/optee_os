@@ -159,10 +159,10 @@ static void spi_test_linksprite(void)
 		switch (ch)
 		{
 			case 't':
-				platform_pl061_data.chip.ops->set_value(platform_pl022_data.cs_gpio_pin, GPIO_LEVEL_LOW);
+				platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_LOW);
 				break;
 			case 'u':
-				platform_pl061_data.chip.ops->set_value(platform_pl022_data.cs_gpio_pin, GPIO_LEVEL_HIGH);
+				platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_HIGH);
 				break;
 			case 'v':
 				io_mask32(gpio6bs + (1<<4), 0, (1<<2));
