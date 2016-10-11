@@ -27,7 +27,13 @@
 
 #include <console.h>
 #include <drivers/pl011.h>
+#include <drivers/pl022_spi.h>
+#include <drivers/pl061_gpio.h>
+#include <hi6220.h>
+#include <initcall.h>
+#include <io.h>
 #include <kernel/generic_boot.h>
+#include <kernel/misc.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
 #include <mm/tee_pager.h>
@@ -52,6 +58,7 @@ static const struct thread_handlers handlers = {
 };
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -75,8 +82,10 @@ static vaddr_t console_base(void)
 	return CONSOLE_UART_BASE;
 }
 
+static TEE_Result spi_test(void);
 void console_init(void)
 {
+	spi_test();
 	pl011_init(console_base(), CONSOLE_UART_CLK_IN_HZ, CONSOLE_BAUDRATE);
 }
 
@@ -93,3 +102,126 @@ void console_flush(void)
 {
 	pl011_flush(console_base());
 }
+
+static vaddr_t get_va(paddr_t pa)
+{
+	/* WARNING: Make sure NOT static as in console_base */
+	void *va;
+
+	if (cpu_mmu_enabled()) {
+		va = phys_to_virt(pa, g_memtype_dev);
+		return (vaddr_t)va;
+	}
+	return (vaddr_t)pa;
+}
+
+static void platform_spi_enable(void)
+{
+
+}
+
+static struct pl061_data platform_pl061_data;
+static vaddr_t gpio6bs;
+
+static void peri_init_n_config(void)
+{
+	vaddr_t gpio6base = get_va(GPIO6_BASE);
+
+	gpio6bs = gpio6base;
+
+	DMSG("gpio6base: 0x%" PRIxVA "\n", gpio6base);
+
+	/* WARNING: Do this FIRST before anything else, even if gpio stuffs!!!!!! */
+	platform_spi_enable();
+
+	pl061_init(&platform_pl061_data);
+	pl061_register(gpio6base, 6);
+	DMSG("mask/disable interrupt for cs\n");
+	platform_pl061_data.chip.ops->set_interrupt(GPIO6_2, GPIO_INTERRUPT_DISABLE);
+	DMSG("enable software mode control for cs\n");
+	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
+}
+
+static void spi_test_linksprite(void)
+{
+	int ch = 'c';
+	paddr_t uart_base = console_base();
+
+	while (1)
+	{
+		while (!pl011_have_rx_data(uart_base));
+
+		ch = pl011_getchar(uart_base);
+		DMSG("cpu %zu: got 0x%x %c", get_core_pos(), ch, (char)ch);
+
+		switch (ch)
+		{
+			case 't':
+				platform_pl061_data.chip.ops->set_value(platform_pl022_data.cs_gpio_pin, GPIO_LEVEL_LOW);
+				break;
+			case 'u':
+				platform_pl061_data.chip.ops->set_value(platform_pl022_data.cs_gpio_pin, GPIO_LEVEL_HIGH);
+				break;
+			case 'v':
+				io_mask32(gpio6bs + (1<<4), 0, (1<<2));
+				break;
+			case 'w':
+				io_mask32(gpio6bs + (1<<4), (1<<2), (1<<2));
+				break;
+			case 'x':
+				write8(0, gpio6bs + (1<<4));
+				break;
+			case 'y':
+				write8(4, gpio6bs + (1<<4));
+			default:
+				break;
+		}
+
+		if (ch == 'q')
+			break;
+	}
+}
+
+void spi_test2(void)
+{
+	DMSG("Hello!\n");
+	DMSG("sizeof(void *): %lu\n", sizeof(void *));
+	DMSG("sizeof(bool): %lu\n", sizeof(bool));
+	DMSG("sizeof(uint8_t): %lu\n", sizeof(uint8_t));
+	DMSG("sizeof(uint16_t): %lu\n", sizeof(uint16_t));
+	DMSG("sizeof(uint32_t): %lu\n", sizeof(uint32_t));
+	DMSG("sizeof(uint64_t): %lu\n", sizeof(uint64_t));
+	DMSG("sizeof(vaddr_t): %lu\n", sizeof(vaddr_t));
+	DMSG("sizeof(paddr_t): %lu\n", sizeof(paddr_t));
+	DMSG("sizeof(int): %lu\n", sizeof(int));
+	DMSG("sizeof(unsigned int ): %lu\n", sizeof(unsigned int));
+	DMSG("sizeof(unsigned): %lu\n", sizeof(unsigned));
+	DMSG("sizeof(long): %lu\n", sizeof(long));
+	DMSG("sizeof(unsigned long): %lu\n", sizeof(unsigned long));
+	DMSG("sizeof(long long): %lu\n", sizeof(long long));
+	DMSG("sizeof(unsigned long long): %lu\n", sizeof(unsigned long long));
+	DMSG("sizeof(float): %lu\n", sizeof(float));
+	DMSG("sizeof(struct gpio_ops): %lu\n", sizeof(struct gpio_ops));
+	DMSG("sizeof(struct gpio_chip): %lu\n", sizeof(struct gpio_chip));
+	DMSG("sizeof(struct pl061_data): %lu\n", sizeof(struct pl061_data));
+	DMSG("sizeof(struct spi_ops): %lu\n", sizeof(struct spi_ops));
+	DMSG("sizeof(struct spi_chip): %lu\n", sizeof(struct spi_chip));
+	DMSG("sizeof(struct pl022_data): %lu\n", sizeof(struct pl022_data));
+
+	peri_init_n_config();
+
+	spi_test_linksprite();
+}
+
+static TEE_Result spi_test(void)
+{
+	if (cpu_mmu_enabled())
+		DMSG("cpu_mmu_enabled true\n");
+	else
+		DMSG("cpu_mmu_enabled false\n");
+	spi_test2();
+	return TEE_SUCCESS;
+}
+
+//driver_init_late(spi_test);
+//service_init(spi_test);

@@ -1,6 +1,11 @@
+# 64-bit flags
+#arm64-platform-cflags		+= -DPLAT_PL061_MAX_GPIOS=160 -save-temps
+arm64-platform-cflags		+= -DPLAT_PL061_MAX_GPIOS=160
+
 # 32-bit flags
 arm32-platform-cpuarch		:= cortex-a53
 arm32-platform-cflags		+= -mcpu=$(arm32-platform-cpuarch)
+arm32-platform-cflags		+= -DPLAT_PL061_MAX_GPIOS=160
 arm32-platform-aflags		+= -mcpu=$(arm32-platform-cpuarch)
 core_arm32-platform-aflags	+= -mfpu=neon
 
