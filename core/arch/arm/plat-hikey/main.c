@@ -118,8 +118,16 @@ static vaddr_t get_va(paddr_t pa)
 	return (vaddr_t)pa;
 }
 
+//0 nopull, 1 pullup, 2 pulldown
+#define PIN_NOPULL 0
+#define PIN_MUX0 0
+#define PIN_MUX1 1
+#define PIN_MUX3 3
+
 static void platform_spi_enable(void)
 {
+	int i;
+
 	vaddr_t peribase = get_va(PERI_BASE);
 	vaddr_t pmx0base = get_va(PMX0_BASE);
 	vaddr_t pmx1base = get_va(PMX1_BASE);
@@ -162,10 +170,214 @@ static void platform_spi_enable(void)
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKEN3));
 
+	DMSG("configure fr dt\n");
+	DMSG("configure pmx0\n");
+
 	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
 	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
 
-	DMSG ("configure fr dt\n");
+	DMSG("pmx0base + PMX_IOXG000: 0x%x\n", read32(pmx0base + PMX_IOXG000));
+	write32(PIN_MUX0, pmx0base + PMX_IOXG000);
+	DMSG("pmx0base + PMX_IOXG000: 0x%x\n", read32(pmx0base + PMX_IOXG000));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	for (i=0; i<10; i++) {
+		DMSG("pmx0base + PMX_IOXG064 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG064 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG064 + i*4);
+		DMSG("pmx0base + PMX_IOXG064 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG064 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* spi uses sd_pmx_func which is pinctrl-0 */
+	for (i=0; i<6; i++) {
+		DMSG("pmx0base + PMX_IOXG003 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG003 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG003 + i*4);
+		DMSG("pmx0base + PMX_IOXG003 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG003 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* spi uses sdio_pmx_func which is pinctrl-0 */
+	for (i=0; i<6; i++) {
+		DMSG("pmx0base + PMX_IOXG074 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG074 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG074 + i*4);
+		DMSG("pmx0base + PMX_IOXG074 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG074 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* isp_pmx_func */
+	for (i=0; i<3; i++) {
+		DMSG("pmx0base + PMX_IOXG009 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG009 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG009 + i*4);
+		DMSG("pmx0base + PMX_IOXG009 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG009 + i*4));
+	}
+	for (i=0; i<3; i++) {
+		DMSG("pmx0base + PMX_IOXG012 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG012 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG012 + i*4);
+		DMSG("pmx0base + PMX_IOXG012 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG012 + i*4));
+	}
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG015 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG015 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG015 + i*4);
+		DMSG("pmx0base + PMX_IOXG015 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG015 + i*4));
+	}
+	for (i=0; i<2; i++) {
+		DMSG("pmx0base + PMX_IOXG019 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG019 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG019 + i*4);
+		DMSG("pmx0base + PMX_IOXG019 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG019 + i*4));
+	}
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG021 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG021 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG021 + i*4);
+		DMSG("pmx0base + PMX_IOXG021 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG021 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* hkadc_ssi_pmx_func */
+	DMSG("pmx0base + PMX_IOXG026 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG026 + i*4));
+	write32(PIN_MUX0, pmx0base + PMX_IOXG026 + i*4);
+	DMSG("pmx0base + PMX_IOXG026 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG026 + i*4));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* codec_clk_pmx_func */
+	DMSG("pmx0base + PMX_IOXG027 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG027 + i*4));
+	write32(PIN_MUX0, pmx0base + PMX_IOXG027 + i*4);
+	DMSG("pmx0base + PMX_IOXG027 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG027 + i*4));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* codec_pmx_func */
+	DMSG("pmx0base + PMX_IOXG028 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG028 + i*4));
+	write32(PIN_MUX1, pmx0base + PMX_IOXG028 + i*4);
+	DMSG("pmx0base + PMX_IOXG028 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG028 + i*4));
+
+	for (i=0; i<3; i++) {
+		DMSG("pmx0base + PMX_IOXG029 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG029 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG029 + i*4);
+		DMSG("pmx0base + PMX_IOXG029 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG029 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* fm_pmx_func */
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG032 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG032 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG032 + i*4);
+		DMSG("pmx0base + PMX_IOXG032 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG032 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* bt_pmx_func */
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG036 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG036 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG036 + i*4);
+		DMSG("pmx0base + PMX_IOXG036 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG036 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* pwm_in_pmx_func */
+	DMSG("pmx0base + PMX_IOXG046 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG046 + i*4));
+	write32(PIN_MUX1, pmx0base + PMX_IOXG046 + i*4);
+	DMSG("pmx0base + PMX_IOXG046 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG046 + i*4));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* bl_pwm_pmx_func */
+	DMSG("pmx0base + PMX_IOXG047 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG047 + i*4));
+	write32(PIN_MUX1, pmx0base + PMX_IOXG047 + i*4);
+	DMSG("pmx0base + PMX_IOXG047 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG047 + i*4));
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* uart0-2_pmx_func */
+	for (i=0; i<10; i++) {
+		DMSG("pmx0base + PMX_IOXG048 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG048 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG048 + i*4);
+		DMSG("pmx0base + PMX_IOXG048 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG048 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* uart3_pmx_func */
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG096 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG096 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG096 + i*4);
+		DMSG("pmx0base + PMX_IOXG096 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG096 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* uart4-5_pmx_func */
+	for (i=0; i<6; i++) {
+		DMSG("pmx0base + PMX_IOXG114 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG114 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG114 + i*4);
+		DMSG("pmx0base + PMX_IOXG114 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG114 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* i2c0-2_pmx_func */
+	for (i=0; i<6; i++) {
+		DMSG("pmx0base + PMX_IOXG058 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG058 + i*4));
+		write32(PIN_MUX0, pmx0base + PMX_IOXG058 + i*4);
+		DMSG("pmx0base + PMX_IOXG058 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG058 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* spi0_pmx_func */
+	for (i=0; i<4; i++) {
+		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG104 + i*4);
+		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
+	}
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+	/* modem_pmx_func */
+	for (i=0; i<2; i++) {
+		DMSG("pmx0base + PMX_IOXG102 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG102 + i*4));
+		write32(PIN_MUX3, pmx0base + PMX_IOXG102 + i*4);
+		DMSG("pmx0base + PMX_IOXG102 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG102 + i*4));
+	}
+	for (i=0; i<2; i++) {
+		DMSG("pmx0base + PMX_IOXG116 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG116 + i*4));
+		write32(PIN_MUX3, pmx0base + PMX_IOXG116 + i*4);
+		DMSG("pmx0base + PMX_IOXG116 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG116 + i*4));
+	}
+
+	DMSG("configure pmx1\n");
+
+	while (!pl011_have_rx_data(CONSOLE_UART_BASE));
+	DMSG("cpu0 %zu: got key=%c", get_core_pos(), (char)pl011_getchar(CONSOLE_UART_BASE));
+
+
+
+
 }
 
 static struct pl061_data platform_pl061_data;
