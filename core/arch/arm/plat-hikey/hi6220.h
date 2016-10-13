@@ -48,6 +48,8 @@
 #define PMX2_REG_SIZE			0x78
 
 #define PMX_IOXG000			0
+#define PMX_IOXG001			0x4
+#define PMX_IOXG002			0x8
 #define PMX_IOXG003			0xc
 #define PMX_IOXG004			0x10
 #define PMX_IOXG005			0x14
