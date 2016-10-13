@@ -130,9 +130,9 @@ static vaddr_t get_va(paddr_t pa)
 #define PIN_NP 0
 #define PIN_PU 1
 #define PIN_PD 2
-#define DRIVE1_04MA 8
-#define DRIVE1_08MA 0x10
-#define DRIVE1_10MA 0x18
+#define DRIVE1_04MA 0x10
+#define DRIVE1_08MA 0x20
+#define DRIVE1_10MA 0x30
 
 static void platform_spi_enable(void)
 {
@@ -367,14 +367,14 @@ static void platform_spi_enable(void)
 	DMSG("spi0_pmx_func\n");
 	for (i=0; i<2; i++) {
 		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
-		write32(PIN_MUX0, pmx0base + PMX_IOXG104 + i*4);
+		write32(PIN_MUX1, pmx0base + PMX_IOXG104 + i*4);
 		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
 	}
 	DMSG("pmx0base + PMX_IOXG106: 0x%x\n",  read32(pmx0base + PMX_IOXG106));
-	write32(PIN_MUX0, pmx0base + PMX_IOXG106);
+	write32(PIN_MUX1, pmx0base + PMX_IOXG106);
 	DMSG("pmx0base + PMX_IOXG106: 0x%x\n",  read32(pmx0base + PMX_IOXG106));
 	DMSG("pmx0base + PMX_IOXG107: 0x%x\n",  read32(pmx0base + PMX_IOXG107));
-	write32(PIN_MUX0, pmx0base + PMX_IOXG107);
+	write32(PIN_MUX1, pmx0base + PMX_IOXG107);
 	DMSG("pmx0base + PMX_IOXG107: 0x%x\n",  read32(pmx0base + PMX_IOXG107));
 
 	while (!pl011_have_rx_data(uart_base));
@@ -429,7 +429,7 @@ static void platform_spi_enable(void)
 	DMSG("emmc_cfg_func\n");
 	for (i=0; i<9; i++) {
 		DMSG("pmx1base + PMX_IOXG066 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG066 + i*4));
-		write32(PIN_PU+DRIVE1_04MA, pmx1base + PMX_IOXG066 + i*4);
+		write32(PIN_PU|DRIVE1_04MA, pmx1base + PMX_IOXG066 + i*4);
 		DMSG("pmx1base + PMX_IOXG066 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG066 + i*4));
 	}
 
@@ -473,7 +473,7 @@ static void platform_spi_enable(void)
 	DMSG("sdio_cfg_func\n");
 	for (i=0; i<5; i++) {
 		DMSG("pmx1base + PMX_IOXG078 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG078 + i*4));
-		write32(PIN_PU+DRIVE1_04MA, pmx1base + PMX_IOXG078 + i*4);
+		write32(PIN_PU|DRIVE1_04MA, pmx1base + PMX_IOXG078 + i*4);
 		DMSG("pmx1base + PMX_IOXG078 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG078 + i*4));
 	}
 
@@ -646,7 +646,7 @@ static void platform_spi_enable(void)
 	DMSG("spi0_cfg_func - on RST is PIN_PD (2)\n");
 	for (i=0; i<4; i++) {
 		DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
-		write32(PIN_PD+DRIVE1_04MA, pmx1base + PMX_IOXG108 + i*4);
+		write32(PIN_NP, pmx1base + PMX_IOXG108 + i*4);
 		DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
 	}
 
@@ -777,10 +777,17 @@ static void spi_test_linksprite(void)
 
 		switch (ch)
 		{
+			case 'k':
+				for (i=0; i<4; i++) {
+					DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
+					write32(PIN_PD|DRIVE1_10MA, pmx1base + PMX_IOXG108 + i*4);
+					DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
+				}
+				break;
 			case 'l':
 				for (i=0; i<4; i++) {
 					DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
-					write32(PIN_PD+DRIVE1_10MA, pmx1base + PMX_IOXG108 + i*4);
+					write32(PIN_PD|DRIVE1_04MA, pmx1base + PMX_IOXG108 + i*4);
 					DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
 				}
 				break;
