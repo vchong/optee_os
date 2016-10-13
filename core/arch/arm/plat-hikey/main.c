@@ -344,11 +344,16 @@ static void platform_spi_enable(void)
 	while (!pl011_have_rx_data(uart_base));
 	DMSG("cpu %zu: got key=%c", get_core_pos(), (char)pl011_getchar(uart_base));
 
-	DMSG("uart4-5_pmx_func\n");
-	for (i=0; i<6; i++) {
+	DMSG("uart4-5_pmx_func - 116 n 117 belongs to modem_pcm_pmx_func\n");
+	for (i=0; i<2; i++) {
 		DMSG("pmx0base + PMX_IOXG114 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG114 + i*4));
 		write32(PIN_MUX1, pmx0base + PMX_IOXG114 + i*4);
 		DMSG("pmx0base + PMX_IOXG114 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG114 + i*4));
+	}
+	for (i=0; i<2; i++) {
+		DMSG("pmx0base + PMX_IOXG118 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG118 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG118 + i*4);
+		DMSG("pmx0base + PMX_IOXG118 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG118 + i*4));
 	}
 
 	while (!pl011_have_rx_data(uart_base));
@@ -380,7 +385,7 @@ static void platform_spi_enable(void)
 	while (!pl011_have_rx_data(uart_base));
 	DMSG("cpu %zu: got key=%c", get_core_pos(), (char)pl011_getchar(uart_base));
 
-	DMSG("modem_pmx_func\n");
+	DMSG("modem_pcm_pmx_func\n");
 	for (i=0; i<2; i++) {
 		DMSG("pmx0base + PMX_IOXG102 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG102 + i*4));
 		write32(PIN_MUX3, pmx0base + PMX_IOXG102 + i*4);
