@@ -731,12 +731,34 @@ static void peri_init_n_config(void)
 
 	pl061_init(&platform_pl061_data);
 	pl061_register(gpio6base, 6);
+
 	DMSG("mask/disable interrupt for cs\n");
 	platform_pl061_data.chip.ops->set_interrupt(GPIO6_2, GPIO_INTERRUPT_DISABLE);
 	DMSG("enable software mode control for cs\n");
 	pl061_set_mode_control(GPIO6_2, PL061_MC_SW);
 	platform_pl061_data.chip.ops->set_direction(GPIO6_2, GPIO_DIR_OUT);
 	platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_HIGH);
+
+	DMSG("mask/disable interrupt for cs\n");
+	platform_pl061_data.chip.ops->set_interrupt(GPIO6_0, GPIO_INTERRUPT_DISABLE);
+	DMSG("enable software mode control for cs\n");
+	pl061_set_mode_control(GPIO6_0, PL061_MC_SW);
+	platform_pl061_data.chip.ops->set_direction(GPIO6_0, GPIO_DIR_OUT);
+	platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_LOW);
+
+	DMSG("mask/disable interrupt for cs\n");
+	platform_pl061_data.chip.ops->set_interrupt(GPIO6_1, GPIO_INTERRUPT_DISABLE);
+	DMSG("enable software mode control for cs\n");
+	pl061_set_mode_control(GPIO6_1, PL061_MC_SW);
+	platform_pl061_data.chip.ops->set_direction(GPIO6_1, GPIO_DIR_OUT);
+	platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_LOW);
+
+	DMSG("mask/disable interrupt for cs\n");
+	platform_pl061_data.chip.ops->set_interrupt(GPIO6_3, GPIO_INTERRUPT_DISABLE);
+	DMSG("enable software mode control for cs\n");
+	pl061_set_mode_control(GPIO6_3, PL061_MC_SW);
+	platform_pl061_data.chip.ops->set_direction(GPIO6_3, GPIO_DIR_OUT);
+	platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_LOW);
 }
 
 static void spi_test_linksprite(void)
