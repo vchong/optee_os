@@ -181,11 +181,31 @@ static void platform_spi_enable(void)
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKEN3));
 
+	DMSG("spi0_pmx_func\n");
+	for (i=0; i<2; i++) {
+		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
+		write32(PIN_MUX1, pmx0base + PMX_IOXG104 + i*4);
+		DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
+	}
+	DMSG("pmx0base + PMX_IOXG106: 0x%x\n",  read32(pmx0base + PMX_IOXG106));
+	write32(PIN_MUX0, pmx0base + PMX_IOXG106);
+	DMSG("pmx0base + PMX_IOXG106: 0x%x\n",  read32(pmx0base + PMX_IOXG106));
+	DMSG("pmx0base + PMX_IOXG107: 0x%x\n",  read32(pmx0base + PMX_IOXG107));
+	write32(PIN_MUX1, pmx0base + PMX_IOXG107);
+	DMSG("pmx0base + PMX_IOXG107: 0x%x\n",  read32(pmx0base + PMX_IOXG107));
+
+	DMSG("spi0_cfg_func - on RST is PIN_PD (2)\n");
+	for (i=0; i<4; i++) {
+		DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
+		write32(PIN_NP, pmx1base + PMX_IOXG108 + i*4);
+		DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
+	}
 
 
 
 
 
+	#if 0
 	DMSG("configure fr dt\n");
 	DMSG("configure pmx0\n");
 
@@ -718,6 +738,7 @@ static void platform_spi_enable(void)
 		write32(PIN_NP, pmx2base + PMX_IOXG028 + i*4);
 		DMSG("pmx2base + PMX_IOXG028 + 0x%x: 0x%x\n", i*4, read32(pmx2base + PMX_IOXG028 + i*4));
 	}
+	#endif
 }
 
 static struct pl061_data platform_pl061_data;
@@ -744,26 +765,28 @@ static void peri_init_n_config(void)
 	platform_pl061_data.chip.ops->set_direction(GPIO6_2, GPIO_DIR_OUT);
 	platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_HIGH);
 
-	DMSG("mask/disable interrupt for cs\n");
+	#if 0
+	DMSG("mask/disable interrupt for gpio6_0\n");
 	platform_pl061_data.chip.ops->set_interrupt(GPIO6_0, GPIO_INTERRUPT_DISABLE);
-	DMSG("enable software mode control for cs\n");
+	DMSG("enable software mode control for gpio6_0\n");
 	pl061_set_mode_control(GPIO6_0, PL061_MC_SW);
 	platform_pl061_data.chip.ops->set_direction(GPIO6_0, GPIO_DIR_OUT);
 	platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_LOW);
 
-	DMSG("mask/disable interrupt for cs\n");
+	DMSG("mask/disable interrupt for gpio6_1\n");
 	platform_pl061_data.chip.ops->set_interrupt(GPIO6_1, GPIO_INTERRUPT_DISABLE);
-	DMSG("enable software mode control for cs\n");
+	DMSG("enable software mode control for gpio6_1\n");
 	pl061_set_mode_control(GPIO6_1, PL061_MC_SW);
 	platform_pl061_data.chip.ops->set_direction(GPIO6_1, GPIO_DIR_OUT);
 	platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_LOW);
 
-	DMSG("mask/disable interrupt for cs\n");
+	DMSG("mask/disable interrupt for gpio6_2\n");
 	platform_pl061_data.chip.ops->set_interrupt(GPIO6_3, GPIO_INTERRUPT_DISABLE);
-	DMSG("enable software mode control for cs\n");
+	DMSG("enable software mode control for gpio6_2\n");
 	pl061_set_mode_control(GPIO6_3, PL061_MC_SW);
 	platform_pl061_data.chip.ops->set_direction(GPIO6_3, GPIO_DIR_OUT);
 	platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_LOW);
+	#endif
 }
 
 static void spi_test_linksprite(void)
@@ -782,6 +805,7 @@ static void spi_test_linksprite(void)
 
 		switch (ch)
 		{
+			#if 0
 			case 'k':
 				for (i=0; i<4; i++) {
 					DMSG("pmx1base + PMX_IOXG108 + 0x%x: 0x%x\n", i*4, read32(pmx1base + PMX_IOXG108 + i*4));
@@ -838,41 +862,42 @@ static void spi_test_linksprite(void)
 					DMSG("pmx0base + PMX_IOXG104 + 0x%x: 0x%x\n", i*4, read32(pmx0base + PMX_IOXG104 + i*4));
 				}
 				break;
+			#endif
 			case 't':
-				platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_LOW);
-				platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_LOW);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_LOW);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_LOW);
 				platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_LOW);
-				platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_LOW);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_LOW);
 				break;
 			case 'u':
-				platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_HIGH);
-				platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_HIGH);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_0, GPIO_LEVEL_HIGH);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_1, GPIO_LEVEL_HIGH);
 				platform_pl061_data.chip.ops->set_value(GPIO6_2, GPIO_LEVEL_HIGH);
-				platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_HIGH);
+				//platform_pl061_data.chip.ops->set_value(GPIO6_3, GPIO_LEVEL_HIGH);
 				break;
 			case 'v':
-				io_mask32(gpio6bs + (1<<2), 0, (1<<0));
-				io_mask32(gpio6bs + (1<<3), 0, (1<<1));
+				//io_mask32(gpio6bs + (1<<2), 0, (1<<0));
+				//io_mask32(gpio6bs + (1<<3), 0, (1<<1));
 				io_mask32(gpio6bs + (1<<4), 0, (1<<2));
-				io_mask32(gpio6bs + (1<<5), 0, (1<<3));
+				//io_mask32(gpio6bs + (1<<5), 0, (1<<3));
 				break;
 			case 'w':
-				io_mask32(gpio6bs + (1<<2), (1<<0), (1<<0));
-				io_mask32(gpio6bs + (1<<3), (1<<1), (1<<1));
+				//io_mask32(gpio6bs + (1<<2), (1<<0), (1<<0));
+				//io_mask32(gpio6bs + (1<<3), (1<<1), (1<<1));
 				io_mask32(gpio6bs + (1<<4), (1<<2), (1<<2));
-				io_mask32(gpio6bs + (1<<5), (1<<3), (1<<3));
+				//io_mask32(gpio6bs + (1<<5), (1<<3), (1<<3));
 				break;
 			case 'x':
-				write8(0, gpio6bs + (1<<2));
-				write8(0, gpio6bs + (1<<3));
+				//write8(0, gpio6bs + (1<<2));
+				//write8(0, gpio6bs + (1<<3));
 				write8(0, gpio6bs + (1<<4));
-				write8(0, gpio6bs + (1<<5));
+				//write8(0, gpio6bs + (1<<5));
 				break;
 			case 'y':
-				write8(4, gpio6bs + (1<<2));
-				write8(4, gpio6bs + (1<<3));
+				//write8(4, gpio6bs + (1<<2));
+				//write8(4, gpio6bs + (1<<3));
 				write8(4, gpio6bs + (1<<4));
-				write8(4, gpio6bs + (1<<5));
+				//write8(4, gpio6bs + (1<<5));
 			default:
 				break;
 		}
