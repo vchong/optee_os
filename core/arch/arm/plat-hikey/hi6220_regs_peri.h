@@ -33,7 +33,7 @@
 #define __HI6220_PERI_H__
 
 #define PERI_BASE				0xF7030000
-#define PERI_BASE_REG_SIZE		0x1000
+#define PERI_BASE_REG_SIZE		0x2000
 
 #define PERI_SC_PERIPH_CTRL1			(0x000)
 #define PERI_SC_PERIPH_CTRL2			(0x004)
