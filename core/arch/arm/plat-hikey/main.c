@@ -219,9 +219,19 @@ static vaddr_t pmx0bs;
 static vaddr_t pmx1bs;
 static vaddr_t pmx2bs;
 
-//0 nopull, 1 pullup, 2 pulldown
-#define SPI_PULL 0x0
+#define PIN_MUX0 0
+#define PIN_MUX1 1
+#define PIN_MUX3 3
 
+//0 nopull, 1 pullup, 2 pulldown
+#define PIN_NP 0
+#define PIN_PU 1
+#define PIN_PD 2
+#define DRIVE1_04MA 0x10
+#define DRIVE1_08MA 0x20
+#define DRIVE1_10MA 0x30
+
+#define SPI_PULL PIN_NP
 static void platform_spi_enable(void)
 {
 	#if 1
@@ -253,6 +263,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx1base: 0x%" PRIxVA "\n", pmx1base);
 	DMSG("pmx2base: 0x%" PRIxVA "\n", pmx2base);
 
+	#if 0
 	/* configure pmx2 */
 	DMSG("configure pmx2\n");
 	DMSG("before\n");
@@ -275,7 +286,9 @@ static void platform_spi_enable(void)
 	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
+	#endif
 
+	#if 0
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
 	DMSG("before\n");
@@ -303,13 +316,14 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
 	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
+	#endif
 
 	/* take SPI0 out of reset */
 	/* no need to read PERI_SC_PERIPH_RSTDIS3 first as all the bits are processed and cleared after writing */
@@ -335,6 +349,7 @@ static void platform_spi_enable(void)
 	DMSG("shifted_val: 0x%x\n", shifted_val);
 	DMSG("PERI_SC_PERIPH_CLKEN3: 0x%x\n", read32(peribase + PERI_SC_PERIPH_CLKEN3));
 
+	#if 0
 	/* configure pmx2 */
 	DMSG("configure pmx2\n");
 	DMSG("before\n");
@@ -357,6 +372,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx3base + PMX2_IOCG3: 0x%x\n", read32(pmx2base + PMX2_IOCG3));
 	DMSG("pmx2base + PMX2_IOCG28: 0x%x\n", read32(pmx2base + PMX2_IOCG28));
 	DMSG("pmx2base + PMX2_IOCG29: 0x%x\n", read32(pmx2base + PMX2_IOCG29));
+	#endif
 
 	/* configure pin bias: 0: nopull, 1: pullup, 2: pulldown */
 	DMSG("configure gpio6_{0:3} as nopull and 02ma drive\n");
@@ -385,7 +401,7 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
 	write32(1, pmx0base + PMX0_IOMG104); /* 0xF70101A0 */
 	write32(1, pmx0base + PMX0_IOMG105); /* 0xF70101A4 */
-	write32(1, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
+	write32(0, pmx0base + PMX0_IOMG106); /* 0xF70101A8 */
 	write32(1, pmx0base + PMX0_IOMG107); /* 0xF70101AC */
 	DMSG("after\n");
 	DMSG("pmx0base + PMX0_IOMG104: 0x%x\n", read32(pmx0base + PMX0_IOMG104));
