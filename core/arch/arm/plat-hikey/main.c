@@ -61,20 +61,22 @@ static enum teecore_memtypes g_memtype_dev = MEM_AREA_IO_NSEC;
 
 register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
 
+#if 0
 #if defined(CFG_CONSOLE_UART) && (CFG_CONSOLE_UART == 0)
 register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
 #else
 register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, PMX2_REG_SIZE);
 #endif
+#endif
 
-#if 0
+#if 1
 register_phys_mem(MEM_AREA_IO_NSEC, PMX0_BASE, PMX0_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX1_BASE, PMX1_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, PL061_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, PERI_BASE_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, PL022_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, PMX2_REG_SIZE);
-
+register_phys_mem(MEM_AREA_IO_NSEC, PMUSSI_BASE, PMUSSI_REG_SIZE);
 #endif
 
 #if 0
@@ -84,6 +86,7 @@ register_phys_mem(MEM_AREA_IO_NSEC, GPIO6_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PERI_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, SPI_BASE, CORE_MMU_DEVICE_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PMX2_BASE, CORE_MMU_DEVICE_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PMUSSI_BASE, CORE_MMU_DEVICE_SIZE);
 #endif
 
 const struct thread_handlers *generic_boot_get_handlers(void)
@@ -232,6 +235,9 @@ static vaddr_t pmx2bs;
 #define DRIVE1_10MA 0x30
 
 #define SPI_PULL PIN_NP
+
+#define LDO21_REG_ADJ	0x086
+
 static void platform_spi_enable(void)
 {
 	#if 1
@@ -248,7 +254,11 @@ static void platform_spi_enable(void)
 	//vaddr_t tst1 = get_va(CONSOLE_UART_BASE);
 	//vaddr_t tst2 = get_va(CONSOLE_UART_BASE);
 
+	vaddr_t pmussibase = get_va(PMUSSI_BASE);
+
 	uint32_t shifted_val, read_val;
+	uint8_t data;
+	vaddr_t enable_ldo17_22;
 
 	peribs = peribase;
 	pmx0bs = pmx0base;
@@ -408,8 +418,18 @@ static void platform_spi_enable(void)
 	DMSG("pmx0base + PMX0_IOMG105: 0x%x\n", read32(pmx0base + PMX0_IOMG105));
 	DMSG("pmx0base + PMX0_IOMG106: 0x%x\n", read32(pmx0base + PMX0_IOMG106));
 	DMSG("pmx0base + PMX0_IOMG107: 0x%x\n", read32(pmx0base + PMX0_IOMG107));
-}
 
+	/* enable LDO21 */
+	/* This is pin 35 (1.8v source) on the LS connector.
+	  * Usually either a 1.8v SPI client chip or 3.3v/5v level shifter is connected to or sourced from this pin.
+	  * So if not enabled, the chip or level shifter will not work, which means SPI communication will not either.
+	  */
+	data = read8(LDO21_REG_ADJ);
+	data = (data & 0xf8) | 0x3;
+	write8(data, LDO21_REG_ADJ);
+	enable_ldo17_22 = pmussibase + (0x02f << 2);
+	write8(1 << 4, enable_ldo17_22);
+}
 
 static struct pl061_data platform_pl061_data;
 
