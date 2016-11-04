@@ -424,9 +424,9 @@ static void platform_spi_enable(void)
 	  * Usually either a 1.8v SPI client chip or 3.3v/5v level shifter is connected to or sourced from this pin.
 	  * So if not enabled, the chip or level shifter will not work, which means SPI communication will not either.
 	  */
-	data = read8(LDO21_REG_ADJ);
+	data = read8(pmussibase + (LDO21_REG_ADJ << 2));
 	data = (data & 0xf8) | 0x3;
-	write8(data, LDO21_REG_ADJ);
+	write8(data, pmussibase + (LDO21_REG_ADJ << 2));
 	enable_ldo17_22 = pmussibase + (0x02f << 2);
 	write8(1 << 4, enable_ldo17_22);
 }
