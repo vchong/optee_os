@@ -127,6 +127,10 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 {
 	vaddr_t base_addr;
 	unsigned int offset;
+	//static int cnt=0 __maybe_unused;
+
+	//if (!value)
+		//DMSG("in%d value=%d\n", cnt++, value);
 
 	assert(gpio_pin < PLAT_PL061_MAX_GPIOS);
 
@@ -136,6 +140,9 @@ static void pl061_set_value(unsigned int gpio_pin, enum gpio_level value)
 		write8(BIT(offset), base_addr + BIT(offset + 2));
 	else
 		write8(0, base_addr + BIT(offset + 2));
+
+	//if (value)
+		//DMSG("out%d value=%d\n", cnt++, value);
 }
 
 static enum gpio_interrupt pl061_get_interrupt(unsigned int gpio_pin)

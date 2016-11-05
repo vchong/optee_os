@@ -83,13 +83,21 @@
 #define GPIO6_2		50
 #define SPI_CLK_HZ	150000000 /* 150mhz */
 #define SPI_500_KHZ	500000
+#define SPI_10_KHZ	10000
 
+vaddr_t console_base(void);
 vaddr_t nsec_periph_base(paddr_t pa);
 
 #ifdef CFG_SPI
 void spi_init(void);
 #ifdef CFG_SPI_TEST
+void spi_manage_test(void);
 void spi_test(void);
+void spi_test16(void);
+void spi_test2(void);
+void spi_test3(void);
+void spi_test_with_manual_cs_control(void);
+void spi_test_lb(void);
 #endif /* CFG_SPI_TEST */
 #endif /* CFG_SPI */
 

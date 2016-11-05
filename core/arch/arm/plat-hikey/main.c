@@ -78,7 +78,7 @@ static void main_fiq(void)
 	panic();
 }
 
-static vaddr_t console_base(void)
+vaddr_t console_base(void)
 {
 	static void *va;
 
@@ -123,6 +123,21 @@ void spi_init(void)
 	vaddr_t peri_base = nsec_periph_base(PERI_BASE);
 	vaddr_t pmx0_base = nsec_periph_base(PMX0_BASE);
 	vaddr_t pmx1_base = nsec_periph_base(PMX1_BASE);
+	int ch;
+
+	while (1)
+	{
+		DMSG("init SPI? y/n\n");
+
+		ch = pl011_getchar(console_base());
+		DMSG("got 0x%x %c\n", ch, (char)ch);
+
+		if (ch == 'n') {
+			DMSG("skipping SPI init\n");
+			return;
+		} else
+			break;
+	}
 
 	DMSG("take SPI0 out of reset\n");
 	shifted_val = PERI_RST3_SSP;
@@ -157,29 +172,28 @@ void spi_init(void)
 		read32(peri_base + PERI_SC_PERIPH_CLKSTAT3));
 
 	/*
-	 * gpio6_2 can be configured as pinmux_spi, in which case the hw
-	 * will control the chip select pin and we don't have to manually
-	 * do it, but hw will pulse it between each data word transfer,
-	 * which will not work with all clients. There seems to be no
-	 * option to configure it to stay enabled for the total duration
-	 * of the transfer.
+	 * GPIO6_2 can be configured as PINMUX_GPIO, but as PINMUX_SPI, HW IP
+	 * will control the chip select pin so we don't have to manually do it.
+	 * The only concern is that the IP will pulse it between each packet,
+	 * which might not work with certain clients. There seems to be no
+	 * option to configure it to stay enabled for the total duration of the
+	 * transfer.
 	 * ref: http://infocenter.arm.com/help/topic/com.arm.doc.ddi0194h/CJACFAFG.html
 	 */
-	DMSG("configure gpio6_{0,1,3} as SPI\n");
-	DMSG("configure gpio6_2 as GPIO\n");
+	DMSG("configure gpio6 pins 0-3 as SPI\n");
 	write32(PINMUX_SPI, pmx0_base + PMX0_IOMG104);
 	write32(PINMUX_SPI, pmx0_base + PMX0_IOMG105);
-	write32(PINMUX_GPIO, pmx0_base + PMX0_IOMG106);
+	write32(PINMUX_SPI, pmx0_base + PMX0_IOMG106);
 	write32(PINMUX_SPI, pmx0_base + PMX0_IOMG107);
 
-	DMSG("configure gpio6_{0:3} as nopull\n");
+	DMSG("configure gpio6 pins 0-3 as nopull\n");
 	write32(PINCFG_NOPULL, pmx1_base + PMX1_IOCG104);
 	write32(PINCFG_NOPULL, pmx1_base + PMX1_IOCG105);
 	write32(PINCFG_NOPULL, pmx1_base + PMX1_IOCG106);
 	write32(PINCFG_NOPULL, pmx1_base + PMX1_IOCG107);
 
 #ifdef CFG_SPI_TEST
-	spi_test();
+	spi_manage_test();
 #endif
 }
 #endif

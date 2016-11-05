@@ -28,6 +28,9 @@
 #include <stdbool.h>
 #include <trace.h>
 #include "core_self_tests.h"
+#ifdef PLATFORM_hikey
+#include <hikey_peripherals.h> //rm in pr
+#endif
 
 /*
  * Enable expect LOG macro to enable/disable self tests traces.
@@ -44,6 +47,10 @@ static int self_test_malloc(void);
 TEE_Result core_self_tests(uint32_t nParamTypes __unused,
 		TEE_Param pParams[TEE_NUM_PARAMS] __unused)
 {
+#ifdef PLATFORM_hikey
+	spi_init(); //rm in pr
+#endif
+
 	if (self_test_division() || self_test_malloc()) {
 		EMSG("some self_test_xxx failed! you should enable local LOG");
 		return TEE_ERROR_GENERIC;

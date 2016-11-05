@@ -1178,6 +1178,7 @@ static uint32_t rpc_cmd_nolock(uint32_t cmd, size_t num_params,
 	const size_t params_size = sizeof(struct optee_msg_param) * num_params;
 	size_t n;
 
+	//vvc DMSG("arg = %p carg = 0x%lx num_params = %lu\n", (void *)arg, carg, num_params);
 	assert(arg && carg && num_params <= THREAD_RPC_MAX_NUM_PARAMS);
 
 	memset(arg, 0, OPTEE_MSG_GET_ARG_SIZE(THREAD_RPC_MAX_NUM_PARAMS));
