@@ -684,7 +684,7 @@ static void spi_test_linksprite(void)
 					platform_pl022_data.chip.ops->txrx8(&platform_pl022_data.chip, tx, rx, len, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
-						DMSG("rx[%zu] = 0x%x\n", i,rx[i]);
+						DMSG("rx[%zu] = 0x%x\n", i, rx[i]);
 					}
 
 					//sleep some, ~1-2s
@@ -703,7 +703,7 @@ static void spi_test_linksprite(void)
 					platform_pl022_data.chip.ops->txrx8(&platform_pl022_data.chip, tx, rx, len, &num_rxpkts);
 					for (i=0; i<num_rxpkts; i++)
 					{
-						DMSG("rx[%zu] = 0x%x\n", i,rx[i]);
+						DMSG("rx[%zu] = 0x%x\n", i, rx[i]);
 					}
 
 					//sleep some, ~1-2s
