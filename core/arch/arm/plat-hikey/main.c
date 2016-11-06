@@ -30,10 +30,10 @@
 #include <drivers/pl022_spi.h>
 #include <drivers/pl061_gpio.h>
 #include <hi6220.h>
-#include <initcall.h>
+#include <initcall.h> //driver_init_late
 #include <io.h>
 #include <kernel/generic_boot.h>
-#include <kernel/misc.h>
+#include <kernel/misc.h> //get_core_pos
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
 #include <mm/tee_pager.h>
