@@ -1,3 +1,13 @@
+<a href="https://scan.coverity.com/projects/vchong-optee_os">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/10779/badge.svg"/>
+</a>
+
+<a href="https://scan.coverity.com/projects/vchong-optee_os">
+  <img alt="Coverity Scan Build Status"
+       src="https://img.shields.io/coverity/scan/10779.svg"/>
+</a>
+
 # OP-TEE Trusted OS
 ## Contents
 1. [Introduction](#1-introduction)
