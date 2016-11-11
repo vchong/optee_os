@@ -2,7 +2,8 @@
 
 CHECKPATCH=checkpatch.pl
 # checkpatch.pl will ignore the following paths
-CHECKPATCH_IGNORE=$(echo core/lib/lib{fdt,tomcrypt} lib/lib{png,utils,zlib})
+CHECKPATCH_IGNORE=$(echo core/lib/lib{fdt,tomcrypt} lib/lib{png,utils,zlib} \
+	scripts/travis)
 _CP_EXCL=$(for p in $CHECKPATCH_IGNORE; do echo ":(exclude)$p" ; done)
 
 function _checkpatch() {
