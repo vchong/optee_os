@@ -55,7 +55,10 @@ mkdir $HOME/bin
 (cd $HOME/bin && wget https://storage.googleapis.com/git-repo-downloads/repo && chmod +x repo)
 export PATH=$HOME/bin:$PATH
 mkdir $HOME/optee_repo
-(cd $HOME/optee_repo && repo init -u https://github.com/OP-TEE/manifest.git -m travis.xml </dev/null && repo sync --no-clone-bundle --no-tags --quiet -j 2)
+#(cd $HOME/optee_repo && repo forall -vc "git clean -xdf; git reset --hard")
+#(cd $HOME/optee_repo && repo forall -vc "git reset --hard")
+#(cd $HOME/optee_repo && repo init -u https://github.com/OP-TEE/manifest.git -m travis.xml </dev/null && repo forall -vc "git reset --hard" && repo sync --force-sync --no-clone-bundle --no-tags --quiet -j 2)
+(cd $HOME/optee_repo && repo init -u https://github.com/OP-TEE/manifest.git -m travis.xml </dev/null && repo sync --force-sync --no-clone-bundle --no-tags --quiet -j 2)
 (cd $HOME/optee_repo/qemu && git submodule update --init dtc)
 (cd $HOME/optee_repo && mv optee_os optee_os_old && ln -s $MYHOME optee_os)
 cd $MYHOME
