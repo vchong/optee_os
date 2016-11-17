@@ -2,21 +2,6 @@
 
 language: c
 
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "M+n59CM+FEsyWaSydKp+NjdlVUgMV2L2f8nNi615SRYIYp442WjNcv6rOS7HEs3uPiqP6bwiNZ1XgDNbPQkcq7cCf3MRXh9snBN3u45xRqfjygKx1uxicO3Ul/tLZEfTSesiJ4SC19WY+mrg6lOdl5bJqy5+XhoKFMwPk2PSnpoKpkkfIcdr/5s0SLl7UoJlg+MyO5/PcZXHTf2DYofQn+k+oyAPQcKMDquOv7TS3yd5o4xiTwWc98EhK4p0ryz6MTDw/TuPv5Az8HdL0ISwmzFN0bXDm2WJrmvq4ecPxX9RAXBJ6sVl4DCL3hh79x/5B+bIHQqsZa1UGEAhrwrzq4m1G8JG6SlkwfS6yfoA6aqwVXLTCD1es9rL2mlU2TYdyfU0dpidgfWr5/VzVCIM5kEPjyfv8nFG0zPCnIzC6fydX5caupwQ41o4YD5rVcL9wRnMLhkPGC0/xeKboekqWsEv0XY1PXrA1jP4opBWtvsCM91ByyrTDpijYlJ+AnAQ2tJe5rA3hgm5c0sP5GKGC7G9oN/fYCVobEgdVgQoWxU6ZNfrBhWSBCRupHHT2QfUktI+g4RX5ZbzozJPxfBhT6PLfYUgtsGqYOQnp823ivCq51TW7vX5v8fivjLCWnz8X3I4Jl/bwNY4epEYF7r4cMKwq59BmQ2kx5iANFWvQbU="
-
-addons:
-  coverity_scan:
-    project:
-      name: "vchong/optee_os"
-    notification_email: victor.chong@linaro.org
-    build_command_prepend:
-    build_command: scripts/travis/coverity_build.sh
-    branch_pattern: coverity_scan
-
 notifications:
   - email: true
 
@@ -40,3 +25,16 @@ script:
   - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
       scripts/travis/script.sh || travis_terminate 1;
     fi
+
+env:
+  global:
+    secure: "M+n59CM+FEsyWaSydKp+NjdlVUgMV2L2f8nNi615SRYIYp442WjNcv6rOS7HEs3uPiqP6bwiNZ1XgDNbPQkcq7cCf3MRXh9snBN3u45xRqfjygKx1uxicO3Ul/tLZEfTSesiJ4SC19WY+mrg6lOdl5bJqy5+XhoKFMwPk2PSnpoKpkkfIcdr/5s0SLl7UoJlg+MyO5/PcZXHTf2DYofQn+k+oyAPQcKMDquOv7TS3yd5o4xiTwWc98EhK4p0ryz6MTDw/TuPv5Az8HdL0ISwmzFN0bXDm2WJrmvq4ecPxX9RAXBJ6sVl4DCL3hh79x/5B+bIHQqsZa1UGEAhrwrzq4m1G8JG6SlkwfS6yfoA6aqwVXLTCD1es9rL2mlU2TYdyfU0dpidgfWr5/VzVCIM5kEPjyfv8nFG0zPCnIzC6fydX5caupwQ41o4YD5rVcL9wRnMLhkPGC0/xeKboekqWsEv0XY1PXrA1jP4opBWtvsCM91ByyrTDpijYlJ+AnAQ2tJe5rA3hgm5c0sP5GKGC7G9oN/fYCVobEgdVgQoWxU6ZNfrBhWSBCRupHHT2QfUktI+g4RX5ZbzozJPxfBhT6PLfYUgtsGqYOQnp823ivCq51TW7vX5v8fivjLCWnz8X3I4Jl/bwNY4epEYF7r4cMKwq59BmQ2kx5iANFWvQbU="
+
+addons:
+  coverity_scan:
+    project:
+      name: "vchong/optee_os"
+    notification_email: victor.chong@linaro.org
+    build_command_prepend: "cov-configure --comptype gcc --compiler arm-linux-gnueabihf-gcc --template"
+    build_command: scripts/travis/coverity_build.sh
+    branch_pattern: coverity_scan
