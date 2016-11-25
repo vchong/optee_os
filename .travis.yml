@@ -230,5 +230,5 @@ addons:
       description: "Build submitted via Travis CI"
     notification_email: victor.chong@linaro.org
     build_command_prepend: "cov-configure --comptype gcc --compiler arm-linux-gnueabihf-gcc --template"
-    build_command: "make"
+    build_command: "make PLATFORM=hikey CFG_ARM64_core=y"
     branch_pattern: coverity_scan
