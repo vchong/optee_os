@@ -115,14 +115,13 @@ script:
   - file out/arm-plat-hikey/core/tee.elf
   - make PLATFORM=hikey CFG_ARM64_core=y
   - file out/arm-plat-hikey/core/tee.elf
-  - make PLATFORM=hikey CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
-  - file out/arm-plat-hikey/core/tee.elf
   - echo "CROSS_COMPILE=${CROSS_COMPILE}"
   - echo "CROSS_COMPILE64=${CROSS_COMPILE64}"
   - echo "CROSS_COMPILE_core=${CROSS_COMPILE_core}"
   - echo "CROSS_COMPILE_ta_arm32=${CROSS_COMPILE_ta_arm32}"
   - echo "CROSS_COMPILE_ta_arm64=${CROSS_COMPILE_ta_arm64}"
   - ls -al out
+  - ls -al out/arm-plat-vexpress
 
   # Run regression tests (xtest in QEMU)
   - (cd ${HOME}/optee_repo/build && $make check AARCH32_CROSS_COMPILE=arm-linux-gnueabihf- CFG_TEE_CORE_DEBUG=y DUMP_LOGS_ON_ERROR=1)
