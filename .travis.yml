@@ -232,5 +232,5 @@ addons:
     build_command_prepend: "cov-configure --comptype gcc --compiler aarch64-linux-gnu-gcc --template"
     #[COMMAND LINE ERROR] Option 'comptype' and 'compiler' may only appear on the command line once.
     #build_command_prepend: "cov-configure --comptype gcc --compiler arm-linux-gnueabihf-gcc --compiler aarch64-linux-gnu-gcc --template"
-    build_command: "make; make PLATFORM=hikey CFG_ARM64_core=y"
+    build_command: "make && make PLATFORM=hikey CFG_ARM64_core=y"
     branch_pattern: coverity_scan
