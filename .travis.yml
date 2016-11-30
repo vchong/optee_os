@@ -84,7 +84,7 @@ before_script:
   - (cd $HOME/optee_repo/qemu && git submodule update --init dtc)
   - (cd $HOME/optee_repo && mv optee_os optee_os_old && ln -s $MYHOME optee_os)
   - cd $MYHOME
-  - git fetch https://github.com/OP-TEE/optee_os --tags
+  - git fetch https://github.com/vchong/optee_os --tags
   - unset CC
 
   - export PATH=$HOME/git-2.9.3/:$DST_KERNEL/scripts/:$PATH
@@ -175,9 +175,12 @@ script:
   - $make PLATFORM=sunxi CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
 
   # HiKey board (HiSilicon Kirin 620)
-  - $make PLATFORM=hikey
-  - $make PLATFORM=hikey CFG_ARM64_core=y
-  - $make PLATFORM=hikey CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
+  - make PLATFORM=hikey
+  - file out/arm-plat-hikey/core/tee.elf
+  - make PLATFORM=hikey CFG_ARM64_core=y
+  - file out/arm-plat-hikey/core/tee.elf
+  - make PLATFORM=hikey CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
+  - file out/arm-plat-hikey/core/tee.elf
 
   # Mediatek mt8173 EVB
   - $make PLATFORM=mediatek-mt8173 CFG_ARM64_core=y
