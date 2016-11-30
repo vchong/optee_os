@@ -104,32 +104,6 @@ script:
   # Useful to check if fix-up commits do indeed solve previous checkpatch errors
   - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then if [ "$(git rev-list --count HEAD^1..HEAD^2)" -gt 1 ]; then checkdiff $(git rev-parse HEAD^1) $(git rev-parse HEAD^2); fi; fi
 
-  # b2260
-  - $make PLATFORM=stm-b2260
-  - $make PLATFORM=stm-b2260 CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
-  - $make PLATFORM=stm-b2260 CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
-
-  # Cannes
-  - $make PLATFORM=stm-cannes
-  - $make PLATFORM=stm-cannes CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
-  - $make PLATFORM=stm-cannes CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
-
-  # FVP
-  - $make PLATFORM=vexpress-fvp CFG_ARM32_core=y
-  - $make PLATFORM=vexpress-fvp CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1 CFG_TZC400=y
-  - $make PLATFORM=vexpress-fvp CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0 CFG_TZC400=y
-  - $make PLATFORM=vexpress-fvp CFG_ARM64_core=y
-  - $make PLATFORM=vexpress-fvp CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1 CFG_TZC400=y
-  - $make PLATFORM=vexpress-fvp CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0 CFG_TZC400=y
-
-  # Juno
-  - $make PLATFORM=vexpress-juno
-  - $make PLATFORM=vexpress-juno CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
-  - $make PLATFORM=vexpress-juno CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
-  - $make PLATFORM=vexpress-juno CFG_ARM64_core=y
-  - $make PLATFORM=vexpress-juno CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
-  - $make PLATFORM=vexpress-juno CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
-
   # QEMU-virt (PLATFORM=vexpress-qemu_virt)
   - $make
   - $make CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
@@ -170,10 +144,6 @@ script:
   - $make PLATFORM=vexpress-qemu_armv8a CFG_ARM64_core=y
   - $make PLATFORM=vexpress-qemu_armv8a CFG_ARM64_core=y CFG_RPMB_FS=y CFG_SQL_FS=y
 
-  # SUNXI(Allwinner A80)
-  - $make PLATFORM=sunxi CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
-  - $make PLATFORM=sunxi CFG_TEE_CORE_LOG_LEVEL=0 CFG_TEE_TA_LOG_LEVEL=0 DEBUG=0
-
   # HiKey board (HiSilicon Kirin 620)
   - make PLATFORM=hikey
   - file out/arm-plat-hikey/core/tee.elf
@@ -181,46 +151,15 @@ script:
   - file out/arm-plat-hikey/core/tee.elf
   - make PLATFORM=hikey CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
   - file out/arm-plat-hikey/core/tee.elf
-
-  # Mediatek mt8173 EVB
-  - $make PLATFORM=mediatek-mt8173 CFG_ARM64_core=y
-
-  # i.MX6UL 14X14 EVK
-  - $make PLATFORM=imx-mx6ulevk
-
-  # i.MX6Quad SABRE
-  - $make PLATFORM=imx-mx6qsabrelite
-  - $make PLATFORM=imx-mx6qsabresd
-
-  # Texas Instruments dra7xx
-  - $make PLATFORM=ti-dra7xx
-
-  # Spreadtrum sc9860
-  - $make PLATFORM=sprd-sc9860
-  - $make PLATFORM=sprd-sc9860 CFG_ARM64_core=y
-
-  # FSL ls1021a
-  - $make PLATFORM=ls-ls1021atwr
-  - $make PLATFORM=ls-ls1021aqds
-
-  # Xilinx ZynqMP
-  - $make PLATFORM=zynqmp-zcu102
-  - $make PLATFORM=zynqmp-zcu102 CFG_ARM64_core=y
-
-  # HiSilicon D02
-  - $make PLATFORM=d02
-  - $make PLATFORM=d02 CFG_ARM64_core=y
-
-  # Renesas RCAR H3
-  - $make PLATFORM=rcar
-  - $make PLATFORM=rcar CFG_ARM64_core=y
-
-  # Raspberry Pi 3
-  - $make PLATFORM=rpi3
-  - $make PLATFORM=rpi3 CFG_ARM64_core=y
+  - echo "CROSS_COMPILE=${CROSS_COMPILE}"
+  - echo "CROSS_COMPILE64=${CROSS_COMPILE64}"
+  - echo "CROSS_COMPILE_core=${CROSS_COMPILE_core}"
+  - echo "CROSS_COMPILE_ta_arm32=${CROSS_COMPILE_ta_arm32}"
+  - echo "CROSS_COMPILE_ta_arm64=${CROSS_COMPILE_ta_arm64}"
+  - ls -al out
 
   # Run regression tests (xtest in QEMU)
-  - (cd ${HOME}/optee_repo/build && $make check CROSS_COMPILE="ccache arm-linux-gnueabihf-" AARCH32_CROSS_COMPILE=arm-linux-gnueabihf- CFG_TEE_CORE_DEBUG=y DUMP_LOGS_ON_ERROR=1)
+  - (cd ${HOME}/optee_repo/build && $make check AARCH32_CROSS_COMPILE=arm-linux-gnueabihf- CFG_TEE_CORE_DEBUG=y DUMP_LOGS_ON_ERROR=1)
 
 env:
   global:
