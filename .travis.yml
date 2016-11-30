@@ -233,7 +233,5 @@ addons:
     build_command_prepend: "cov-configure --comptype gcc --compiler arm-linux-gnueabihf-gcc --template"
     #build_command_prepend: "cov-configure --comptype gcc --compiler aarch64-linux-gnu-gcc --template"
     #build_command_prepend: "cov-configure --comptype gcc --compiler arm-linux-gnueabihf-gcc --compiler aarch64-linux-gnu-gcc --template"
-    build_command:
-      - $make
-      - $make PLATFORM=hikey CFG_ARM64_core=y
+    build_command: ./cov_build_command.sh
     branch_pattern: coverity_scan
