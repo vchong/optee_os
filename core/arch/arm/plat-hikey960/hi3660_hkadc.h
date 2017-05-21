@@ -31,11 +31,12 @@
 #define __HI3660_HKADC_H__
 
 #define HKADC_SSI_REG_BASE			0xE82B8000
+#define HKADC_SSI_REG_SIZE			CORE_MMU_DEVICE_SIZE //0x4C
 
-#define HKADC_DSP_START				(HKADC_SSI_REG_BASE + 0x000)
-#define HKADC_WR_NUM				(HKADC_SSI_REG_BASE + 0x008)
-#define HKADC_DSP_START_CLR			(HKADC_SSI_REG_BASE + 0x01C)
-#define HKADC_WR01_DATA				(HKADC_SSI_REG_BASE + 0x020)
+#define HKADC_DSP_START				(0x000)
+#define HKADC_WR_NUM				(0x008)
+#define HKADC_DSP_START_CLR			(0x01C)
+#define HKADC_WR01_DATA				(0x020)
 
 #define WR1_WRITE_MODE				(1 << 31)
 #define WR1_READ_MODE				(0 << 31)
@@ -46,13 +47,13 @@
 #define WR0_ADDR(x)				(((x) & 0x7F) << 8)
 #define WR0_DATA(x)				((x) & 0xFF)
 
-#define HKADC_WR23_DATA				(HKADC_SSI_REG_BASE + 0x024)
-#define HKADC_WR45_DATA				(HKADC_SSI_REG_BASE + 0x028)
-#define HKADC_DELAY01				(HKADC_SSI_REG_BASE + 0x030)
-#define HKADC_DELAY23				(HKADC_SSI_REG_BASE + 0x034)
-#define HKADC_DELAY45				(HKADC_SSI_REG_BASE + 0x038)
-#define HKADC_DSP_RD2_DATA			(HKADC_SSI_REG_BASE + 0x048)
-#define HKADC_DSP_RD3_DATA			(HKADC_SSI_REG_BASE + 0x04C)
+#define HKADC_WR23_DATA				(0x024)
+#define HKADC_WR45_DATA				(0x028)
+#define HKADC_DELAY01				(0x030)
+#define HKADC_DELAY23				(0x034)
+#define HKADC_DELAY45				(0x038)
+#define HKADC_DSP_RD2_DATA			(0x048)
+#define HKADC_DSP_RD3_DATA			(0x04C)
 
 // HKADC Internal Registers
 #define HKADC_CTRL_ADDR				0x00

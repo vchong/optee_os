@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Linaro Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, Linaro Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@
 #define __HI3660_CRG_H__
 
 #define CRG_REG_BASE 			0xFFF35000
-#define CRG_REG_SIZE 			0x1000
+#define CRG_REG_SIZE 			CORE_MMU_DEVICE_SIZE //0xE90
 
 #define CRG_PEREN0_OFFSET 		0x000
 #define CRG_PERDIS0_OFFSET 		0x004

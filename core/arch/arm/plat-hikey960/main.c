@@ -54,8 +54,10 @@ static const struct thread_handlers handlers = {
 
 static struct pl011_data console_data __early_bss;
 
-register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART5_BASE, PL011_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART6_BASE, PL011_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, CRG_REG_BASE, CRG_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, HKADC_SSI_REG_BASE, HKADC_SSI_REG_SIZE);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -69,7 +71,16 @@ static void main_fiq(void)
 
 void console_init(void)
 {
-	pl011_init(&console_data, CONSOLE_UART_BASE, CONSOLE_UART_CLK_IN_HZ,
+	uint32_t id;
+	paddr_t uart_base;
+
+	hikey960_read_boardid(&id);
+	if (id == HIKEY960_BOARDID5)
+		uart_base = PL011_UART5_BASE;
+	else
+		uart_base = PL011_UART6_BASE;
+
+	pl011_init(&console_data, uart_base, CONSOLE_UART_CLK_IN_HZ,
 		   CONSOLE_BAUDRATE);
 	register_serial_console(&console_data.chip);
 }
@@ -77,6 +88,6 @@ void console_init(void)
 vaddr_t hikey960_get_base(enum teecore_memtypes type, paddr_t pa)
 {
 	if (cpu_mmu_enabled())
-		return (vaddr_t)phys_to_virt(pa, type);
+		return (vaddr_t)phys_to_virt(pa, type); //consider phys_to_virt_io
 	return (vaddr_t)pa;
 }
