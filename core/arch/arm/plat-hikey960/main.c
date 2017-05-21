@@ -30,8 +30,8 @@
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
-#include <mm/tee_pager.h>
 #include <mm/core_memprot.h>
+#include <mm/tee_pager.h>
 #include <platform_config.h>
 #include <stdint.h>
 #include <tee/entry_std.h>
