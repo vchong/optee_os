@@ -42,6 +42,14 @@
 /*
  * HiKey960 memory map
  *
+ * TZDRAM is secured (firewalled) by the DDR controller, see ARM-TF, but note
+ * that security of this type of memory is weak for two reasons:
+ *   1. It is prone to physical tampering since DRAM is external to the SoC
+ *   2. It is still somewhat prone to software attacks because the memory
+ *      protection may be reverted by the non-secure kernel with a piece of
+ *      code similar to the one that sets the protection in ARM-TF (we're
+ *      missing a "lockdown" step which would prevent any change to the DDRC
+ *      configuration until the next SoC reset).
  * TZSRAM is emulated in the TZDRAM area, because the on-chip SRAM of the SoC
  * is too small to run OP-TEE (72K total with 64K available, see "SRAM Memory
  * Region Layout" in ARM-TF plat/hikey/include/hisi_sram_map.h).
