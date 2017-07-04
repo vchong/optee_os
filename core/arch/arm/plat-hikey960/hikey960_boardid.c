@@ -71,7 +71,7 @@
 
 static void init_adc(void)
 {
-	vaddr_t base = phys_to_virt_io(CRG_REG_BASE);
+	vaddr_t base = (vaddr_t)phys_to_virt_io(CRG_REG_BASE);
 
 	/* reset hkadc */
 	write32(PERRSTEN2_HKADCSSI, base + CRG_PERRSTEN2_OFFSET);
@@ -88,8 +88,8 @@ static void init_adc(void)
 
 static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 {
-	uint32_t	data, value1, value0;
-	vaddr_t base = phys_to_virt_io(HKADC_SSI_REG_BASE);
+	uint32_t data, value1, value0;
+	vaddr_t base = (vaddr_t)phys_to_virt_io(HKADC_SSI_REG_BASE);
 	
 	if (channel > HKADC_CHANNEL_MAX) {
 		EMSG("invalid channel:%d\n", channel);
