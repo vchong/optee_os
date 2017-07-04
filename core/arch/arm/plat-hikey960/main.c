@@ -28,6 +28,7 @@
 #include <console.h>
 #include <drivers/pl011.h>
 #include <hi3660.h>
+#include <hikey960_private.h>
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
 #include <kernel/pm_stubs.h>
@@ -52,7 +53,7 @@ static const struct thread_handlers handlers = {
 	.system_reset = pm_do_nothing,
 };
 
-static struct pl011_data console_data __early_bss;
+static struct pl011_data console_data;
 
 register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART5_BASE, PL011_REG_SIZE);
 register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART6_BASE, PL011_REG_SIZE);
@@ -83,11 +84,4 @@ void console_init(void)
 	pl011_init(&console_data, uart_base, CONSOLE_UART_CLK_IN_HZ,
 		   CONSOLE_BAUDRATE);
 	register_serial_console(&console_data.chip);
-}
-
-vaddr_t hikey960_get_base(enum teecore_memtypes type, paddr_t pa)
-{
-	if (cpu_mmu_enabled())
-		return (vaddr_t)phys_to_virt(pa, type); //consider phys_to_virt_io
-	return (vaddr_t)pa;
 }

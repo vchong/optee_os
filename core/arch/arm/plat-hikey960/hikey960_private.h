@@ -34,7 +34,7 @@
 /*
  * Function and variable prototypes
  */
-vaddr_t hikey960_get_base(enum teecore_memtypes type, paddr_t pa);
-int32_t hikey960_read_boardid(uint32_t *id);
+
+TEE_Result hikey960_read_boardid(uint32_t *id);
 
 #endif /* __HIKEY960_PRIVATE_H__ */
