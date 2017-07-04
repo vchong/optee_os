@@ -34,6 +34,7 @@
 #include <hikey960_private.h>
 #include <kernel/panic.h>
 #include <kernel/tee_time.h>
+#include <mm/core_memprot.h>
 #include <stdint.h>
 #include <trace.h>
 #include <util.h>
