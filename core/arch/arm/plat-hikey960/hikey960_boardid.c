@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <io.h>
 #include <hi3660.h>
+#include <hikey960_private.h>
 #include <kernel/tee_time.h>
 #include <mm/core_memprot.h>
 #include <stdint.h>
