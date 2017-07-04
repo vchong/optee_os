@@ -27,6 +27,7 @@
 
 #include <console.h>
 #include <drivers/pl011.h>
+#include <hi3660.h>
 #include <hikey960_private.h>
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
