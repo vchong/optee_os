@@ -31,7 +31,8 @@
 /* Make stacks aligned to data cache line length */
 #define STACK_ALIGNMENT		64
 
-#define HIKEY960_BOARDID5		5300
+#define HIKEY960_BOARDID_V1		5300
+#define HIKEY960_BOARDID_V2		5301
 
 /* PL011 UART */
 #define PL011_UART5_BASE		0xFDF05000

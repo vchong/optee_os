@@ -27,7 +27,6 @@
 
 #include <console.h>
 #include <drivers/pl011.h>
-#include <hi3660.h>
 #include <hikey960_private.h>
 #include <kernel/generic_boot.h>
 #include <kernel/panic.h>
@@ -76,7 +75,7 @@ void console_init(void)
 	paddr_t uart_base;
 
 	hikey960_read_boardid(&id);
-	if (id == HIKEY960_BOARDID5)
+	if (id == HIKEY960_BOARDID_V1)
 		uart_base = PL011_UART5_BASE;
 	else
 		uart_base = PL011_UART6_BASE;

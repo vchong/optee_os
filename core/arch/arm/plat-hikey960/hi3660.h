@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2017, Linaro Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, Linaro Limited
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- * Redistributions in binary form must reproduce the above copyright notice,
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
- * Neither the name of Linaro nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific
- * prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -50,7 +47,7 @@
 #define SCTRL_CONTROL_MODE_CTRL_SLOW 	(1 << 1)
 #define SCTRL_CONTROL_MODE_CTRL_MASK 	0x7
 
-#define SCTRL_SCSYSSTAT_REG		(0x004)
+#define SCTRL_SCSYSSTAT_REG		0x004
 
 #define SCTRL_DEEPSLEEPED_OFFSET 	0x008
 #define SCTRL_EFUSE_USB_MASK 		(1 << 30)
@@ -86,8 +83,8 @@
 #define SCTRL_SCPERDIS0_OFFSET 		0x164
 #define SCTRL_SCPERSTAT0_OFFSET 	0x168
 
-#define SCTRL_SCPEREN1_REG		(0x170)
-#define SCTRL_SCPERDIS1_REG		(0x174)
+#define SCTRL_SCPEREN1_REG		0x170
+#define SCTRL_SCPERDIS1_REG		0x174
 #define SCTRL_SCPEREN1_OFFSET 		0x170
 #define SCTRL_SCPERDIS1_OFFSET 		0x174
 #define SCPEREN1_WAIT_DDR_SELFREFRESH_DONE_BYPASS	(1 << 31)
@@ -240,14 +237,14 @@
 #define IOMG_REG_BASE 			0xE896C000
 
 /* GPIO46: HUB 3.3V enable. active low */
-#define IOMG_044_REG			(0x0B0)
+#define IOMG_044_REG			0x0B0
 #define IOMG_UART5_RX_OFFSET 		0x0BC
 #define IOMG_UART5_TX_OFFSET 		0x0C0
 
 #define IOCG_REG_BASE			0xE896C800
 
 /* GPIO005: PMIC SSI. (2 << 4) */
-#define IOCG_006_REG			(0x018)
+#define IOCG_006_REG			0x018
 
 #define TIMER9_REG_BASE 		0xE8A00000
 
@@ -342,25 +339,25 @@
 #define IOMG_FIX_REG_BASE		0xFF3B6000
 
 /* GPIO150: LED */
-#define IOMG_FIX_006_REG		(0x018)
+#define IOMG_FIX_006_REG		0x018
 /* GPIO151: LED */
-#define IOMG_FIX_007_REG		(0x01C)
+#define IOMG_FIX_007_REG		0x01C
 
 #define IOMG_AO_REG_BASE		0xFFF11000
 
 /* GPIO189: LED */
-#define IOMG_AO_011_REG			(0x02C)
+#define IOMG_AO_011_REG			0x02C
 /* GPIO190: LED */
-#define IOMG_AO_012_REG			(0x030)
+#define IOMG_AO_012_REG			0x030
 /* GPIO202: type C enable. active low */
-#define IOMG_AO_023_REG			(0x05C)
+#define IOMG_AO_023_REG			0x05C
 /* GPIO206: USB switch. active low */
-#define IOMG_AO_026_REG			(0x068)
+#define IOMG_AO_026_REG			0x068
 /* GPIO219: PD interrupt. pull up */
-#define IOMG_AO_039_REG			(0x09C)
+#define IOMG_AO_039_REG			0x09C
 
 #define IOCG_AO_REG_BASE		0xFFF1187C
 /* GPIO219: PD interrupt. pull up */
-#define IOCG_AO_043_REG			(0x030)
+#define IOCG_AO_043_REG			0x030
 
 #endif  /* __HI3660_H__ */

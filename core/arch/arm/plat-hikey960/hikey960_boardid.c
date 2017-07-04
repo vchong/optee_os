@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, Linaro Limited
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- * Redistributions in binary form must reproduce the above copyright notice,
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
- * Neither the name of ARM nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific
- * prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -31,13 +28,10 @@
 #include <assert.h>
 #include <io.h>
 #include <hi3660.h>
-#include <hikey960_private.h>
-#include <kernel/panic.h>
 #include <kernel/tee_time.h>
 #include <mm/core_memprot.h>
 #include <stdint.h>
 #include <trace.h>
-#include <util.h>
 
 #define ADC_ADCIN0				0
 #define ADC_ADCIN1				1
@@ -121,38 +115,6 @@ static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 	return TEE_SUCCESS;
 }
 
-static int32_t adcin_data_remap(uint32_t adcin_value)
-{
-	int32_t	ret;
-
-	if (adcin_value < HKADC_DATA_GRADE0) {
-		ret = BOARDID_UNKNOWN;
-	} else if (adcin_value < HKADC_DATA_GRADE1) {
-		ret = BOARDID_VALUE0;
-	} else if (adcin_value < HKADC_DATA_GRADE2) {
-		ret = BOARDID_VALUE1;
-	} else if (adcin_value < HKADC_DATA_GRADE3) {
-		ret = BOARDID_VALUE2;
-	} else if (adcin_value < HKADC_DATA_GRADE4) {
-		ret = BOARDID_VALUE3;
-	} else if (adcin_value < HKADC_DATA_GRADE5) {
-		ret = BOARDID_VALUE4;
-	} else if (adcin_value < HKADC_DATA_GRADE6) {
-		ret = BOARDID_VALUE5;
-	} else if (adcin_value < HKADC_DATA_GRADE7) {
-		ret = BOARDID_VALUE6;
-	} else if (adcin_value < HKADC_DATA_GRADE8) {
-		ret = BOARDID_VALUE7;
-	} else if (adcin_value < HKADC_DATA_GRADE9) {
-		ret = BOARDID_VALUE8;
-	} else if (adcin_value < HKADC_DATA_GRADE10) {
-		ret = BOARDID_VALUE9;
-	} else {
-		ret = BOARDID_UNKNOWN;
-	}
-	return ret;
-}
-
 static TEE_Result get_value(uint32_t channel, uint32_t *value)
 {
 	TEE_Result ret;
@@ -165,6 +127,35 @@ static TEE_Result get_value(uint32_t channel, uint32_t *value)
 	ret = ((*value & HKADC_VALID_VALUE) * HKADC_VREF_1V8) / HKADC_ACCURACY;
 	*value = ret;
 	return TEE_SUCCESS;
+}
+
+static int32_t adcin_data_remap(uint32_t adcin_value)
+{
+	int32_t	ret;
+
+	if (adcin_value < HKADC_DATA_GRADE1)
+		ret = BOARDID_VALUE0;
+	else if (adcin_value < HKADC_DATA_GRADE2)
+		ret = BOARDID_VALUE1;
+	else if (adcin_value < HKADC_DATA_GRADE3)
+		ret = BOARDID_VALUE2;
+	else if (adcin_value < HKADC_DATA_GRADE4)
+		ret = BOARDID_VALUE3;
+	else if (adcin_value < HKADC_DATA_GRADE5)
+		ret = BOARDID_VALUE4;
+	else if (adcin_value < HKADC_DATA_GRADE6)
+		ret = BOARDID_VALUE5;
+	else if (adcin_value < HKADC_DATA_GRADE7)
+		ret = BOARDID_VALUE6;
+	else if (adcin_value < HKADC_DATA_GRADE8)
+		ret = BOARDID_VALUE7;
+	else if (adcin_value < HKADC_DATA_GRADE9)
+		ret = BOARDID_VALUE8;
+	else if (adcin_value < HKADC_DATA_GRADE10)
+		ret = BOARDID_VALUE9;
+	else
+		ret = BOARDID_UNKNOWN;
+	return ret;
 }
 
 TEE_Result hikey960_read_boardid(uint32_t *id)
@@ -183,27 +174,24 @@ TEE_Result hikey960_read_boardid(uint32_t *id)
 		return ret;
 	adcin0_remap = adcin_data_remap(adcin0);
 	DMSG("[BDID]adcin0:%d adcin0_remap:%d\n", adcin0, adcin0_remap);
-	if (adcin0_remap == BOARDID_UNKNOWN) {
+	if (adcin0_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
-	}
 	/* read ADC channel1 data */
 	ret = get_value(ADC_ADCIN1, &adcin1);
 	if (ret)
 		return ret;
 	adcin1_remap = adcin_data_remap(adcin1);
 	IMSG("[BDID]adcin1:%d adcin1_remap:%d\n", adcin1, adcin1_remap);
-	if (adcin1_remap == BOARDID_UNKNOWN) {
+	if (adcin1_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
-	}
 	/* read ADC channel2 data */
 	ret = get_value(ADC_ADCIN2, &adcin2);
 	if (ret)
 		return ret;
 	adcin2_remap = adcin_data_remap(adcin2);
 	IMSG("[BDID]adcin2:%d adcin2_remap:%d\n", adcin2, adcin2_remap);
-	if (adcin2_remap == BOARDID_UNKNOWN) {
+	if (adcin2_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
-	}
 	*id = BOARDID3_BASE * 1000 + (adcin2_remap * 100) +
 		(adcin1_remap * 10) + adcin0_remap;
 	IMSG("[BDID]boardid: %d\n", *id);
