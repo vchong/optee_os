@@ -31,6 +31,8 @@
 #ifndef __HIKEY960_PRIVATE_H__
 #define __HIKEY960_PRIVATE_H__
 
+#include <tee_api_types.h>
+
 /*
  * Function and variable prototypes
  */
