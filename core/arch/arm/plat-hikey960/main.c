@@ -79,7 +79,6 @@ void console_init(void)
 		uart_base = PL011_UART5_BASE;
 	else
 		uart_base = PL011_UART6_BASE;
-	#endif
 
 	pl011_init(&console_data, uart_base, CONSOLE_UART_CLK_IN_HZ,
 		   CONSOLE_BAUDRATE);
