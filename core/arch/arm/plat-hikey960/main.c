@@ -71,18 +71,17 @@ static void main_fiq(void)
 
 void console_init(void)
 {
-	#if 0
 	uint32_t id = HIKEY960_BOARDID_V2;
 	paddr_t uart_base;
 
-	//hikey960_read_boardid(&id);
+	hikey960_read_boardid(&id);
 	if (id == HIKEY960_BOARDID_V1)
 		uart_base = PL011_UART5_BASE;
 	else
 		uart_base = PL011_UART6_BASE;
 	#endif
 
-	pl011_init(&console_data, CONSOLE_UART_BASE, CONSOLE_UART_CLK_IN_HZ,
+	pl011_init(&console_data, uart_base, CONSOLE_UART_CLK_IN_HZ,
 		   CONSOLE_BAUDRATE);
 	register_serial_console(&console_data.chip);
 }
