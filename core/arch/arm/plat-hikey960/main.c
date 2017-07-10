@@ -55,10 +55,9 @@ static const struct thread_handlers handlers = {
 
 static struct pl011_data console_data;
 
-register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART5_BASE, PL011_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, PL011_UART6_BASE, PL011_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, CRG_REG_BASE, CRG_REG_SIZE);
-register_phys_mem(MEM_AREA_IO_NSEC, HKADC_SSI_REG_BASE, HKADC_SSI_REG_SIZE);
+register_phys_mem(MEM_AREA_IO_NSEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+//register_phys_mem(MEM_AREA_IO_NSEC, CRG_REG_BASE, CRG_REG_SIZE);
+//register_phys_mem(MEM_AREA_IO_NSEC, HKADC_SSI_REG_BASE, HKADC_SSI_REG_SIZE);
 
 const struct thread_handlers *generic_boot_get_handlers(void)
 {
@@ -72,6 +71,7 @@ static void main_fiq(void)
 
 void console_init(void)
 {
+	#if 0
 	uint32_t id = HIKEY960_BOARDID_V2;
 	paddr_t uart_base;
 
@@ -80,8 +80,9 @@ void console_init(void)
 		uart_base = PL011_UART5_BASE;
 	else
 		uart_base = PL011_UART6_BASE;
+	#endif
 
-	pl011_init(&console_data, uart_base, CONSOLE_UART_CLK_IN_HZ,
+	pl011_init(&console_data, CONSOLE_UART_BASE, CONSOLE_UART_CLK_IN_HZ,
 		   CONSOLE_BAUDRATE);
 	register_serial_console(&console_data.chip);
 }

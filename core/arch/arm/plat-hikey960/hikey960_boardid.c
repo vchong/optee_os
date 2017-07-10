@@ -89,7 +89,7 @@ static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 {
 	uint32_t data, value1, value0;
 	vaddr_t base = (vaddr_t)phys_to_virt_io(HKADC_SSI_REG_BASE);
-	
+
 	if (channel > HKADC_CHANNEL_MAX) {
 		//EMSG("invalid channel:%d\n", channel);
 		return TEE_ERROR_BAD_PARAMETERS;
@@ -103,17 +103,17 @@ static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 	/* configure delay of accessing registers */
 	write32(HKADC_CHANNEL0_DELAY01_VALUE, base + HKADC_DELAY01);
 	write32(HKADC_DELAY23_VALUE, base + HKADC_DELAY23);
-	
+
 	/* start HKADC */
 	write32(1, base + HKADC_DSP_START);
 	do {
 		data = read32(HKADC_DSP_START);
 	} while (data & 1);
-	
+
 	/* convert AD result */
 	value1 = read32(HKADC_DSP_RD2_DATA) & 0xffff;
 	value0 = read32(HKADC_DSP_RD3_DATA) & 0xffff;
-	
+
 	data = ((value1 << 4) & HKADC_VALUE_HIGH) |
 	       ((value0 >> 4) & HKADC_VALUE_LOW);
 	*value = data;
