@@ -661,20 +661,30 @@ static void init_primary_helper(unsigned long pageable_part,
 	 * asserts that the foreign interrupts are blocked when using most of
 	 * its functions.
 	 */
+	IMSG("%s1\n", __func__);
 	thread_set_exceptions(THREAD_EXCP_ALL);
+	IMSG("%s2\n", __func__);
 	init_vfp_sec();
+	IMSG("%s3\n", __func__);
 	init_runtime(pageable_part);
+	IMSG("%s4\n", __func__);
 
 	thread_init_primary(generic_boot_get_handlers());
+	IMSG("%s5\n", __func__);
 	thread_init_per_cpu();
+	IMSG("%s6\n", __func__);
 	init_sec_mon(nsec_entry);
+	IMSG("%s7\n", __func__);
 	init_fdt(fdt);
+	IMSG("%s8\n", __func__);
 	configure_console_from_dt(fdt);
 
 	IMSG("OP-TEE version: %s", core_v_str);
 
 	main_init_gic();
+	IMSG("%s9\n", __func__);
 	init_vfp_nsec();
+	IMSG("%s10\n", __func__);
 	if (init_teecore() != TEE_SUCCESS)
 		panic();
 	DMSG("Primary CPU switching to normal world boot\n");
@@ -708,6 +718,7 @@ struct thread_vector_table *
 generic_boot_init_primary(unsigned long pageable_part, unsigned long u __unused,
 			  unsigned long fdt)
 {
+	IMSG("%s\n", __func__);
 	init_primary_helper(pageable_part, PADDR_INVALID, fdt);
 	return &thread_vector_table;
 }

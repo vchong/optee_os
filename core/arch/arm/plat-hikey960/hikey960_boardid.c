@@ -64,6 +64,8 @@
 
 #define BOARDID3_BASE				5
 
+// TODO: DO NOT PRINT HERE AS CONSOLE IS NOT INITED YET!!
+
 static void init_adc(void)
 {
 	vaddr_t base = (vaddr_t)phys_to_virt_io(CRG_REG_BASE);
@@ -81,13 +83,15 @@ static void init_adc(void)
 	tee_time_busy_wait(1);
 }
 
+// TODO: DO NOT PRINT HERE AS CONSOLE IS NOT INITED YET!!
+
 static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 {
 	uint32_t data, value1, value0;
 	vaddr_t base = (vaddr_t)phys_to_virt_io(HKADC_SSI_REG_BASE);
 	
 	if (channel > HKADC_CHANNEL_MAX) {
-		EMSG("invalid channel:%d\n", channel);
+		//EMSG("invalid channel:%d\n", channel);
 		return TEE_ERROR_BAD_PARAMETERS;
 	}
 	/* configure the read/write operation for external HKADC */
@@ -116,6 +120,8 @@ static TEE_Result get_adc(uint32_t channel, uint32_t *value)
 	return TEE_SUCCESS;
 }
 
+// TODO: DO NOT PRINT HERE AS CONSOLE IS NOT INITED YET!!
+
 static TEE_Result get_value(uint32_t channel, uint32_t *value)
 {
 	TEE_Result ret;
@@ -129,6 +135,8 @@ static TEE_Result get_value(uint32_t channel, uint32_t *value)
 	*value = ret;
 	return TEE_SUCCESS;
 }
+
+// TODO: DO NOT PRINT HERE AS CONSOLE IS NOT INITED YET!!
 
 static int32_t adcin_data_remap(uint32_t adcin_value)
 {
@@ -159,6 +167,8 @@ static int32_t adcin_data_remap(uint32_t adcin_value)
 	return ret;
 }
 
+// TODO: DO NOT PRINT HERE AS CONSOLE IS NOT INITED YET!!
+
 TEE_Result hikey960_read_boardid(uint32_t *id)
 {
 	uint32_t	adcin0, adcin1, adcin2;
@@ -174,7 +184,7 @@ TEE_Result hikey960_read_boardid(uint32_t *id)
 	if (ret)
 		return ret;
 	adcin0_remap = adcin_data_remap(adcin0);
-	DMSG("[BDID]adcin0:%d adcin0_remap:%d\n", adcin0, adcin0_remap);
+	//DMSG("[BDID]adcin0:%d adcin0_remap:%d\n", adcin0, adcin0_remap);
 	if (adcin0_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
 	/* read ADC channel1 data */
@@ -182,7 +192,7 @@ TEE_Result hikey960_read_boardid(uint32_t *id)
 	if (ret)
 		return ret;
 	adcin1_remap = adcin_data_remap(adcin1);
-	IMSG("[BDID]adcin1:%d adcin1_remap:%d\n", adcin1, adcin1_remap);
+	//IMSG("[BDID]adcin1:%d adcin1_remap:%d\n", adcin1, adcin1_remap);
 	if (adcin1_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
 	/* read ADC channel2 data */
@@ -190,11 +200,11 @@ TEE_Result hikey960_read_boardid(uint32_t *id)
 	if (ret)
 		return ret;
 	adcin2_remap = adcin_data_remap(adcin2);
-	IMSG("[BDID]adcin2:%d adcin2_remap:%d\n", adcin2, adcin2_remap);
+	//IMSG("[BDID]adcin2:%d adcin2_remap:%d\n", adcin2, adcin2_remap);
 	if (adcin2_remap == BOARDID_UNKNOWN)
 		return TEE_ERROR_BAD_PARAMETERS;
 	*id = BOARDID3_BASE * 1000 + (adcin2_remap * 100) +
 		(adcin1_remap * 10) + adcin0_remap;
-	IMSG("[BDID]boardid: %d\n", *id);
+	//IMSG("[BDID]boardid: %d\n", *id);
 	return TEE_SUCCESS;
 }
