@@ -151,6 +151,9 @@ build:
     - _make PLATFORM=hikey-hikey960
     - _make PLATFORM=hikey-hikey960 CFG_ARM64_core=y
     - _make PLATFORM=hikey-hikey960 CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
+    - _make PLATFORM=poplar
+    - _make PLATFORM=poplar CFG_ARM64_core=y
+    - _make PLATFORM=poplar CFG_ARM64_core=y CFG_TEE_TA_LOG_LEVEL=4 DEBUG=1
     - _make PLATFORM=rockchip-rk322x
     - _make PLATFORM=rockchip-rk322x CFG_TEE_CORE_LOG_LEVEL=4 DEBUG=1
     - _make PLATFORM=sam

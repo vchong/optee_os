@@ -59,6 +59,7 @@ platforms have different sub-maintainers, please refer to the file
 | [HiSilicon D02](http://open-estuary.org/d02-2)|`PLATFORM=d02`| No |
 | [HiKey Board (HiSilicon Kirin 620)](https://www.96boards.org/product/hikey)|`PLATFORM=hikey` or `PLATFORM=hikey-hikey`| Yes |
 | [HiKey960 Board (HiSilicon Kirin 960)](https://www.96boards.org/product/hikey960)|`PLATFORM=hikey-hikey960`| Yes |
+| [Poplar Board (HiSilicon Hi3798C V200)](https://www.96boards.org/product/poplar)|`PLATFORM=poplar`| Yes |
 | [Marvell ARMADA 7K Family](http://www.marvell.com/embedded-processors/armada-70xx/)|`PLATFORM=marvell-armada7k8k`| Yes |
 | [Marvell ARMADA 8K Family](http://www.marvell.com/embedded-processors/armada-80xx/)|`PLATFORM=marvell-armada7k8k`| Yes |
 | [Marvell ARMADA 3700 Family](http://www.marvell.com/embedded-processors/armada-3700/)|`PLATFORM=marvell-armada3700`| Yes |
