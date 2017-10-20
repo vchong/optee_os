@@ -23,6 +23,7 @@ for these platforms.
 | ARM Foundation FVP			|`Linaro <op-tee@linaro.org>`|
 | HiKey Board (HiSilicon Kirin 620)	|`Linaro <op-tee@linaro.org>`|
 | HiKey960 Board (HiSilicon Kirin 960)	|`Linaro <op-tee@linaro.org>`|
+| Poplar Board (HiSilicon Hi3798C V200)	|`Linaro <op-tee@linaro.org>`|
 | HiSilicon D02				|`Linaro <op-tee@linaro.org>`|
 | Marvell Armada 70x0		|`Kevin Peng <kevinp@marvell.com>`|
 | Marvell Armada 80x0		|`Kevin Peng <kevinp@marvell.com>`|
