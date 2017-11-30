@@ -95,7 +95,13 @@
  *  0x0000_0000 [DRAM0_BASE]
  */
 #define DRAM0_BASE		0x00000000
+#if (CFG_DRAM_SIZE_GB == 2)
+#define DRAM0_SIZE		0x80000000
+#elif (CFG_DRAM_SIZE_GB == 1)
 #define DRAM0_SIZE		0x40000000
+#else
+#error Unsupported DRAM size
+#endif
 
 #define DRAM0_BASE_NSEC	0x02080000
 #define DRAM0_SIZE_NSEC	(DRAM0_SIZE - DRAM0_BASE_NSEC)
