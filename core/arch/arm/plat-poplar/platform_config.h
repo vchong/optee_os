@@ -30,9 +30,10 @@
  *    other (devmem)
  *  0xF000_0000 [DRAM2_BASE]
 
- *  0x4000_0000 [DRAM0_LIMIT]
- *    u-boot: 144 MiB?
- *  0x3700_0000 CONFIG_SYS_TEXT_BASE (defined in u-boot)
+ *  0x8000_0000 (0x4000_0000 for 1GB board) [DRAM0_LIMIT]
+ *    u-boot + ree memory: 1144 MiB (144 MiB for 1GB board)
+ *  0x3700_0000 CONFIG_SYS_TEXT_BASE (u-boot)
+ *		PLAT_POPLAR_NS_IMAGE_OFFSET (arm-tf)
  *    ramdisk: 76 MiB?
  *  0x3240_0000
  *    fdt: 2 MiB
@@ -41,55 +42,55 @@
  *  0x3200_0000
  *    kernel/android: 32 MiB
  *  0x3000_0000
-
- *  0x0280_0000 CONFIG_SYS_LOAD_ADDR (defined in u-boot)
+ *    ree memory? 696 MiB
+ *  0x0480_0000 CONFIG_SYS_LOAD_ADDR (defined in u-boot)
  *    other: 6 MiB
- *  0x0220_0000 CONFIG_SYS_INIT_SP_ADDR (defined in u-boot)
- *  0x0208_0000 KERNEL_TEXT_OFFSET (defined in u-boot)
+ *  0x0420_0000 CONFIG_SYS_INIT_SP_ADDR (defined in u-boot)
+ *  0x0408_0000 KERNEL_TEXT_OFFSET (defined in u-boot)
  *    unused: 512 KiB
- *  0x0200_0000
+ *  0x0400_0000
 
- *  0x0200_0000                                  -
+ *  0x0400_0000                                  -
  *    TA RAM: 14 MiB                             | TZDRAM
- *  0x0120_0000                                  -
+ *  0x0320_0000                                  -
 
  * CFG_WITH_PAGER=n                              -
  *    TEE RAM: 2 MiB (CFG_TEE_RAM_VA_SIZE)       | TZDRAM
- *  0x0100_0000 [TZDRAM_BASE, CFG_TEE_LOAD_ADDR] -
+ *  0x0300_0000 [TZDRAM_BASE, CFG_TEE_LOAD_ADDR] -
  *
  * CFG_WITH_PAGER=y
  *    Unused
- *  0x010A_0000                                  -
+ *  0x030A_0000                                  -
  *    TEE RAM: 640 KiB (TZSRAM_SIZE)             | TZSRAM
- *  0x0100_0000 [TZSRAM_BASE, CFG_TEE_LOAD_ADDR] -
+ *  0x0300_0000 [TZSRAM_BASE, CFG_TEE_LOAD_ADDR] -
 
- *    Secure Data Path buffers: 4 MiB
- *  0x00C0_0000 [CFG_TEE_SDP_MEM_BASE]
+ *  0x0300_0000 [TZDRAM_BASE, TZSRAM_BASE, CFG_TEE_LOAD_ADDR]
  *    OP-TEE Future Use: 4 MiB
- *  0x0080_0000
- *    Shared memory: 4 MiB
- *  0x0040_0000
+ *  0x02C0_0000
 
- *  0x0040_0000
+ *  0x02C0_0000
+ *    Secure Data Path buffers: 4 MiB
+ *  0x0280_0000 [CFG_TEE_SDP_MEM_BASE]
+ *    Shared memory: 4 MiB
+ *  0x0240_0000
+ *    OP-TEE Future Use: 2 MiB
+ *  0x0220_0000
+
+ *  0x0220_0000
  *    unused: 64 KiB
- *  0x003F_0000
- *    reserved for uefi persistent values: 1984 KiB
- *  0x0020_0000
- *    u-boot persistent values: 64 KiB (CONFIG_ENV_SIZE (defined in u-boot))
- *  0x001F_0000 l-loader limit (len/size set by poplar-l-loader.git)
- *              also CONFIG_ENV_OFFSET (defined in u-boot)
+ *  0x021F_0000 l-loader limit (len/size set by poplar-l-loader.git)
  *    unused (cannot be used)
- *  0x0010_0000 l-loader limit (max bootrom can accept)
+ *  0x0210_0000 l-loader limit (max bootrom can accept)
  *    fip.bin load zone: 768 KiB
- *  0x0004_0000
+ *  0x0204_0000
  *    bl31: 80 KiB
- *  0x0002_A000
+ *  0x0202_A000
  *    bl2: 48 KiB
- *  0x0001_E000
+ *  0x0201_E000
  *    bl1: 64 KiB
- *  0x0000_E000
+ *  0x0200_E000
  *    l-loader text: 52 KiB
- *  0x0000_1000
+ *  0x0200_1000
 
  *    unused
  *  0x0000_0000 [DRAM0_BASE]
@@ -103,7 +104,7 @@
 #error Unsupported DRAM size
 #endif
 
-#define DRAM0_BASE_NSEC	0x02080000
+#define DRAM0_BASE_NSEC	0x04080000
 #define DRAM0_SIZE_NSEC	(DRAM0_SIZE - DRAM0_BASE_NSEC)
 
 #define DRAM2_BASE		0xF0000000
@@ -111,10 +112,10 @@
 
 #ifdef CFG_WITH_PAGER
 
-#define TZSRAM_BASE		0x01000000
+#define TZSRAM_BASE		0x03000000
 #define TZSRAM_SIZE		CFG_CORE_TZSRAM_EMUL_SIZE
 
-#define TZDRAM_BASE		0x01200000
+#define TZDRAM_BASE		0x03200000
 #define TZDRAM_SIZE		(14 * 1024 * 1024)
 
 #define CFG_TEE_RAM_START	TZSRAM_BASE
@@ -124,7 +125,7 @@
 
 #else /* CFG_WITH_PAGER */
 
-#define TZDRAM_BASE		0x01000000
+#define TZDRAM_BASE		0x03000000
 #define TZDRAM_SIZE		(16 * 1024 * 1024)
 
 #define CFG_TEE_RAM_START	TZDRAM_BASE
@@ -137,13 +138,13 @@
 
 #endif /* CFG_WITH_PAGER */
 
-#define CFG_SHMEM_START		0x00400000
+#define CFG_SHMEM_START		0x02400000
 #define CFG_SHMEM_SIZE		(4 * 1024 * 1024)
 
 #define CFG_TEE_CORE_NB_CORE	4
 
 #define CFG_TEE_RAM_VA_SIZE	(2 * 1024 * 1024)
 
-#define CFG_TEE_LOAD_ADDR	0x01000000 /* BL32_BASE */
+#define CFG_TEE_LOAD_ADDR	0x03000000 /* BL32_BASE */
 
 #endif /* PLATFORM_CONFIG_H */
