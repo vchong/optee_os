@@ -140,12 +140,18 @@ clear_bss:
 
 	/* Enable Console */
 	bl	console_init
+	bl	bar
 
 	bl	core_init_mmu_map
+	bl	brkpt1
 	bl	core_init_mmu_regs
+	bl	brkpt2
 	bl	cpu_mmu_enable
+	bl	brkpt3
 	bl	cpu_mmu_enable_icache
+	bl	brkpt4
 	bl	cpu_mmu_enable_dcache
+	bl	brkpt5
 
 	mov	x0, x19		/* pagable part address */
 	mov	x1, #-1

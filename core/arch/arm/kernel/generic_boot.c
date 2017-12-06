@@ -833,14 +833,22 @@ static void init_primary_helper(unsigned long pageable_part,
 	 * asserts that the foreign interrupts are blocked when using most of
 	 * its functions.
 	 */
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	thread_set_exceptions(THREAD_EXCP_ALL);
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	init_vfp_sec();
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	init_runtime(pageable_part);
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 
 	thread_init_primary(generic_boot_get_handlers());
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	thread_init_per_cpu();
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	init_sec_mon(nsec_entry);
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	init_fdt(fdt);
+	EMSG("%s:%d\n", __FILE__, __LINE__);
 	configure_console_from_dt(fdt);
 
 	IMSG("OP-TEE version: %s", core_v_str);
@@ -881,6 +889,7 @@ struct thread_vector_table *
 generic_boot_init_primary(unsigned long pageable_part, unsigned long u __unused,
 			  unsigned long fdt)
 {
+	EMSG("pageable_part = 0x%lx\n", pageable_part);
 	init_primary_helper(pageable_part, PADDR_INVALID, fdt);
 	return &thread_vector_table;
 }
@@ -937,3 +946,54 @@ paddr_t generic_boot_core_hpen(void)
 #endif
 }
 #endif
+
+void foo(void)
+{
+	EMSG("%s:%d gen entry 32\n", __FILE__, __LINE__);
+}
+
+void bar(void)
+{
+	EMSG("%s:%d gen entry 64\n", __FILE__, __LINE__);
+}
+
+void brkpt1(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt2(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt3(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt4(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt5(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt6(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt7(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt8(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt9(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt10(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
