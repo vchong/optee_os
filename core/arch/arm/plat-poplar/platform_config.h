@@ -83,7 +83,7 @@
  *    fip.bin load zone: 768 KiB
  *  0x0004_0000
  *    bl31: 80 KiB
- *  0x002A_0000
+ *  0x0002_A000
  *    bl2: 48 KiB
  *  0x0001_E000
  *    bl1: 64 KiB
