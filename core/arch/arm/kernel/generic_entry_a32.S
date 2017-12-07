@@ -404,11 +404,9 @@ shadow_stack_access_ok:
 
 	/* Enable Console */
 	bl	console_init
-	bl	foo
 
 #ifdef CFG_PL310
 	bl	pl310_base
-	bl	brkpt1
 	bl	arm_cl2_config
 #endif
 
@@ -421,31 +419,22 @@ shadow_stack_access_ok:
 #ifdef CFG_WITH_PAGER
 	inval_cache_vrange(__text_start, __tmp_hashes_end)
 #else
-	bl	brkpt2
 	inval_cache_vrange(__text_start, __end)
 #endif
 
 #ifdef CFG_PL310
 	/* Enable PL310 if not yet enabled */
-	bl	brkpt3
 	bl	pl310_base
 	bl	arm_cl2_enable
 #endif
 
-	bl	brkpt4
 	bl	core_init_mmu_map
-	bl	brkpt5
 	bl	core_init_mmu_regs
-	bl	brkpt6
 	bl	cpu_mmu_enable
-	bl	brkpt7
 	bl	cpu_mmu_enable_icache
-	bl	brkpt8
 	bl	cpu_mmu_enable_dcache
-	bl	brkpt9
 
 	enable_branch_prediction
-	bl	brkpt10
 
 	mov	r0, r4		/* pageable part address */
 	mov	r1, r5		/* ns-entry address */
