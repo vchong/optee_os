@@ -91,8 +91,9 @@
  *  0x0200_E000
  *    l-loader text: 52 KiB
  *  0x0200_1000
-
  *    unused
+ *  0x0200_0000
+ *    TA virtual memory space
  *  0x0000_0000 [DRAM0_BASE]
  */
 #define DRAM0_BASE		0x00000000
