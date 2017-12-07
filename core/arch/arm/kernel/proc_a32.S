@@ -44,25 +44,17 @@
  */
 FUNC cpu_mmu_enable , :
 UNWIND(	.fnstart)
-	push	{lr} /* so tt we can use bl w/o corruptg lr */
-	bl	brkpt11
 	/* Invalidate TLB */
 	write_tlbiall
-	bl	brkpt12
 
 	/* Enable the MMU */
 	read_sctlr r0
-	bl	brkpt13
 	orr	r0, r0, #SCTLR_M
-	bl	brkpt14
 	write_sctlr r0
-	bl	brkpt15
 
 	dsb
 	isb
-	bl	brkpt16
 
-	pop	{lr}
 	bx	lr
 UNWIND(	.fnend)
 END_FUNC cpu_mmu_enable
