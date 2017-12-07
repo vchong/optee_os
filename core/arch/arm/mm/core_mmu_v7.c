@@ -603,22 +603,11 @@ void core_mmu_get_user_va_range(vaddr_t *base, size_t *size)
 {
 	if (base) {
 		/* Leaving the first entry unmapped to make NULL unmapped */
-		EMSG("%s:%d *base 0x%" PRIxVA "\n", __FILE__, __LINE__, *base);
 		*base = 1 << SECTION_SHIFT;
-		EMSG("%s:%d *base 0x%" PRIxVA "\n", __FILE__, __LINE__, *base);
 	}
-	else
-		EMSG("%s:%d base is null\n", __FILE__, __LINE__);
 
-	if (size) {
-		EMSG("%s:%d *size %zu\n", __FILE__, __LINE__, *size);
+	if (size)
 		*size = (NUM_UL1_ENTRIES - 1) << SECTION_SHIFT;
-		EMSG("%s:%d *size %zu\n", __FILE__, __LINE__, *size);
-
-		EMSG("%s:%d limit 0x%" PRIxVA "\n", __FILE__, __LINE__, *base + *size);
-	}
-	else
-		EMSG("%s:%d size is null\n", __FILE__, __LINE__);
 }
 
 void core_mmu_get_user_map(struct core_mmu_user_map *map)
