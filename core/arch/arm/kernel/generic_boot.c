@@ -949,12 +949,12 @@ paddr_t generic_boot_core_hpen(void)
 
 void foo(void)
 {
-	EMSG("%s:%d gen entry 32\n", __FILE__, __LINE__);
+	EMSG("\n%s:%d gen entry 32\n", __FILE__, __LINE__);
 }
 
 void bar(void)
 {
-	EMSG("%s:%d gen entry 64\n", __FILE__, __LINE__);
+	EMSG("\n%s:%d gen entry 64\n", __FILE__, __LINE__);
 }
 
 void brkpt1(void)
@@ -994,6 +994,46 @@ void brkpt9(void)
 	EMSG("%s:%d\n", __FILE__, __LINE__);
 }
 void brkpt10(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt11(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt12(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt13(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt14(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt15(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt16(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt17(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt18(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt19(void)
+{
+	EMSG("%s:%d\n", __FILE__, __LINE__);
+}
+void brkpt20(void)
 {
 	EMSG("%s:%d\n", __FILE__, __LINE__);
 }
