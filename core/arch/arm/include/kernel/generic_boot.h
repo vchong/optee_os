@@ -75,5 +75,15 @@ void brkpt7(void);
 void brkpt8(void);
 void brkpt9(void);
 void brkpt10(void);
+void brkpt11(void);
+void brkpt12(void);
+void brkpt13(void);
+void brkpt14(void);
+void brkpt15(void);
+void brkpt16(void);
+void brkpt17(void);
+void brkpt18(void);
+void brkpt19(void);
+void brkpt20(void);
 
 #endif /* KERNEL_GENERIC_BOOT_H */
