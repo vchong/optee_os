@@ -63,17 +63,4 @@ paddr_t generic_boot_core_hpen(void);
 
 void *get_dt_blob(void);
 
-void foo(void);
-void bar(void);
-void brkpt1(void);
-void brkpt2(void);
-void brkpt3(void);
-void brkpt4(void);
-void brkpt5(void);
-void brkpt6(void);
-void brkpt7(void);
-void brkpt8(void);
-void brkpt9(void);
-void brkpt10(void);
-
 #endif /* KERNEL_GENERIC_BOOT_H */
