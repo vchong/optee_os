@@ -34,7 +34,7 @@
  *    u-boot + ree memory: 1144 MiB (144 MiB for 1GB board)
  *  0x3700_0000 CONFIG_SYS_TEXT_BASE (u-boot)
  *		PLAT_POPLAR_NS_IMAGE_OFFSET (arm-tf)
- *    ramdisk: 76 MiB?
+ *    ramdisk: 76 MiB
  *  0x3240_0000
  *    fdt: 2 MiB
  *  0x3220_0000
@@ -42,7 +42,7 @@
  *  0x3200_0000
  *    kernel/android: 32 MiB
  *  0x3000_0000
- *    ree memory? 696 MiB
+ *    ree memory: 696 MiB
  *  0x0480_0000 CONFIG_SYS_LOAD_ADDR (defined in u-boot)
  *    other: 6 MiB
  *  0x0420_0000 CONFIG_SYS_INIT_SP_ADDR (defined in u-boot)
