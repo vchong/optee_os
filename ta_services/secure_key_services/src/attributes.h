@@ -138,6 +138,22 @@ static inline bool get_bool(struct sks_attrs_head *head, uint32_t attribute)
 	else
 		return head->boolpropl & BIT(shift) ? true : false;
 }
+
+static inline void set_bool(struct sks_attrs_head *head, uint32_t attribute,
+			    bool value)
+{
+	int shift = sks_attr2boolprop_shift(attribute);
+
+	if (shift < 0)
+		TEE_Panic(SKS_NOT_FOUND);
+
+	if (shift > 31)
+		return head->boolproph = (head->boolproph & ~BIT(shift - 32)) |
+					 value ? 1 : 0;
+	else
+		return head->boolpropl & (head->boolproph & ~BIT(shift - 32)) |
+					 value ? 1 : 0;
+}
 #else
 static inline bool get_bool(struct sks_attrs_head *head, uint32_t attribute)
 {
@@ -150,6 +166,20 @@ static inline bool get_bool(struct sks_attrs_head *head, uint32_t attribute)
 	assert(rc == SKS_OK);
 
 	return !!bbool;
+}
+
+static inline void set_bool(struct sks_attrs_head *head, uint32_t attribute,
+			    bool value)
+{
+	uint32_t rc __maybe_unused;
+	uint8_t bbool = value;
+	uint8_t *ptr;
+	size_t size;
+
+	rc = get_attribute_ptr(head, attribute, (void *)&ptr, &size);
+	assert(rc == SKS_OK);
+
+	*ptr = bbool;
 }
 #endif
 
