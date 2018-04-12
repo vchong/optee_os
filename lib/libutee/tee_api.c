@@ -312,7 +312,9 @@ void TEE_GetREETime(TEE_Time *time)
 
 void *TEE_Malloc(uint32_t len, uint32_t hint)
 {
-	return tee_user_mem_alloc(len, hint);
+	void *p = tee_user_mem_alloc(len, hint);
+//	MSG_RAW("+++ malloc   %p", p);
+	return p;
 }
 
 void *TEE_Realloc(const void *buffer, uint32_t newSize)
@@ -321,11 +323,14 @@ void *TEE_Realloc(const void *buffer, uint32_t newSize)
 	 * GP TEE Internal API specifies newSize as 'uint32_t'.
 	 * use unsigned 'size_t' type. it is at least 32bit!
 	 */
-	return tee_user_mem_realloc((void *)buffer, (size_t) newSize);
+	void *p = tee_user_mem_realloc((void *)buffer, (size_t) newSize);
+//	MSG_RAW("+++ realloc  %p (from %p)", p, buffer);
+	return p;
 }
 
 void TEE_Free(void *buffer)
 {
+//	MSG_RAW("--- free     %p", buffer);
 	tee_user_mem_free(buffer);
 }
 

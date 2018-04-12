@@ -352,6 +352,7 @@ uint32_t create_attributes_from_template(struct sks_attrs_head **out,
 #endif
 
 	rv = sanitize_client_object(&temp, template, template_size);
+	SKS_TRACE_ALLOC(temp);
 	if (rv)
 		goto bail;
 
@@ -440,10 +441,12 @@ uint32_t create_attributes_from_template(struct sks_attrs_head **out,
 #endif
 
 bail:
+	SKS_TRACE_FREE(temp);
 	TEE_Free(temp);
-	if (rv)
+	if (rv) {
+		SKS_TRACE_FREE(temp);
 		TEE_Free(attrs);
-
+	}
 	return rv;
 }
 

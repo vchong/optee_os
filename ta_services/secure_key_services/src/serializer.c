@@ -174,6 +174,7 @@ uint32_t serialize(char **bstart, size_t *blen, void *data, size_t len)
 	size_t nlen = *blen + len;
 
 	buf = TEE_Realloc(*bstart, nlen);
+	SKS_TRACE_SERAIL_REALLOC(*bstart, buf);
 	if (!buf)
 		return SKS_MEMORY;
 

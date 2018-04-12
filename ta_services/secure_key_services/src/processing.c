@@ -100,6 +100,7 @@ uint32_t entry_import_object(int teesess,
 	 */
 	rv = create_attributes_from_template(&head, template, template_size,
 					     NULL, SKS_FUNCTION_IMPORT);
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
 	template = NULL;
 	if (rv)
@@ -149,7 +150,9 @@ uint32_t entry_import_object(int teesess,
 	out->memref.size = sizeof(uint32_t);
 
 bail:
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
+	SKS_TRACE_FREE(head);
 	TEE_Free(head);
 
 	return rv;
@@ -589,6 +592,7 @@ bail:
 	if (rv)
 		release_active_processing(session);
 
+	SKS_TRACE_FREE(proc_params);
 	TEE_Free(proc_params);
 
 	return rv;
@@ -816,10 +820,12 @@ uint32_t entry_generate_object(int teesess,
 		return rv;
 
 	rv = serialargs_alloc_and_get_sks_reference(&ctrlargs, &proc_params);
+	SKS_TRACE_ALLOC(proc_params);
 	if (rv)
 		return rv;
 
 	rv = serialargs_alloc_and_get_sks_attributes(&ctrlargs, &template);
+	SKS_TRACE_ALLOC(template);
 	if (rv)
 		goto bail;
 
@@ -850,6 +856,7 @@ uint32_t entry_generate_object(int teesess,
 	if (rv)
 		goto bail;
 
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
 	template = NULL;
 
@@ -882,6 +889,7 @@ uint32_t entry_generate_object(int teesess,
 		goto bail;
 	}
 
+	SKS_TRACE_FREE(proc_params);
 	TEE_Free(proc_params);
 	proc_params = NULL;
 
@@ -904,8 +912,11 @@ uint32_t entry_generate_object(int teesess,
 	out->memref.size = sizeof(uint32_t);
 
 bail:
+	SKS_TRACE_FREE(proc_params);
 	TEE_Free(proc_params);
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
+	SKS_TRACE_FREE(head);
 	TEE_Free(head);
 
 	return rv;
@@ -1063,6 +1074,7 @@ bail:
 	if (rv && session)
 		release_active_processing(session);
 
+	SKS_TRACE_FREE(proc_params);
 	TEE_Free(proc_params);
 
 	return rv;
@@ -1278,6 +1290,7 @@ uint32_t entry_derive(int teesess,
 	rv = create_attributes_from_template(&created, template, template_size,
 					     parent_obj->attributes,
 					     SKS_FUNCTION_DERIVE);
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
 	template = NULL;
 	if (rv)
@@ -1331,7 +1344,9 @@ uint32_t entry_derive(int teesess,
 	out->memref.size = sizeof(uint32_t);
 
 bail:
+	SKS_TRACE_FREE(template);
 	TEE_Free(template);
+	SKS_TRACE_FREE(created);
 	TEE_Free(created);
 
 	return rv;

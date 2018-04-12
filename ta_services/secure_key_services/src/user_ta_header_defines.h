@@ -17,7 +17,7 @@
 						TA_FLAG_INSTANCE_KEEP_ALIVE)
 
 #define TA_STACK_SIZE			(2 * 1024)
-#define TA_DATA_SIZE			(16 * 1024)
+#define TA_DATA_SIZE			(4 * 1024)
 
 #define TA_CURRENT_TA_EXT_PROPERTIES \
     { "gp.ta.description", USER_TA_PROP_TYPE_STRING, \

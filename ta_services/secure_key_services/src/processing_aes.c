@@ -104,13 +104,16 @@ static void release_ae_aes_context(struct ae_aes_context *ctx)
 	size_t n;
 
 	for (n = 0; n < ctx->out_count; n++) {
+		SKS_TRACE_FREE(ctx->out_data[n].data);
 		TEE_Free(ctx->out_data[n].data);
 	}
 
+	SKS_TRACE_FREE(ctx->out_data);
 	TEE_Free(ctx->out_data);
 	ctx->out_data = NULL;
 	ctx->out_count = 0;
 
+	SKS_TRACE_FREE(ctx->pending_tag);
 	TEE_Free(ctx->pending_tag);
 	ctx->pending_tag = NULL;
 }
@@ -175,6 +178,7 @@ uint32_t tee_ae_decrypt_update(struct pkcs11_session *session,
 		 */
 		if (ct_size) {
 			ct = TEE_Malloc(ct_size, TEE_USER_MEM_HINT_NO_FILL_ZERO);
+			SKS_TRACE_MALLOC(ct);
 			if (!ct) {
 				rv = SKS_MEMORY;
 				goto bail;
@@ -189,7 +193,7 @@ uint32_t tee_ae_decrypt_update(struct pkcs11_session *session,
 
 			/* Finally, no out data? Release temp buffer. */
 			if (!ct_size) {
-				SKS_TRACE_FREE();
+				SKS_TRACE_FREE(ct);
 				TEE_Free(ct);
 				ct = NULL;
 				DMSG_RAW("\nWe expected some data!\n\n");
@@ -218,6 +222,7 @@ uint32_t tee_ae_decrypt_update(struct pkcs11_session *session,
 
 		if (size) {
 			ptr = TEE_Realloc(ct, ct_size + size);
+			SKS_TRACE_REALLOC(ct, ptr);
 			if (!ptr) {
 				rv = SKS_MEMORY;
 				goto bail;
@@ -254,6 +259,7 @@ uint32_t tee_ae_decrypt_update(struct pkcs11_session *session,
 	if (ct_size) {
 		ptr = TEE_Realloc(ctx->out_data, (ctx->out_count + 1) *
 				  sizeof(struct out_data_ref));
+		SKS_TRACE_REALLOC(ctx->out_data, ptr);
 		if (!ptr) {
 			rv = SKS_MEMORY;
 			goto bail;
@@ -268,6 +274,7 @@ uint32_t tee_ae_decrypt_update(struct pkcs11_session *session,
 
 bail:
 	if (rv) {
+		SKS_TRACE_FREE(ct);
 		TEE_Free(ct);
 	}
 
@@ -296,10 +303,12 @@ static uint32_t reveale_ae_data(struct ae_aes_context *ctx,
 		TEE_MemMove(out_ptr,
 			    ctx->out_data[n].data, ctx->out_data[n].size);
 
+		SKS_TRACE_FREE(ctx->out_data[n].data);
 		TEE_Free(ctx->out_data[n].data);
 		out_ptr += ctx->out_data[n].size;
 	}
 
+	SKS_TRACE_FREE(ctx->out_data);
 	TEE_Free(ctx->out_data);
 	ctx->out_data = NULL;
 	ctx->out_count = 0;
@@ -340,6 +349,7 @@ uint32_t tee_ae_decrypt_final(struct pkcs11_session *session,
 
 	if (res == TEE_ERROR_SHORT_BUFFER) {
 		data_ptr = TEE_Malloc(data_size, 0);
+		SKS_TRACE_MALLOC(data_ptr);
 		if (!data_ptr) {
 			rv = SKS_MEMORY;
 			goto bail;
@@ -350,6 +360,7 @@ uint32_t tee_ae_decrypt_final(struct pkcs11_session *session,
 					 ctx->pending_tag, ctx->tag_byte_len);
 
 		if (!data_size) {
+			SKS_TRACE_FREE(data_ptr);
 			TEE_Free(data_ptr);
 			data_ptr = NULL;
 			DMSG_RAW("\nIs this expected from the Core API?\n\n");
@@ -357,6 +368,7 @@ uint32_t tee_ae_decrypt_final(struct pkcs11_session *session,
 	}
 
 	/* AE decyrption is completed */
+	SKS_TRACE_FREE(ctx->pending_tag);
 	TEE_Free(ctx->pending_tag);
 	ctx->pending_tag = NULL;
 
@@ -370,6 +382,7 @@ uint32_t tee_ae_decrypt_final(struct pkcs11_session *session,
 		tmp_ptr = TEE_Realloc(ctx->out_data,
 					(ctx->out_count + 1) *
 					sizeof(struct out_data_ref));
+		SKS_TRACE_REALLOC(ctx->out_data, tmp_ptr);
 		if (!tmp_ptr) {
 			rv = SKS_MEMORY;
 			goto bail;
@@ -385,6 +398,7 @@ uint32_t tee_ae_decrypt_final(struct pkcs11_session *session,
 	rv = reveale_ae_data(ctx, out, out_size);
 
 bail:
+	SKS_TRACE_FREE(data_ptr);
 	TEE_Free(data_ptr);
 
 	return rv;
@@ -496,6 +510,7 @@ uint32_t tee_init_ccm_operation(struct pkcs11_session *session,
 
 	params = TEE_Malloc(sizeof(struct ae_aes_context),
 			    TEE_USER_MEM_HINT_NO_FILL_ZERO);
+	SKS_TRACE_MALLOC(params);
 	if (!params) {
 		rv = SKS_MEMORY;
 		goto bail;
@@ -506,8 +521,10 @@ uint32_t tee_init_ccm_operation(struct pkcs11_session *session,
 	params->pending_size = 0;
 	params->out_data = TEE_Malloc(sizeof(struct out_data_ref),
 				      TEE_MALLOC_FILL_ZERO);
+	SKS_TRACE_MALLOC(params->out_data);
 	params->pending_tag = TEE_Malloc(mac_len,
 					 TEE_USER_MEM_HINT_NO_FILL_ZERO);
+	SKS_TRACE_MALLOC(params->pending_tag);
 	if (!params->out_data || !params->pending_tag) {
 		rv = SKS_MEMORY;
 		goto bail;
@@ -525,6 +542,7 @@ uint32_t tee_init_ccm_operation(struct pkcs11_session *session,
 	rv = SKS_OK;
 
 bail:
+	SKS_TRACE_FREE(nonce);
 	TEE_Free(nonce);
 	TEE_Free(aad);
 	if (rv && params) {
@@ -540,6 +558,7 @@ void tee_release_ccm_operation(struct pkcs11_session *session)
 	struct ae_aes_context *ctx = session->proc_params;
 
 	release_ae_aes_context(ctx);
+	SKS_TRACE_FREE(session->proc_params);
 	TEE_Free(session->proc_params);
 	session->proc_params = NULL;
 }
@@ -601,6 +620,7 @@ uint32_t tee_init_gcm_operation(struct pkcs11_session *session,
 
 	params = TEE_Malloc(sizeof(struct ae_aes_context),
 			    TEE_USER_MEM_HINT_NO_FILL_ZERO);
+	SKS_TRACE_MALLOC(params);
 	if (!params) {
 		rv = SKS_MEMORY;
 		goto bail;
@@ -612,9 +632,11 @@ uint32_t tee_init_gcm_operation(struct pkcs11_session *session,
 	params->pending_size = 0;
 	params->out_data = TEE_Malloc(sizeof(struct out_data_ref),
 				      TEE_MALLOC_FILL_ZERO);
+	SKS_TRACE_MALLOC(params->out_data);
 	params->pending_tag = TEE_Malloc(tag_len,
 					 TEE_USER_MEM_HINT_NO_FILL_ZERO);
 
+	SKS_TRACE_MALLOC(params->pending_tag);
 	if (!params->out_data || !params->pending_tag) {
 		rv = SKS_MEMORY;
 		goto bail;
@@ -632,6 +654,7 @@ uint32_t tee_init_gcm_operation(struct pkcs11_session *session,
 	rv = SKS_OK;
 
 bail:
+	SKS_TRACE_FREE(iv);
 	TEE_Free(iv);
 	TEE_Free(aad);
 	if (rv && params) {
@@ -648,6 +671,7 @@ void tee_release_gcm_operation(struct pkcs11_session *session)
 	struct ae_aes_context *ctx = session->proc_params;
 
 	release_ae_aes_context(ctx);
+	SKS_TRACE_FREE(session->proc_params);
 	TEE_Free(session->proc_params);
 	session->proc_params = NULL;
 }
