@@ -64,4 +64,7 @@ void tee_release_gcm_operation(struct pkcs11_session *session);
 uint32_t tee_init_gcm_operation(struct pkcs11_session *session,
 				    void *proc_params, size_t params_size);
 
+uint32_t entry_derive(int teesess,
+			TEE_Param *ctrl, TEE_Param *in, TEE_Param *out);
+
 #endif /*__SKS_TA_PROCESSING_H*/

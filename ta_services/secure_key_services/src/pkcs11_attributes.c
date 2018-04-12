@@ -342,7 +342,9 @@ uint32_t create_attributes_from_template(struct sks_attrs_head **out,
 #ifdef DEBUG	/* Sanity: check func argument */
 	switch (func) {
 	case SKS_FUNCTION_GENERATE:
+	case SKS_FUNCTION_COPY:
 	case SKS_FUNCTION_IMPORT:
+	case SKS_FUNCTION_DERIVE:
 		break;
 	default:
 		TEE_Panic(TEE_ERROR_NOT_SUPPORTED);
