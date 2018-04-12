@@ -9,6 +9,7 @@
 #include <tee_internal_api_extensions.h>
 
 #include "handle.h"
+#include "sks_helpers.h"
 
 /*
  * Define the initial capacity of the database. It should be a low number
@@ -21,6 +22,7 @@
 void handle_db_destroy(struct handle_db *db)
 {
 	if (db) {
+		SKS_TRACE_FREE(db->ptrs);
 		TEE_Free(db->ptrs);
 		db->ptrs = NULL;
 		db->max_ptrs = 0;
@@ -50,6 +52,7 @@ uint32_t handle_get(struct handle_db *db, void *ptr)
 	else
 		new_max_ptrs = HANDLE_DB_INITIAL_MAX_PTRS;
 	p = TEE_Realloc(db->ptrs, new_max_ptrs * sizeof(void *));
+	SKS_TRACE_REALLOC(db->ptrs, p);
 	if (!p)
 		return 0;
 	db->ptrs = p;

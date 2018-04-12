@@ -279,4 +279,19 @@ const char *sks2str_rc(uint32_t id);
 const char *sks2str_skscmd(uint32_t id);
 #endif
 
+#if 0
+#define SKS_TRACE_SERAIL_REALLOC(p, n) \
+				MSG("<serial>  %p -> %p", (void *)p, (void *)n)
+#define SKS_TRACE_ALLOC(p)	MSG("<custom>  %p", (void *)p)
+#define SKS_TRACE_MALLOC(p)	MSG("<malloc>  %p", (void *)p)
+#define SKS_TRACE_REALLOC(p, n)	MSG("<realloc> %p -> %p", (void *)p, (void *)n)
+#define SKS_TRACE_FREE(p)	MSG("<free>    %p", (void *)p)
+#else
+#define SKS_TRACE_SERAIL_REALLOC(p, n)	(void)p
+#define SKS_TRACE_ALLOC(p)	(void)p
+#define SKS_TRACE_MALLOC(p)	(void)p
+#define SKS_TRACE_REALLOC(p, n)	(void)p
+#define SKS_TRACE_FREE(p)	(void)p
+#endif
+
 #endif /*__CK_HELPERS_H*/
