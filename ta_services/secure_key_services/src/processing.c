@@ -1206,3 +1206,133 @@ bail:
 
 	return rv;
 }
+
+uint32_t entry_derive(void *teesess,
+			TEE_Param *ctrl, TEE_Param *in, TEE_Param *out)
+{
+	uint32_t rv;
+	struct serialargs ctrlargs;
+	uint32_t session_handle;
+	struct sks_reference *proc_params = NULL;
+	uint32_t parent_handle;
+	struct sks_object_head *template = NULL;
+	struct sks_attrs_head *created = NULL;
+	uint32_t obj_handle;
+	struct sks_object *parent_obj;
+	struct pkcs11_session *session;
+	size_t template_size;
+
+	/*
+	 * Collect the arguments of the request
+	 */
+
+	if (!ctrl || in || !out)
+		return SKS_BAD_PARAM;
+
+	if (out->memref.size < sizeof(uint32_t))
+		return SKS_SHORT_BUFFER;
+
+	serialargs_init(&ctrlargs, ctrl->memref.buffer, ctrl->memref.size);
+
+	rv = serialargs_get(&ctrlargs, &session_handle, sizeof(uint32_t));
+	if (rv)
+		goto bail;
+
+	rv = serialargs_alloc_and_get_sks_reference(&ctrlargs, &proc_params);
+		goto bail;
+
+	rv = serialargs_get(&ctrlargs, &parent_handle, sizeof(uint32_t));
+	if (rv)
+		goto bail;
+
+	rv = serialargs_alloc_and_get_sks_attributes(&ctrlargs, &template);
+	if (rv)
+		goto bail;
+
+	template_size = sizeof(*template) + template->blobs_size;
+
+	/* Check session/token state against object import */
+	session = get_pkcs_session(session_handle);
+	if (!session || session->tee_session != teesess) {
+		rv = SKS_INVALID_SESSION;
+		goto bail;
+	}
+
+	if (check_pkcs_session_processing_state(session,
+						PKCS11_SESSION_READY)) {
+		rv = SKS_PROCESSING_ACTIVE;
+		goto bail;
+	}
+
+	parent_obj = object_get_tee_handle(parent_handle, session);
+	if (!parent_obj) {
+		DMSG("Invalid key handle");
+		rv = SKS_INVALID_KEY;
+		goto bail;
+	}
+
+	/*
+	 * Prepare a clean initial state for the requested object attributes.
+	 * Free temorary template once done.
+	 */
+	rv = create_attributes_from_template(&created, template, template_size,
+					     parent_obj->attributes,
+					     SKS_FUNCTION_DERIVE);
+	TEE_Free(template);
+	template = NULL;
+	if (rv)
+		goto bail;
+
+	/*
+	 * Check target object attributes match target processing
+	 * Check target object attributes match token state
+	 */
+	rv = check_created_attrs_against_processing(proc_params->id, created);
+	if (rv)
+		goto bail;
+
+	rv = check_created_attrs_against_token(session, created);
+	if (rv)
+		goto bail;
+
+	rv = check_parent_attrs_against_processing(proc_params->id,
+						   SKS_FUNCTION_DERIVE,
+						   created);
+	if (rv)
+		goto bail;
+
+	rv = check_parent_attrs_against_token(session, created);
+	if (rv)
+		goto bail;
+
+	rv = check_created_attrs_against_parent_key(proc_params->id, created,
+						    parent_obj->attributes);
+	if (rv)
+		goto bail;
+
+	/*
+	 * At this stage the object is almost created: all its attributes are
+	 * referenced in @created, including the key value and are assume
+	 * reliable. Now need to register it and get a handle for it.
+	 */
+	rv = create_object(session, created, &obj_handle);
+	if (rv)
+		goto bail;
+
+	/*
+	 * Now obj_handle (through the related struct sks_object instance)
+	 * owns the serialised buffer that holds the object attributes.
+	 * We reset attrs->buffer to NULL as serializer object is no more
+	 * the attributes buffer owner.
+	 */
+	created = NULL;
+
+	TEE_MemMove(out->memref.buffer, &obj_handle, sizeof(uint32_t));
+	out->memref.size = sizeof(uint32_t);
+
+bail:
+	TEE_Free(template);
+	TEE_Free(created);
+
+	return rv;
+}

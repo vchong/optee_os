@@ -40,6 +40,9 @@ uint32_t entry_signverify_update(void *teesess, TEE_Param *ctrl,
 uint32_t entry_signverify_final(void *teesess, TEE_Param *ctrl,
 				TEE_Param *in, TEE_Param *out, int sign);
 
+uint32_t entry_derive(void *teesess,
+			TEE_Param *ctrl, TEE_Param *in, TEE_Param *out);
+
 /*
  * Crypto algorithm specific
  */
