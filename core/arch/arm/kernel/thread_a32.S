@@ -457,6 +457,17 @@ UNWIND(	.fnend)
 END_FUNC thread_rpc
 KEEP_PAGER thread_rpc
 
+/*
+ * unsigned long thread_smc(unsigned long func_id, unsigned long a1,
+ *			    unsigned long a2, unsigned long a3)
+ */
+FUNC thread_smc , :
+UNWIND(	.fnstart)
+	smc	#0
+	bx	lr
+UNWIND(	.fnend)
+END_FUNC thread_smc
+
 FUNC thread_init_vbar , :
 UNWIND(	.fnstart)
 	/* Set vector (VBAR) */
@@ -1027,4 +1038,6 @@ eret_to_user_mode:
 
 	movs	pc, lr
 UNWIND(	.fnend)
+	.global thread_excp_vect_end
+thread_excp_vect_end:
 END_FUNC thread_excp_vect
