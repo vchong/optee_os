@@ -8,21 +8,31 @@ sm-$(sm) := y
 COMPILER_$(sm)		?= $(COMPILER)
 include mk/$(COMPILER_$(sm)).mk
 
+#
+# Config flags from mk/config.mk
+#
+
+ifeq ($(CFG_TEE_TA_MALLOC_DEBUG),y)
+# Build malloc debug code into libutils: (mdbg_malloc(), mdbg_free(),
+# mdbg_check(), etc.).
+$(sm)-platform-cppflags += -DENABLE_MDBG=1
+endif
+
+# Config variables to be explicitly exported to the dev kit conf.mk
+ta-mk-file-export-vars-$(sm) += CFG_TA_FLOAT_SUPPORT
+ta-mk-file-export-vars-$(sm) += CFG_CACHE_API
+ta-mk-file-export-vars-$(sm) += CFG_SECURE_DATA_PATH
+
 # Expand platform flags here as $(sm) will change if we have several TA
 # targets. Platform flags should not change after inclusion of ta/ta.mk.
 cppflags$(sm)	:= $(platform-cppflags) $($(sm)-platform-cppflags)
 cflags$(sm)	:= $(platform-cflags) $($(sm)-platform-cflags)
 aflags$(sm)	:= $(platform-aflags) $($(sm)-platform-aflags)
 
+# Changes to cppflags$(sm) will only affect how TA dev kit libraries are
+# compiled, these flags are not propagated to the TA
 cppflags$(sm)	+= -include $(conf-file)
-
-# Config flags from mk/config.mk
 cppflags$(sm) += -DTRACE_LEVEL=$(CFG_TEE_TA_LOG_LEVEL)
-ifeq ($(CFG_TEE_TA_MALLOC_DEBUG),y)
-# Build malloc debug code into libutils: (mdbg_malloc(), mdbg_free(),
-# mdbg_check(), etc.).
-cppflags$(sm) += -DENABLE_MDBG=1
-endif
 
 base-prefix := $(sm)-
 
@@ -111,14 +121,15 @@ $(foreach f, $(ta-scripts), \
 conf-mk-file-export := $(out-dir)/export-$(sm)/mk/conf.mk
 sm-$(conf-mk-file-export) := $(sm)
 define mk-file-export
-$(conf-mk-file-export): $(conf-mk-file)
-	@$$(cmd-echo-silent) '  GEN    ' $$@
-	$(q)echo sm := $$(sm-$(conf-mk-file-export)) > $$@
-	$(q)echo sm-$$(sm-$(conf-mk-file-export)) := y >> $$@
-	$(q)echo CFG_TA_FLOAT_SUPPORT := $$(CFG_TA_FLOAT_SUPPORT) >> $$@
+.PHONY: $(conf-mk-file-export)
+$(conf-mk-file-export):
+	@$$(cmd-echo-silent) '  CHK    ' $$@
+	$(q)echo sm := $$(sm-$(conf-mk-file-export)) > $$@.tmp
+	$(q)echo sm-$$(sm-$(conf-mk-file-export)) := y >> $$@.tmp
 	$(q)($$(foreach v, $$(ta-mk-file-export-vars-$$(sm-$(conf-mk-file-export))), \
-		echo $$(v) := $$($$(v));)) >> $$@
-	$(q)echo '$$(ta-mk-file-export-add-$$(sm-$(conf-mk-file-export)))' | sed 's/_nl_ */\n/g' >> $$@
+		$$(if $$($$(v)),echo $$(v) := $$($$(v));,))) >> $$@.tmp
+	$(q)echo '$$(ta-mk-file-export-add-$$(sm-$(conf-mk-file-export)))' | sed 's/_nl_ */\n/g' >> $$@.tmp
+	$(q)$(call mv-if-changed,$$@.tmp,$$@)
 endef
 $(eval $(mk-file-export))
 

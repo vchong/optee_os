@@ -261,29 +261,41 @@
  */
 
 /* default locate shared memory at the end of the TEE reserved DDR */
-#ifndef CFG_SHMEM_SIZE
-#define CFG_SHMEM_SIZE		(2 * 1024 * 1024)
+#ifdef CFG_SHMEM_SIZE
+#define TEE_SHMEM_SIZE		CFG_SHMEM_SIZE
+#else
+#define TEE_SHMEM_SIZE		(2 * 1024 * 1024)
 #endif
 
-#ifndef CFG_SHMEM_START
-#define CFG_SHMEM_START		(CFG_DDR_TEETZ_RESERVED_START + \
-				CFG_DDR_TEETZ_RESERVED_SIZE - \
-				CFG_SHMEM_SIZE)
+#ifdef CFG_SHMEM_START
+#define TEE_SHMEM_START		CFG_SHMEM_START
+#else
+#define TEE_SHMEM_START		(CFG_DDR_TEETZ_RESERVED_START + \
+					CFG_DDR_TEETZ_RESERVED_SIZE - \
+					TEE_SHMEM_SIZE)
 #endif
 
+/*
+ * Secure data path test memory pool
+ * - If no SDP, no SDP test memory.
+ * - Can be provided by configuration directives CFG_TEE_SDP_MEM_BASE
+ *   and CFG_TEE_SDP_MEM_TEST_SIZE.
+ * - If only the size is defined by CFG_TEE_SDP_MEM_TEST_SIZE, default
+ *   locate a SDP test memory and the end of the TA RAM.
+ */
 #if defined(CFG_SECURE_DATA_PATH) && !defined(CFG_TEE_SDP_MEM_BASE)
-/* default locate SDP memory right before the shared memory in DDR */
-#define CFG_TEE_SDP_TEST_MEM_SIZE	0x00300000
-
-#define CFG_TEE_SDP_MEM_SIZE	CFG_TEE_SDP_TEST_MEM_SIZE
-#define CFG_TEE_SDP_MEM_BASE	(CFG_DDR_TEETZ_RESERVED_START + \
-				CFG_DDR_TEETZ_RESERVED_SIZE - \
-				CFG_SHMEM_SIZE - \
-				CFG_TEE_SDP_MEM_SIZE)
+#if defined(CFG_TEE_SDP_MEM_TEST_SIZE)
+#define TEE_SDP_TEST_MEM_SIZE	CFG_TEE_SDP_MEM_TEST_SIZE
+#else
+#define TEE_SDP_TEST_MEM_SIZE	0x00300000
 #endif
-
-#ifndef CFG_TEE_SDP_TEST_MEM_SIZE
-#define CFG_TEE_SDP_TEST_MEM_SIZE	0
+#define TEE_SDP_MEM_SIZE	TEE_SDP_TEST_MEM_SIZE
+#define TEE_SDP_MEM_BASE	(CFG_DDR_TEETZ_RESERVED_START + \
+					CFG_DDR_TEETZ_RESERVED_SIZE - \
+					TEE_SHMEM_SIZE - TEE_SDP_MEM_SIZE)
+#endif
+#ifndef TEE_SDP_TEST_MEM_SIZE
+#define TEE_SDP_TEST_MEM_SIZE	0
 #endif
 
 #if defined(CFG_WITH_PAGER)
@@ -293,38 +305,36 @@
 
 #define TZDRAM_BASE		CFG_DDR_TEETZ_RESERVED_START
 #define TZDRAM_SIZE		(CFG_DDR_TEETZ_RESERVED_SIZE - \
-				CFG_SHMEM_SIZE - \
-				CFG_TEE_SDP_TEST_MEM_SIZE)
+					TEE_SHMEM_SIZE - \
+					TEE_SDP_TEST_MEM_SIZE)
 
-#define CFG_TEE_RAM_START	TZSRAM_BASE
-#define CFG_TEE_RAM_PH_SIZE	TZSRAM_SIZE
+#define TEE_RAM_START		TZSRAM_BASE
+#define TEE_RAM_PH_SIZE		TZSRAM_SIZE
 
-#define CFG_TA_RAM_START	TZDRAM_BASE
-#define CFG_TA_RAM_SIZE		TZDRAM_SIZE
+#define TA_RAM_START		TZDRAM_BASE
+#define TA_RAM_SIZE		TZDRAM_SIZE
 
 #else  /* CFG_WITH_PAGER */
 
 #define TZDRAM_BASE		CFG_DDR_TEETZ_RESERVED_START
 #define TZDRAM_SIZE		(CFG_DDR_TEETZ_RESERVED_SIZE - \
-				CFG_SHMEM_SIZE - \
-				CFG_TEE_SDP_TEST_MEM_SIZE)
+					TEE_SHMEM_SIZE - \
+					TEE_SDP_TEST_MEM_SIZE)
 
-#define CFG_TEE_RAM_START	TZDRAM_BASE
-#ifndef CFG_TEE_RAM_PH_SIZE
-#define CFG_TEE_RAM_PH_SIZE	(1 * 1024 * 1024)
-#endif
+#define TEE_RAM_START		TZDRAM_BASE
+#define TEE_RAM_PH_SIZE		(1 * 1024 * 1024)
 
-#define CFG_TA_RAM_START	(TZDRAM_BASE + CFG_TEE_RAM_PH_SIZE)
-#define CFG_TA_RAM_SIZE		(TZDRAM_SIZE - CFG_TEE_RAM_PH_SIZE)
+#define TA_RAM_START		(TZDRAM_BASE + TEE_RAM_PH_SIZE)
+#define TA_RAM_SIZE		(TZDRAM_SIZE - TEE_RAM_PH_SIZE)
 
 #endif /* !CFG_WITH_PAGER */
 
-#ifndef CFG_TEE_RAM_VA_SIZE
-#define CFG_TEE_RAM_VA_SIZE	(1024 * 1024)
-#endif
+#define TEE_RAM_VA_SIZE		(1024 * 1024)
 
-#ifndef CFG_TEE_LOAD_ADDR
-#define CFG_TEE_LOAD_ADDR	CFG_TEE_RAM_START
+#ifdef CFG_TEE_LOAD_ADDR
+#define TEE_LOAD_ADDR			CFG_TEE_LOAD_ADDR
+#else
+#define TEE_LOAD_ADDR			TEE_RAM_START
 #endif
 
 #define PL310_BASE		(CPU_IOMEM_BASE + 0x2000)

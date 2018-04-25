@@ -53,13 +53,6 @@ cflags$(sm)    := $($(sm)-platform-cflags) $(CFLAGS_$(sm))
 CFG_TEE_TA_LOG_LEVEL ?= 2
 cppflags$(sm) += -DTRACE_LEVEL=$(CFG_TEE_TA_LOG_LEVEL)
 
-ifeq ($(CFG_TEE_TA_MALLOC_DEBUG),y)
-# TAs will automatically use debug versions of the malloc() functions
-# in libutils (malloc() will be re-defined as mdbg_malloc() etc.).
-# mdbg_check() will also be visible.
-cppflags$(sm) += -DENABLE_MDBG=1
-endif
-
 cppflags$(sm) += -I. -I$(ta-dev-kit-dir)/include
 
 libdirs += $(ta-dev-kit-dir)/lib
@@ -67,6 +60,13 @@ libnames += utils utee mpa
 libdeps += $(ta-dev-kit-dir)/lib/libutils.a
 libdeps += $(ta-dev-kit-dir)/lib/libmpa.a
 libdeps += $(ta-dev-kit-dir)/lib/libutee.a
+
+# Pass config variable (CFG_) from conf.mk on the command line
+cppflags$(sm) += $(strip \
+	$(foreach var, $(filter CFG_%,$(.VARIABLES)), \
+		$(if $(filter y,$($(var))), \
+			-D$(var)=1, \
+			$(if $(filter xn x,x$($(var))),,-D$(var)='$($(var))'))))
 
 include $(ta-dev-kit-dir)/mk/cleandirs.mk
 
