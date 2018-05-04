@@ -470,6 +470,41 @@ struct sks_reference {
 #define SKS_CMD_FIND_OBJECTS_FINAL	0x0000001f
 
 /*
+ * SKS_CMD_GET_OBJECT_SIZE - 
+ *
+ * param#0: in(*)-memref : [uint32_t session_handle]
+ *			   [uint32_t key_handle]
+ * param#1: none
+ * param#2: out-memref : [uint32_t object_byte_size]
+ * param#3: none
+ */
+#define SKS_CMD_GET_OBJECT_SIZE		0x00000020
+
+/*
+ * SKS_CMD_GET_ATTRIBUTE_VALUE - 
+ *
+ * param#0: in(*)-memref : [uint32_t session_handle]
+ *			   [uint32_t key_handle]
+ *			   [struct sks_object_head attribs + attributes data]
+ * param#1: none
+ * param#2: out-memref : [struct sks_object_head attribs + attributes data]
+ * param#3: none
+ */
+#define SKS_CMD_GET_ATTRIBUTE_VALUE	0x00000021
+
+/*
+ * SKS_CMD_SET_ATTRIBUTE_VALUE - 
+ *
+ * param#0: in(*)-memref : [uint32_t session_handle]
+ *			   [uint32_t key_handle]
+ *			   [struct sks_object_head attribs + attributes data]
+ * param#1: none
+ * param#2: out-memref : [struct sks_object_head attribs + attributes data]
+ * param#3: none
+ */
+#define SKS_CMD_SET_ATTRIBUTE_VALUE	0x00000022
+
+/*
  * Return codes
  */
 #define SKS_OK				0x00000000	/* Success */
