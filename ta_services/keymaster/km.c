@@ -15,3 +15,9 @@ TEE_Result km_gen_key(struct km_key_param_head __unused *kph_params,
 {
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
+
+TEE_Result km_add_rng_entropy(const void __unused *buf, size_t __unused blen)
+{
+	/* Stubbed until the system PTA is available */
+	return TEE_ERROR_NOT_IMPLEMENTED;
+}

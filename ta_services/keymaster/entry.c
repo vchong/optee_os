@@ -162,6 +162,20 @@ out:
 	return res;
 }
 
+static TEE_Result add_rng_entropy(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
+{
+	const uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+						TEE_PARAM_TYPE_NONE,
+						TEE_PARAM_TYPE_NONE,
+						TEE_PARAM_TYPE_NONE);
+
+	if (pt != exp_pt)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	return km_add_rng_entropy(params[0].memref.buffer,
+				  params[0].memref.size);
+}
+
 TEE_Result TA_CreateEntryPoint(void)
 {
 	return TEE_SUCCESS;
@@ -189,6 +203,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 	switch (cmd) {
 	case KEYMASTER_CMD_GENERATE_KEY:
 		return generate_key(ptypes, params);
+	case KEYMASTER_CMD_ADD_RNG_ENTROPY:
+		return add_rng_entropy(ptypes, params);
 	default:
 		EMSG("Command ID 0x%x is not supported", cmd);
 		return TEE_ERROR_NOT_SUPPORTED;

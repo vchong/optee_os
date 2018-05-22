@@ -36,4 +36,14 @@
  */
 #define KEYMASTER_CMD_GENERATE_KEY	0
 
+/*
+ * Add (re-seed) caller-provided entropy to the RNG pool. Keymaster
+ * implementations need to securely mix the provided entropy into their
+ * pool, which also must contain internally-generated entropy from a
+ * hardware random number generator.
+ *
+ * in	params[0].memref: entropy input data
+ */
+#define KEYMASTER_CMD_ADD_RNG_ENTROPY	0
+
 #endif /*__KEYMASTER_TA_H*/

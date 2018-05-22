@@ -1,6 +1,9 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /* Copyright (c) 2018, Linaro Limited */
 
+#ifndef LOCAL_KM_H
+#define LOCAL_KM_H
+
 #include <sys/queue.h>
 #include <tee_internal_api.h>
 
@@ -16,3 +19,7 @@ TAILQ_HEAD(km_key_param_head, km_key_param);
 TEE_Result km_gen_key(struct km_key_param_head *kph_params, uint32_t *error,
 		      void *key_blob, size_t *kblen,
 		      struct km_key_param_head *kph_chars);
+
+TEE_Result km_add_rng_entropy(const void *buf, size_t blen);
+
+#endif /*LOCAL_KM_H*/
