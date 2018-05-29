@@ -187,7 +187,7 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 				      TEE_Param params[TEE_NUM_PARAMS])
 {
 	switch (cmd) {
-	case KEYMASTER_CMD_GENERATE_KEY:
+	case KM_GENERATE_KEY:
 		return generate_key(ptypes, params);
 	default:
 		EMSG("Command ID 0x%x is not supported", cmd);
