@@ -7,6 +7,8 @@
 #define TA_KEYMASTER_UUID { 0xd36b30c7, 0x5a5f, 0x472c, \
 			    {0xaf, 0x97, 0x7f, 0x38, 0xa2, 0xed, 0xab, 0x7d } }
 
+#define KEYMASTER_CMD_CONFIGURE		0
+
 /*
  * Add (re-seed) caller-provided entropy to the RNG pool. Keymaster
  * implementations need to securely mix the provided entropy into their
@@ -15,6 +17,6 @@
  *
  * in	params[0].memref: entropy input data
  */
-#define KEYMASTER_CMD_ADD_RNG_ENTROPY	0
+#define KEYMASTER_CMD_ADD_RNG_ENTROPY	1
 
 #endif /*__KEYMASTER_TA_H*/
