@@ -17,4 +17,20 @@
  */
 #define KEYMASTER_CMD_ADD_RNG_ENTROPY	0
 
+/*
+ * Configure keymaster with KM_TAG_OS_VERSION and
+ * KM_TAG_OS_PATCHLEVEL. Until keymaster is configured, all other
+ * functions return TEE_ERROR_NOT_CONFIGURED. Values are only accepted
+ * once. Subsequent calls return TEE_SUCCESS, but do nothing.
+ *
+ * in	params[0].value.a: KM_TAG_OS_VERSION
+ * in	parmas[0].value.b: KM_TAG_OS_PATCHLEVEL
+ */
+#define KEYMASTER_CMD_CONFIGURE		1
+
+/*
+ * AOSP Keymaster specific error codes
+ */
+#define TEE_ERROR_NOT_CONFIGURED          0x80000000
+
 #endif /*__KEYMASTER_TA_H*/

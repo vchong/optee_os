@@ -6,6 +6,20 @@
 
 #include "km.h"
 
+static TEE_Result configure(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
+{
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE);
+
+	if (pt != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	return km_configure(params[0].value.a,
+				  params[0].value.b);
+}
+
 static TEE_Result add_rng_entropy(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
 {
 	const uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
@@ -45,6 +59,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 				      TEE_Param params[TEE_NUM_PARAMS])
 {
 	switch (cmd) {
+	case KEYMASTER_CMD_CONFIGURE:
+		return configure(pt, params);
 	case KEYMASTER_CMD_ADD_RNG_ENTROPY:
 		return add_rng_entropy(pt, params);
 	default:
