@@ -162,6 +162,24 @@ out:
 	return res;
 }
 
+static TEE_Result configure(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
+{
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE);
+
+	DMSG("configure has been called");
+
+	if (pt != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	IMSG("Got value: %u from NW", params[0].value.a);
+	IMSG("Got value: %u from NW", params[0].value.b);
+
+	return TEE_SUCCESS;
+}
+
 TEE_Result TA_CreateEntryPoint(void)
 {
 	return TEE_SUCCESS;
@@ -187,6 +205,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 				      TEE_Param params[TEE_NUM_PARAMS])
 {
 	switch (cmd) {
+	case KM_CONFIGURE:
+		return configure(ptypes, params);
 	case KM_GENERATE_KEY:
 		return generate_key(ptypes, params);
 	default:
