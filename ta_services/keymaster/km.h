@@ -22,4 +22,6 @@ TEE_Result km_gen_key(struct km_key_param_head *kph_params, uint32_t *error,
 
 TEE_Result km_add_rng_entropy(const void *buf, size_t blen);
 
+TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel);
+
 #endif /*LOCAL_KM_H*/

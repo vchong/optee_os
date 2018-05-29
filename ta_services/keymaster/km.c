@@ -21,3 +21,8 @@ TEE_Result km_add_rng_entropy(const void __unused *buf, size_t __unused blen)
 	/* Stubbed until the system PTA is available */
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
+
+TEE_Result km_configure(uint32_t __unused os_version, uint32_t __unused os_patchlevel)
+{
+	return TEE_ERROR_NOT_IMPLEMENTED;
+}
