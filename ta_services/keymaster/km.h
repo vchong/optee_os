@@ -17,7 +17,7 @@ struct km_key_param {
 TAILQ_HEAD(km_key_param_head, km_key_param);
 
 TEE_Result km_gen_key(struct km_key_param_head *kph_params, uint32_t *error,
-		      void *key_blob, size_t *kblen,
+		      void *key_blob, uint32_t *kblen,
 		      struct km_key_param_head *kph_chars);
 
 TEE_Result km_add_rng_entropy(const void *buf, size_t blen);

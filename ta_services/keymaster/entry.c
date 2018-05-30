@@ -106,7 +106,7 @@ static void copy_out_data(void *dst, size_t dlen, size_t *doffs,
 }
 
 static TEE_Result serialize_key_param(struct km_key_param_head *kph,
-				      void *data, size_t *size)
+				      void *data, uint32_t *size)
 {
 	TEE_Result res;
 	size_t offs = 0;

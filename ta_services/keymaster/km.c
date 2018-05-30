@@ -10,7 +10,7 @@
 
 TEE_Result km_gen_key(struct km_key_param_head __unused *kph_params,
 		      uint32_t __unused *error,
-		      void __unused *key_blob, size_t __unused *kblen,
+		      void __unused *key_blob, uint32_t __unused *kblen,
 		      struct km_key_param_head __unused *kph_chars)
 {
 	return TEE_ERROR_NOT_IMPLEMENTED;
