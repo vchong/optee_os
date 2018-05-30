@@ -7,6 +7,8 @@
 #include <sys/queue.h>
 #include <tee_internal_api.h>
 
+extern bool version_info_set;
+
 struct km_key_param {
 	TAILQ_ENTRY(km_key_param) link;
 	uint32_t tag;

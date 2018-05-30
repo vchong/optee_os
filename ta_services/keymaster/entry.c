@@ -188,8 +188,8 @@ static TEE_Result configure(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
 	if (pt != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	IMSG("Got value: %u from NW", params[0].value.a);
-	IMSG("Got value: %u from NW", params[0].value.b);
+	IMSG("Got value a: %u from NW", params[0].value.a);
+	IMSG("Got value b: %u from NW", params[0].value.b);
 
 	return km_configure(params[0].value.a,
 				  params[0].value.b);
@@ -219,6 +219,11 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 				      uint32_t ptypes,
 				      TEE_Param params[TEE_NUM_PARAMS])
 {
+	if (cmd != KM_CONFIGURE && !version_info_set) {
+		DMSG("cmd != KM_CONFIGURE && !version_info_set");
+		return TEE_ERROR_NOT_CONFIGURED;
+	}
+
 	switch (cmd) {
 	case KM_CONFIGURE:
 		return configure(ptypes, params);
