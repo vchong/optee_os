@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /* Copyright (c) 2018, Linaro Limited */
 
-#include <tee_internal_api.h>
+#include <keymaster_ta.h>
 
 #include "km.h"
 

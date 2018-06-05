@@ -2,7 +2,6 @@
 /* Copyright (c) 2018, Linaro Limited */
 
 #include <keymaster_ta.h>
-#include <tee_internal_api.h>
 
 #include "km.h"
 
