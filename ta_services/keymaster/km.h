@@ -5,6 +5,7 @@
 #define LOCAL_KM_H
 
 #include <tee_internal_api.h>
+#include <keymaster_ta.h>
 
 extern bool version_info_set;
 

@@ -1,9 +1,6 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /* Copyright (c) 2018, Linaro Limited */
 
-#include <keymaster_ta.h>
-#include <tee_internal_api.h>
-
 #include "km.h"
 
 static TEE_Result configure(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
