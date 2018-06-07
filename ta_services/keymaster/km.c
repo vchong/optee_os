@@ -15,8 +15,8 @@ bool km_is_configured(uint32_t cmd)
 		EMSG("Keymaster TA not configured!");
 		return false;
 	}
-	else
-		return true;
+
+	return true;
 }
 
 TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel)
@@ -34,8 +34,7 @@ TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel)
 		boot_os_version = os_version;
 		boot_os_patchlevel = os_patchlevel;
 		version_info_set = true;
-    }
-	else {
+    } else {
 		IMSG("version info already set");
 		IMSG("os_version = %u", boot_os_version);
 		IMSG("os_patchlevel = %u", boot_os_patchlevel);
