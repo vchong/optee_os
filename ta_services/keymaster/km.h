@@ -5,7 +5,6 @@
 #define LOCAL_KM_H
 
 #include <tee_internal_api.h>
-#include <keymaster_ta.h>
 
 bool km_is_configured(uint32_t cmd);
 TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel);

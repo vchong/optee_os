@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /* Copyright (c) 2018, Linaro Limited */
 
+#include <keymaster_ta.h>
+
 #include "km.h"
 
 static bool version_info_set = false;
