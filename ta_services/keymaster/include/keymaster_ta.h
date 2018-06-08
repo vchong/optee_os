@@ -18,6 +18,28 @@
 #define KEYMASTER_CMD_ADD_RNG_ENTROPY	0
 
 /*
+ * See description of genereateKey at [0] for the different elements.
+ * [0] Link: https://source.android.com/reference/hidl/android/hardware/keymaster/3.0/types#keyparameter
+ *
+ * in	params[0].memref  = serialized array of struct key_param
+ * out	params[1].memref  = keyBlob
+ * out	params[2].memref  = serialized array of struct key_param representing
+ *			    the teeEnforced array of keyCharacteristics.
+ *
+ * struct key_param - holds a key parameter
+ * @tag		opaque value when serializing
+ * @size	size of data below
+ * @data	data of the key parameter @size bytes large
+ *
+ * struct key_param {
+ *	uint32_t tag;	@tag is an opaque value when serializing
+ *	uint32_t size;
+ *	uint8_t data[]; @data is @size large
+ * };
+ */
+#define KEYMASTER_CMD_GENERATE_KEY	1
+
+/*
  * Configure keymaster with KM_TAG_OS_VERSION and
  * KM_TAG_OS_PATCHLEVEL. Until keymaster is configured, all other
  * functions return TEE_ERROR_NOT_CONFIGURED. Values are only accepted
@@ -26,11 +48,10 @@
  * in	params[0].value.a: KM_TAG_OS_VERSION
  * in	parmas[0].value.b: KM_TAG_OS_PATCHLEVEL
  */
-#define KEYMASTER_CMD_CONFIGURE		1
+#define KEYMASTER_CMD_CONFIGURE		3
 
 /*
  * AOSP Keymaster specific error codes
  */
 #define TEE_ERROR_NOT_CONFIGURED          0x80000000
-
 #endif /*__KEYMASTER_TA_H*/
