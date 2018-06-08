@@ -6,7 +6,6 @@
 
 #include <tee_internal_api.h>
 
-bool km_is_configured(uint32_t cmd);
 TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel);
 TEE_Result km_add_rng_entropy(const void *buf, size_t blen);
 

@@ -9,9 +9,9 @@ static bool version_info_set = false;
 static uint32_t boot_os_version = 0;
 static uint32_t boot_os_patchlevel = 0;
 
-bool km_is_configured(uint32_t cmd)
+static bool is_configured(void)
 {
-	if (cmd != KEYMASTER_CMD_CONFIGURE && !version_info_set) {
+	if (!version_info_set) {
 		EMSG("Keymaster TA not configured!");
 		return false;
 	}
@@ -45,6 +45,9 @@ TEE_Result km_configure(uint32_t os_version, uint32_t os_patchlevel)
 
 TEE_Result km_add_rng_entropy(const void __unused *buf, size_t __unused blen)
 {
+	if (!is_configured())
+		return TEE_ERROR_NOT_CONFIGURED;
+
 	/* Stubbed until the system PTA is available */
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }

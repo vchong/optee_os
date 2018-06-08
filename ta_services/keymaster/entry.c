@@ -5,11 +5,6 @@
 
 #include "km.h"
 
-static bool is_configured(uint32_t cmd)
-{
-	return km_is_configured(cmd);
-}
-
 static TEE_Result configure(uint32_t pt, TEE_Param params[TEE_NUM_PARAMS])
 {
 	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
@@ -62,9 +57,6 @@ TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess, uint32_t cmd,
 				      uint32_t pt,
 				      TEE_Param params[TEE_NUM_PARAMS])
 {
-	if (!is_configured)
-		return TEE_ERROR_NOT_CONFIGURED;
-
 	switch (cmd) {
 	case KEYMASTER_CMD_CONFIGURE:
 		return configure(pt, params);
