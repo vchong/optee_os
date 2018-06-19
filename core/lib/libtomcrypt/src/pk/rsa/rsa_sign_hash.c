@@ -109,25 +109,6 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
   } else {
     /* PKCS #1 v1.5 pad the hash */
     unsigned char *tmpin;
-    ltc_asn1_list digestinfo[2], siginfo[2];
-
-    /* not all hashes have OIDs... so sad */
-    if (hash_descriptor[hash_idx]->OIDlen == 0) {
-       return CRYPT_INVALID_ARG;
-    }
-
-    /* construct the SEQUENCE 
-      SEQUENCE {
-         SEQUENCE {hashoid OID
-                   blah    NULL
-         }
-         hash    OCTET STRING 
-      }
-   */
-    LTC_SET_ASN1(digestinfo, 0, LTC_ASN1_OBJECT_IDENTIFIER, hash_descriptor[hash_idx]->OID, hash_descriptor[hash_idx]->OIDlen);
-    LTC_SET_ASN1(digestinfo, 1, LTC_ASN1_NULL,              NULL,                          0);
-    LTC_SET_ASN1(siginfo,    0, LTC_ASN1_SEQUENCE,          digestinfo,                    2);
-    LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      in,                            inlen);
 
     /* allocate memory for the encoding */
     y = mp_unsigned_bin_size(key->N);
@@ -135,10 +116,34 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
     if (tmpin == NULL) {
        return CRYPT_MEM;
     }
+    if (hash_idx != -1) {
+      ltc_asn1_list digestinfo[2], siginfo[2];
 
-    if ((err = der_encode_sequence(siginfo, 2, tmpin, &y)) != CRYPT_OK) {
-       XFREE(tmpin);
-       return err;
+      /* not all hashes have OIDs... so sad */
+      if (hash_descriptor[hash_idx]->OIDlen == 0) {
+         return CRYPT_INVALID_ARG;
+      }
+
+      /* construct the SEQUENCE
+        SEQUENCE {
+	   SEQUENCE {hashoid OID
+	             blah    NULL
+	   }
+	   hash    OCTET STRING
+        }
+     */
+      LTC_SET_ASN1(digestinfo, 0, LTC_ASN1_OBJECT_IDENTIFIER, hash_descriptor[hash_idx]->OID, hash_descriptor[hash_idx]->OIDlen);
+      LTC_SET_ASN1(digestinfo, 1, LTC_ASN1_NULL,              NULL,                          0);
+      LTC_SET_ASN1(siginfo,    0, LTC_ASN1_SEQUENCE,          digestinfo,                    2);
+      LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      in,                            inlen);
+
+      if ((err = der_encode_sequence(siginfo, 2, tmpin, &y)) != CRYPT_OK) {
+         XFREE(tmpin);
+         return err;
+      }
+    } else {
+      XMEMCPY(tmpin, in, inlen);
+      y = inlen;
     }
 
     x = *outlen;

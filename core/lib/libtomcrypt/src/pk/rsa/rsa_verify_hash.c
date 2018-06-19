@@ -133,13 +133,6 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     unsigned char *out;
     unsigned long outlen, loid[16], reallen;
     int           decoded;
-    ltc_asn1_list digestinfo[2], siginfo[2];
-
-    /* not all hashes have OIDs... so sad */
-    if (hash_descriptor[hash_idx]->OIDlen == 0) {
-       err = CRYPT_INVALID_ARG;
-       goto bail_2;
-    }
 
     /* allocate temp buffer for decoded hash */
     outlen = ((modulus_bitlen >> 3) + (modulus_bitlen & 7 ? 1 : 0)) - 3;
@@ -150,41 +143,54 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     }
 
     if ((err = pkcs_1_v1_5_decode(tmpbuf, x, LTC_PKCS_1_EMSA, modulus_bitlen, out, &outlen, &decoded)) != CRYPT_OK) {
-      XFREE(out);       
+      XFREE(out);
       goto bail_2;
     }
+    if (hash_idx != -1) {
+      ltc_asn1_list digestinfo[2], siginfo[2];
 
-    /* now we must decode out[0...outlen-1] using ASN.1, test the OID and then test the hash */
-    /* construct the SEQUENCE 
-      SEQUENCE {
-         SEQUENCE {hashoid OID
-                   blah    NULL
-         }
-         hash    OCTET STRING 
+      /* not all hashes have OIDs... so sad */
+      if (hash_descriptor[hash_idx]->OIDlen == 0) {
+         err = CRYPT_INVALID_ARG;
+         goto bail_2;
       }
-   */
-    LTC_SET_ASN1(digestinfo, 0, LTC_ASN1_OBJECT_IDENTIFIER, loid, sizeof(loid)/sizeof(loid[0]));
-    LTC_SET_ASN1(digestinfo, 1, LTC_ASN1_NULL,              NULL,                          0);
-    LTC_SET_ASN1(siginfo,    0, LTC_ASN1_SEQUENCE,          digestinfo,                    2);
-    LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      tmpbuf,                        siglen);
-   
-    if ((err = der_decode_sequence(out, outlen, siginfo, 2)) != CRYPT_OK) {
-       XFREE(out);
-       goto bail_2;
-    }
+      /* now we must decode out[0...outlen-1] using ASN.1, test the OID and then test the hash */
+      /* construct the SEQUENCE
+        SEQUENCE {
+	   SEQUENCE {hashoid OID
+	             blah    NULL
+	   }
+	   hash    OCTET STRING
+        }
+     */
+      LTC_SET_ASN1(digestinfo, 0, LTC_ASN1_OBJECT_IDENTIFIER, loid, sizeof(loid)/sizeof(loid[0]));
+      LTC_SET_ASN1(digestinfo, 1, LTC_ASN1_NULL,              NULL,                          0);
+      LTC_SET_ASN1(siginfo,    0, LTC_ASN1_SEQUENCE,          digestinfo,                    2);
+      LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      tmpbuf,                        siglen);
 
-    if ((err = der_length_sequence(siginfo, 2, &reallen)) != CRYPT_OK) {
-       XFREE(out);
-       goto bail_2;
-    }
+      if ((err = der_decode_sequence(out, outlen, siginfo, 2)) != CRYPT_OK) {
+         XFREE(out);
+         goto bail_2;
+      }
 
-    /* test OID */
-    if ((reallen == outlen) &&
-        (digestinfo[0].size == hash_descriptor[hash_idx]->OIDlen) &&
-        (XMEM_NEQ(digestinfo[0].data, hash_descriptor[hash_idx]->OID, sizeof(unsigned long) * hash_descriptor[hash_idx]->OIDlen) == 0) &&
-        (siginfo[1].size == hashlen) &&
-        (XMEM_NEQ(siginfo[1].data, hash, hashlen) == 0)) {
-       *stat = 1;
+      if ((err = der_length_sequence(siginfo, 2, &reallen)) != CRYPT_OK) {
+         XFREE(out);
+         goto bail_2;
+      }
+
+      /* test OID */
+      if ((reallen == outlen) &&
+          (digestinfo[0].size == hash_descriptor[hash_idx]->OIDlen) &&
+	   (XMEM_NEQ(digestinfo[0].data, hash_descriptor[hash_idx]->OID, sizeof(unsigned long) * hash_descriptor[hash_idx]->OIDlen) == 0) &&
+	   (siginfo[1].size == hashlen) &&
+	   (XMEM_NEQ(siginfo[1].data, hash, hashlen) == 0)) {
+         *stat = 1;
+      }
+    } else {
+      /* test message */
+      if ((outlen == hashlen) && (XMEM_NEQ(out, hash, hashlen) == 0)) {
+         *stat = 1;
+      }
     }
 
 #ifdef LTC_CLEAN_STACK
