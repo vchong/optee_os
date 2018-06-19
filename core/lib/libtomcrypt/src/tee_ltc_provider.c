@@ -925,6 +925,7 @@ TEE_Result crypto_acipher_rsassa_sign(uint32_t algo, struct rsa_keypair *key,
 	}
 
 	switch (algo) {
+	case TEE_ALG_RSASSA_PKCS1_V1_5:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_MD5:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_SHA1:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_SHA224:
@@ -945,20 +946,24 @@ TEE_Result crypto_acipher_rsassa_sign(uint32_t algo, struct rsa_keypair *key,
 		goto err;
 	}
 
-	ltc_res = tee_algo_to_ltc_hashindex(algo, &ltc_hashindex);
-	if (ltc_res != CRYPT_OK) {
-		res = TEE_ERROR_BAD_PARAMETERS;
-		goto err;
-	}
+	if (algo != TEE_ALG_RSASSA_PKCS1_V1_5) {
+		ltc_res = tee_algo_to_ltc_hashindex(algo, &ltc_hashindex);
+		if (ltc_res != CRYPT_OK) {
+			res = TEE_ERROR_BAD_PARAMETERS;
+			goto err;
+		}
 
-	res = tee_hash_get_digest_size(TEE_DIGEST_HASH_TO_ALGO(algo),
-				       &hash_size);
-	if (res != TEE_SUCCESS)
-		goto err;
+		res = tee_hash_get_digest_size(TEE_DIGEST_HASH_TO_ALGO(algo),
+					       &hash_size);
+		if (res != TEE_SUCCESS)
+			goto err;
 
-	if (msg_len != hash_size) {
-		res = TEE_ERROR_BAD_PARAMETERS;
-		goto err;
+		if (msg_len != hash_size) {
+			res = TEE_ERROR_BAD_PARAMETERS;
+			goto err;
+		}
+	} else {
+		ltc_hashindex = -1;
 	}
 
 	mod_size = ltc_mp.unsigned_size((void *)(ltc_key.N));
@@ -978,7 +983,13 @@ TEE_Result crypto_acipher_rsassa_sign(uint32_t algo, struct rsa_keypair *key,
 	*sig_len = ltc_sig_len;
 
 	if (ltc_res != CRYPT_OK) {
-		res = TEE_ERROR_BAD_PARAMETERS;
+		if (ltc_rsa_algo == LTC_PKCS_1_V1_5 &&
+		    ltc_res == CRYPT_BUFFER_OVERFLOW) {
+			/* To avoid panic on short buffer error */
+			res = TEE_ERROR_SHORT_BUFFER;
+		} else {
+			res = TEE_ERROR_BAD_PARAMETERS;
+		}
 		goto err;
 	}
 	res = TEE_SUCCESS;
@@ -1003,14 +1014,16 @@ TEE_Result crypto_acipher_rsassa_verify(uint32_t algo,
 		.N = key->n
 	};
 
-	res = tee_hash_get_digest_size(TEE_DIGEST_HASH_TO_ALGO(algo),
-				       &hash_size);
-	if (res != TEE_SUCCESS)
-		goto err;
+	if (algo != TEE_ALG_RSASSA_PKCS1_V1_5) {
+		res = tee_hash_get_digest_size(TEE_DIGEST_HASH_TO_ALGO(algo),
+					       &hash_size);
+		if (res != TEE_SUCCESS)
+			goto err;
 
-	if (msg_len != hash_size) {
-		res = TEE_ERROR_BAD_PARAMETERS;
-		goto err;
+		if (msg_len != hash_size) {
+			res = TEE_ERROR_BAD_PARAMETERS;
+			goto err;
+		}
 	}
 
 	bigint_size = ltc_mp.unsigned_size(ltc_key.N);
@@ -1019,12 +1032,17 @@ TEE_Result crypto_acipher_rsassa_verify(uint32_t algo,
 		goto err;
 	}
 
-	/* Get the algorithm */
-	res = tee_algo_to_ltc_hashindex(algo, &ltc_hashindex);
-	if (res != TEE_SUCCESS)
-		goto err;
+	if (algo != TEE_ALG_RSASSA_PKCS1_V1_5) {
+		/* Get the algorithm */
+		res = tee_algo_to_ltc_hashindex(algo, &ltc_hashindex);
+		if (res != TEE_SUCCESS)
+			goto err;
+	} else {
+		ltc_hashindex = -1;
+	}
 
 	switch (algo) {
+	case TEE_ALG_RSASSA_PKCS1_V1_5:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_MD5:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_SHA1:
 	case TEE_ALG_RSASSA_PKCS1_V1_5_SHA224:
