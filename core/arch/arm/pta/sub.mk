@@ -18,3 +18,4 @@ cppflags-se_api_self_tests.c-y += -Icore/tee/se
 endif
 
 srcs-y += asn1_parser.c
+srcs-y += rng_entropy.c
