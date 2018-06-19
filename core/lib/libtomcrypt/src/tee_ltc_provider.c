@@ -230,6 +230,8 @@ static TEE_Result tee_algo_to_ltc_hashindex(uint32_t algo, int *ltc_hashindex)
 	case TEE_ALG_RSASSA_PKCS1_V1_5_MD5:
 	case TEE_ALG_MD5:
 	case TEE_ALG_HMAC_MD5:
+	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_MD5:
+	case TEE_ALG_RSAES_PKCS1_OAEP_MGF1_MD5:
 		*ltc_hashindex = find_hash("md5");
 		break;
 #endif
@@ -1017,6 +1019,7 @@ TEE_Result crypto_acipher_rsassa_sign(uint32_t algo, struct rsa_keypair *key,
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256:
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA384:
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA512:
+	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_MD5:
 		ltc_rsa_algo = LTC_PKCS_1_PSS;
 		break;
 	default:
@@ -1134,6 +1137,7 @@ TEE_Result crypto_acipher_rsassa_verify(uint32_t algo,
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256:
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA384:
 	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA512:
+	case TEE_ALG_RSASSA_PKCS1_PSS_MGF1_MD5:
 		ltc_rsa_algo = LTC_PKCS_1_PSS;
 		break;
 	default:
