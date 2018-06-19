@@ -15,3 +15,7 @@ srcs-$(CFG_TEE_BENCHMARK) += benchmark.c
 srcs-$(CFG_SDP_PTA) += sdp_pta.c
 srcs-$(CFG_SYSTEM_PTA) += system.c
 srcs-$(CFG_DEVICE_ENUM_PTA) += device.c
+
+srcs-$(CFG_ASN1_PARSER) += asn1_parser.c
+srcs-$(CFG_ASN1_PARSER) += attestations.c
+srcs-$(CFG_ASN1_PARSER) += encoders.c
