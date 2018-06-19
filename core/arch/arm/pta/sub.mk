@@ -19,3 +19,5 @@ endif
 
 srcs-y += asn1_parser.c
 srcs-y += rng_entropy.c
+srcs-y += attestations.c
+srcs-y += encoders.c
