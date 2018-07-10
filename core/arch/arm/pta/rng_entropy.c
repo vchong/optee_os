@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <crypto/crypto.h>
+#include <tee/tee_cryp_utl.h>
 #include <kernel/pseudo_ta.h>
 #include <tee_api_types.h>
 #include <tee_api_defines.h>
@@ -42,7 +42,6 @@
 
 #define MAX_RNG_LENGTH 32
 
-static unsigned int system_pnum;
 /*
  * INPUT
  * params[0].memref.buffer - RNG entropy data
@@ -56,7 +55,6 @@ static TEE_Result TA_add_rng_entropy(const uint32_t ptypes,
 					TEE_PARAM_TYPE_NONE,
 					TEE_PARAM_TYPE_NONE,
 					TEE_PARAM_TYPE_NONE);
-	uint32_t res = CRYPT_OK;
 	uint8_t *entropy = params[0].memref.buffer;
 	size_t entropy_l = params[0].memref.size;
 
@@ -68,10 +66,7 @@ static TEE_Result TA_add_rng_entropy(const uint32_t ptypes,
 	if (MAX_RNG_LENGTH > 0 && entropy_l > MAX_RNG_LENGTH)
 		entropy_l = MAX_RNG_LENGTH;
 
-	crypto_rng_add_event(CRYPTO_RNG_SRC_NONSECURE, &system_pnum,
-			     entropy, entropy_l);
-
-	return res;
+	return tee_prng_add_entropy(entropy, entropy_l);
 }
 
 /*
