@@ -15,6 +15,7 @@
 #if !defined(_CFG_CRYPTO_WITH_HASH)
 TEE_Result crypto_hash_alloc_ctx(void **ctx __unused, uint32_t algo __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -32,16 +33,19 @@ void crypto_hash_copy_state(void *dst_ctx __unused, void *src_ctx __unused,
 
 TEE_Result crypto_hash_init(void *ctx __unused, uint32_t algo __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 TEE_Result crypto_hash_update(void *ctx __unused, uint32_t algo __unused,
 			      const uint8_t *data __unused, size_t len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 TEE_Result crypto_hash_final(void *ctx __unused, uint32_t algo __unused,
 			     uint8_t *digest __unused, size_t len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*_CFG_CRYPTO_WITH_HASH*/
@@ -49,6 +53,7 @@ TEE_Result crypto_hash_final(void *ctx __unused, uint32_t algo __unused,
 #if !defined(_CFG_CRYPTO_WITH_CIPHER)
 TEE_Result crypto_cipher_alloc_ctx(void **ctx __unused, uint32_t algo __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -73,6 +78,7 @@ TEE_Result crypto_cipher_init(void *ctx __unused, uint32_t algo __unused,
 			      const uint8_t *iv __unused,
 			      size_t iv_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -82,16 +88,19 @@ TEE_Result crypto_cipher_update(void *ctx __unused, uint32_t algo __unused,
 				const uint8_t *data __unused,
 				size_t len __unused, uint8_t *dst __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 void crypto_cipher_final(void *ctx __unused, uint32_t algo __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 }
 
 TEE_Result crypto_cipher_get_block_size(uint32_t algo __unused,
 					size_t *size __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*_CFG_CRYPTO_WITH_CIPHER*/
@@ -99,6 +108,7 @@ TEE_Result crypto_cipher_get_block_size(uint32_t algo __unused,
 #if !defined(_CFG_CRYPTO_WITH_MAC)
 TEE_Result crypto_mac_alloc_ctx(void **ctx __unused, uint32_t algo __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -117,12 +127,14 @@ void crypto_mac_copy_state(void *dst_ctx __unused, void *src_ctx __unused,
 TEE_Result crypto_mac_init(void *ctx __unused, uint32_t algo __unused,
 			   const uint8_t *key __unused, size_t len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 TEE_Result crypto_mac_update(void *ctx __unused, uint32_t algo __unused,
 			     const uint8_t *data __unused, size_t len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -130,6 +142,7 @@ TEE_Result crypto_mac_final(void *ctx __unused, uint32_t algo __unused,
 			    uint8_t *digest __unused,
 			    size_t digest_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*_CFG_CRYPTO_WITH_MAC*/
@@ -146,6 +159,7 @@ TEE_Result crypto_authenc_alloc_ctx(void **ctx, uint32_t algo)
 		return crypto_aes_gcm_alloc_ctx(ctx);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -211,6 +225,7 @@ TEE_Result crypto_authenc_init(void *ctx __maybe_unused,
 					   nonce_len, tag_len);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -231,6 +246,7 @@ TEE_Result crypto_authenc_update_aad(void *ctx __maybe_unused,
 		return crypto_aes_gcm_update_aad(ctx, data, len);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -261,6 +277,7 @@ TEE_Result crypto_authenc_update_payload(void *ctx __maybe_unused,
 						     src_len, dst_data);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -292,6 +309,7 @@ TEE_Result crypto_authenc_enc_final(void *ctx __maybe_unused,
 						dst_data, dst_tag, dst_tag_len);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -323,6 +341,7 @@ TEE_Result crypto_authenc_dec_final(void *ctx __maybe_unused,
 						dst_data, tag, tag_len);
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_IMPLEMENTED;
 	}
 }
@@ -349,6 +368,7 @@ void crypto_authenc_final(void *ctx __maybe_unused,
 #if !defined(_CFG_CRYPTO_WITH_ACIPHER)
 struct bignum *crypto_bignum_allocate(size_t size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return NULL;
 }
 
@@ -356,16 +376,19 @@ TEE_Result crypto_bignum_bin2bn(const uint8_t *from __unused,
 				size_t fromsize __unused,
 				struct bignum *to __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 size_t crypto_bignum_num_bytes(struct bignum *a __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return 0;
 }
 
 size_t crypto_bignum_num_bits(struct bignum *a __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return 0;
 }
 
@@ -420,6 +443,7 @@ int32_t crypto_bignum_compare(struct bignum *a __unused,
 TEE_Result crypto_acipher_alloc_rsa_keypair(struct rsa_keypair *s __unused,
 					    size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -432,11 +456,13 @@ crypto_acipher_alloc_rsa_public_key(struct rsa_public_key *s __unused,
 
 void crypto_acipher_free_rsa_public_key(struct rsa_public_key *s __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 }
 
 TEE_Result crypto_acipher_gen_rsa_key(struct rsa_keypair *key __unused,
 				      size_t key_size __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -446,6 +472,7 @@ TEE_Result crypto_acipher_rsanopad_decrypt(struct rsa_keypair *key __unused,
 					   uint8_t *dst __unused,
 					   size_t *dst_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -455,6 +482,7 @@ TEE_Result crypto_acipher_rsanopad_encrypt(struct rsa_public_key *key __unused,
 					   uint8_t *dst __unused,
 					   size_t *dst_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -467,6 +495,7 @@ TEE_Result crypto_acipher_rsaes_decrypt(uint32_t algo __unused,
 					uint8_t *dst __unused,
 					size_t *dst_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -479,6 +508,7 @@ TEE_Result crypto_acipher_rsaes_encrypt(uint32_t algo __unused,
 					uint8_t *dst __unused,
 					size_t *dst_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -490,6 +520,7 @@ TEE_Result crypto_acipher_rsassa_sign(uint32_t algo __unused,
 				      uint8_t *sig __unused,
 				      size_t *sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -501,6 +532,7 @@ TEE_Result crypto_acipher_rsassa_verify(uint32_t algo __unused,
 					const uint8_t *sig __unused,
 					size_t sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*!CFG_CRYPTO_RSA || !_CFG_CRYPTO_WITH_ACIPHER*/
@@ -509,6 +541,7 @@ TEE_Result crypto_acipher_rsassa_verify(uint32_t algo __unused,
 TEE_Result crypto_acipher_alloc_dsa_keypair(struct dsa_keypair *s __unused,
 					    size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -516,12 +549,14 @@ TEE_Result
 crypto_acipher_alloc_dsa_public_key(struct dsa_public_key *s __unused,
 				    size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 TEE_Result crypto_acipher_gen_dsa_key(struct dsa_keypair *key __unused,
 				      size_t key_size __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -532,6 +567,7 @@ TEE_Result crypto_acipher_dsa_sign(uint32_t algo __unused,
 				   uint8_t *sig __unused,
 				   size_t *sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -542,6 +578,7 @@ TEE_Result crypto_acipher_dsa_verify(uint32_t algo __unused,
 				     const uint8_t *sig __unused,
 				     size_t sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*!CFG_CRYPTO_DSA || !_CFG_CRYPTO_WITH_ACIPHER*/
@@ -550,6 +587,7 @@ TEE_Result crypto_acipher_dsa_verify(uint32_t algo __unused,
 TEE_Result crypto_acipher_alloc_dh_keypair(struct dh_keypair *s __unused,
 					   size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -557,6 +595,7 @@ TEE_Result crypto_acipher_gen_dh_key(struct dh_keypair *key __unused,
 				     struct bignum *q __unused,
 				     size_t xbits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -565,6 +604,7 @@ crypto_acipher_dh_shared_secret(struct dh_keypair *private_key __unused,
 				struct bignum *public_key __unused,
 				struct bignum *secret __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*!CFG_CRYPTO_DH || !_CFG_CRYPTO_WITH_ACIPHER*/
@@ -574,21 +614,25 @@ TEE_Result
 crypto_acipher_alloc_ecc_public_key(struct ecc_public_key *s __unused,
 				    size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 TEE_Result crypto_acipher_alloc_ecc_keypair(struct ecc_keypair *s __unused,
 					    size_t key_size_bits __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
 void crypto_acipher_free_ecc_public_key(struct ecc_public_key *s __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 }
 
 TEE_Result crypto_acipher_gen_ecc_key(struct ecc_keypair *key __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -599,6 +643,7 @@ TEE_Result crypto_acipher_ecc_sign(uint32_t algo __unused,
 				   uint8_t *sig __unused,
 				   size_t *sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -609,6 +654,7 @@ TEE_Result crypto_acipher_ecc_verify(uint32_t algo __unused,
 				     const uint8_t *sig __unused,
 				     size_t sig_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -618,6 +664,7 @@ crypto_acipher_ecc_shared_secret(struct ecc_keypair *private_key __unused,
 				 void *secret __unused,
 				 unsigned long *secret_len __unused)
 {
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
 #endif /*!CFG_CRYPTO_ECC || !_CFG_CRYPTO_WITH_ACIPHER*/

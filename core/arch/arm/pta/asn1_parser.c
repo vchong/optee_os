@@ -1434,7 +1434,11 @@ static TEE_Result TA_gen_root_rsa_cert(uint32_t ptypes,
 	}
 
 	//Hash tbsCertificate
+	EMSG("%s %d", __func__, __LINE__);
 	res = crypto_cipher_alloc_ctx(&hashCtx, hashAlgo);
+	if (!hashCtx) {
+		EMSG("!hashCts");
+	}
 	if (res != TEE_SUCCESS || !hashCtx) {
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		EMSG("Failed to allocate memory for hash ctx");
