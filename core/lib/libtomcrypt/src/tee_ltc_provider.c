@@ -1806,6 +1806,7 @@ static TEE_Result cipher_get_ctx_size(uint32_t algo, size_t *size)
 #endif
 #endif
 	default:
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_NOT_SUPPORTED;
 	}
 
@@ -1818,15 +1819,21 @@ TEE_Result crypto_cipher_alloc_ctx(void **ctx_ret, uint32_t algo)
 	size_t ctx_size;
 	void *ctx;
 
+	EMSG("%s %d", __func__, __LINE__);
 	res = cipher_get_ctx_size(algo, &ctx_size);
-	if (res)
+	if (res) {
+		EMSG("%s %d", __func__, __LINE__);
 		return res;
+	}
 
 	ctx = calloc(1, ctx_size);
-	if (!ctx)
+	if (!ctx) {
+		EMSG("%s %d", __func__, __LINE__);
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 
 	*ctx_ret = ctx;
+	EMSG("%s %d", __func__, __LINE__);
 	return TEE_SUCCESS;
 }
 
