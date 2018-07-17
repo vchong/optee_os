@@ -1435,7 +1435,7 @@ static TEE_Result TA_gen_root_rsa_cert(uint32_t ptypes,
 
 	//Hash tbsCertificate
 	EMSG("%s %d", __func__, __LINE__);
-	res = crypto_cipher_alloc_ctx(&hashCtx, hashAlgo);
+	res = crypto_hash_alloc_ctx(&hashCtx, hashAlgo);
 	if (!hashCtx) {
 		EMSG("!hashCts");
 	}
@@ -1614,7 +1614,7 @@ static TEE_Result TA_gen_root_ec_cert(uint32_t ptypes,
 	}
 
 	//Hash tbsCertificate
-	res = crypto_cipher_alloc_ctx(&hashCtx, hashAlgo);
+	res = crypto_hash_alloc_ctx(&hashCtx, hashAlgo);
 	if (res != TEE_SUCCESS || !hashCtx) {
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		EMSG("Failed to allocate memory for hash ctx");
@@ -1848,7 +1848,7 @@ static TEE_Result TA_gen_attest_rsa_cert(uint32_t ptypes  __unused,
 	}
 
 	//Hash tbsCertificate
-	res = crypto_cipher_alloc_ctx(&hashCtx, hashAlgo);
+	res = crypto_hash_alloc_ctx(&hashCtx, hashAlgo);
 	if (res != TEE_SUCCESS || !hashCtx) {
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		EMSG("Failed to allocate memory for hash ctx");
@@ -2086,7 +2086,7 @@ static TEE_Result TA_gen_attest_ec_cert(uint32_t ptypes  __unused,
 	}
 
 	//Hash tbsCertificate
-	res = crypto_cipher_alloc_ctx(&hashCtx, hashAlgo);
+	res = crypto_hash_alloc_ctx(&hashCtx, hashAlgo);
 	if (res != TEE_SUCCESS || !hashCtx) {
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		EMSG("Failed to allocate memory for hash ctx");
