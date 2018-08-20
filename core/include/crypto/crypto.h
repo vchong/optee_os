@@ -195,6 +195,7 @@ TEE_Result crypto_acipher_alloc_ecc_keypair(struct ecc_keypair *s,
 					    uint32_t key_type,
 					    size_t key_size_bits);
 void crypto_acipher_free_ecc_public_key(struct ecc_public_key *s);
+void crypto_acipher_free_ecc_keypair(struct ecc_keypair *s);
 
 /*
  * Key generation functions
