@@ -176,6 +176,7 @@ struct ecc_keypair {
  */
 TEE_Result crypto_acipher_alloc_rsa_keypair(struct rsa_keypair *s,
 				size_t key_size_bits);
+void crypto_acipher_free_rsa_keypair(struct rsa_keypair *s);
 TEE_Result crypto_acipher_alloc_rsa_public_key(struct rsa_public_key *s,
 				   size_t key_size_bits);
 void crypto_acipher_free_rsa_public_key(struct rsa_public_key *s);
@@ -190,6 +191,7 @@ TEE_Result crypto_acipher_alloc_ecc_public_key(struct ecc_public_key *s,
 TEE_Result crypto_acipher_alloc_ecc_keypair(struct ecc_keypair *s,
 				size_t key_size_bits);
 void crypto_acipher_free_ecc_public_key(struct ecc_public_key *s);
+void crypto_acipher_free_ecc_keypair(struct ecc_keypair *s);
 
 /*
  * Key generation functions
