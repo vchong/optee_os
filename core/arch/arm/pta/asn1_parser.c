@@ -98,10 +98,17 @@
 #define SIZE_OF_ITEM(item) (item ? sizeof(item[0]) : 0)
 
 struct import_data_t {
+#if 0
 	uint64_t obj_ident1[MAX_OCTET_COUNT];
 	uint64_t obj_ident2[MAX_OCTET_COUNT];
 	uint32_t obj1_length;
 	uint32_t obj2_length;
+#else
+	unsigned long obj_ident1[MAX_OCTET_COUNT];
+	unsigned long obj_ident2[MAX_OCTET_COUNT];
+	size_t obj1_length;
+	size_t obj2_length;
+#endif
 	uint8_t *octet_str_data;
 	unsigned long octet_str_length;
 };
@@ -117,7 +124,8 @@ struct bignum {
 	uint32_t d[];
 };
 
-uint64_t const identifier_rsa[] = {1, 2, 840, 113549, 1, 1, 1};
+//uint64_t const identifier_rsa[] = {1, 2, 840, 113549, 1, 1, 1};
+unsigned long const identifier_rsa[] = {1, 2, 840, 113549, 1, 1, 1};
 /* RSAPrivateKey ::= SEQUENCE {
  *    version Version,
  *    modulus INTEGER, -- n
@@ -130,7 +138,8 @@ uint64_t const identifier_rsa[] = {1, 2, 840, 113549, 1, 1, 1};
  *    coefficient INTEGER -- (inverse of q) mod p }
  */
 
-uint64_t const identifier_ec[] = {1, 2, 840, 10045, 2, 1};
+//uint64_t const identifier_ec[] = {1, 2, 840, 10045, 2, 1};
+unsigned long const identifier_ec[] = {1, 2, 840, 10045, 2, 1};
 /* ECPrivateKey ::= SEQUNCE {
  *    version Version,
  *    secretValue OCTET_STRING,
@@ -141,10 +150,17 @@ uint64_t const identifier_ec[] = {1, 2, 840, 10045, 2, 1};
 static const uint32_t identifier_rsa_c = 7;
 static const uint32_t identifier_ec_c = 6;
 /* EC second OID */
+#if 0
 static const uint64_t oid_ec2_224[] = {1, 3, 132, 0, 33}; /* secp224r1 */
 static const uint64_t oid_ec2_256[] = {1, 2, 840, 10045, 3, 1, 7}; /* prime256v1 */
 static const uint64_t oid_ec2_384[] = {1, 3, 132, 0, 34}; /* secp384r1 */
 static const uint64_t oid_ec2_521[] = {1, 3, 132, 0, 35}; /* secp521r1 */
+#else
+static const unsigned long oid_ec2_224[] = {1, 3, 132, 0, 33}; /* secp224r1 */
+static const unsigned long oid_ec2_256[] = {1, 2, 840, 10045, 3, 1, 7}; /* prime256v1 */
+static const unsigned long oid_ec2_384[] = {1, 3, 132, 0, 34}; /* secp384r1 */
+static const unsigned long oid_ec2_521[] = {1, 3, 132, 0, 35}; /* secp521r1 */
+#endif
 static const uint32_t oid_ec2_c = 5;
 static const uint32_t oid_ec2_prime_c = 7;
 
@@ -171,11 +187,11 @@ static int TA_iterate_asn1_list(ltc_asn1_list *list,
 				break;
 			if (imp_data->obj1_length == 0) {
 				memcpy(imp_data->obj_ident1, list->data,
-						list->size * sizeof(uint64_t));
+						list->size * sizeof(unsigned long /*uint64_t*/));
 				imp_data->obj1_length = list->size;
 			} else {
 				memcpy(imp_data->obj_ident2, list->data,
-						list->size * sizeof(uint64_t));
+						list->size * sizeof(unsigned long /*uint64_t*/));
 				imp_data->obj2_length = list->size;
 			}
 			break;
@@ -206,7 +222,7 @@ static int TA_check_object_identifier(const struct import_data_t *imp_data,
 						uint32_t *key_size)
 {
 	int32_t cmp_res = 0;
-	const uint64_t *exp_ident = NULL;
+	const unsigned long /*uint64_t*/ *exp_ident = NULL;
 
 	if (imp_data->obj1_length == 0) {
 		EMSG("Object identifier of imported key is empty");
@@ -219,7 +235,7 @@ static int TA_check_object_identifier(const struct import_data_t *imp_data,
 	}
 
 	cmp_res = memcmp(exp_ident, imp_data->obj_ident1,
-				imp_data->obj1_length * sizeof(uint64_t));
+				imp_data->obj1_length * sizeof(unsigned long /*uint64_t*/));
 	if (cmp_res != 0) {
 		EMSG("First Object Identifier is not match expected one");
 		return KM_ERROR_UNSUPPORTED_KEY_ENCRYPTION_ALGORITHM;
@@ -232,16 +248,16 @@ static int TA_check_object_identifier(const struct import_data_t *imp_data,
 		return KM_ERROR_UNSUPPORTED_KEY_ENCRYPTION_ALGORITHM;
 	}
 	if (!memcmp(oid_ec2_224, imp_data->obj_ident2,
-			imp_data->obj2_length * sizeof(uint64_t))) {
+			imp_data->obj2_length * sizeof(size_t /*uint64_t*/))) {
 		*key_size = EC_KEY_SIZE_NIST_224;
 	} else if (!memcmp(oid_ec2_256, imp_data->obj_ident2,
-			imp_data->obj2_length * sizeof(uint64_t))) {
+			imp_data->obj2_length * sizeof(size_t /*uint64_t*/))) {
 		*key_size = EC_KEY_SIZE_NIST_256;
 	} else if (!memcmp(oid_ec2_384, imp_data->obj_ident2,
-			imp_data->obj2_length * sizeof(uint64_t))) {
+			imp_data->obj2_length * sizeof(size_t /*uint64_t*/))) {
 		*key_size = EC_KEY_SIZE_NIST_384;
 	} else if (!memcmp(oid_ec2_521, imp_data->obj_ident2,
-			imp_data->obj2_length * sizeof(uint64_t))) {
+			imp_data->obj2_length * sizeof(size_t /*uint64_t*/))) {
 		*key_size = EC_KEY_SIZE_NIST_521;
 	} else {
 		EMSG("Unexpected value fo the second EC Object Identifier");
@@ -931,14 +947,14 @@ out:
 	return res;
 }
 
-static int add_obj_ident_in_seq(uint8_t *out, uint64_t *out_l,
-				const uint64_t *oid, const uint64_t oid_l,
-				const uint8_t *second, const uint32_t second_l,
+static int add_obj_ident_in_seq(uint8_t *out, unsigned long /*uint64_t*/ *out_l,
+				const unsigned long /*uint64_t*/ *oid, const unsigned long /*uint64_t*/ oid_l,
+				const unsigned long /*uint8_t*/ *second, const unsigned long /*uint32_t*/ second_l,
 				const uint32_t second_type)
 {
 	int res = CRYPT_OK;
 	uint8_t out_buf[*out_l];
-	uint64_t out_buf_l = *out_l;
+	unsigned long /*uint64_t*/ out_buf_l = *out_l;
 
 	if (!second || second_l == 0 || second_type == 0) {
 		res = der_encode_sequence_multi(out_buf, &out_buf_l,
@@ -946,8 +962,9 @@ static int add_obj_ident_in_seq(uint8_t *out, uint64_t *out_l,
 				LTC_ASN1_NULL, 1UL, NULL,
 				LTC_ASN1_EOL, 0UL, NULL);
 	} else {
+		DMSG("Encoding sequence multi\n");
 		res = der_encode_sequence_multi(out_buf, &out_buf_l,
-				LTC_ASN1_OBJECT_IDENTIFIER, oid_l, oid,
+				LTC_ASN1_OBJECT_IDENTIFIER, oid_l, (uint8_t *)oid,
 				second_type, second_l, second,
 				LTC_ASN1_EOL, 0UL, NULL);
 	}
@@ -961,7 +978,7 @@ out:
 	return res;
 }
 
-static int encode_params(uint8_t **params_buf, uint64_t *params_buf_l,
+static int encode_params(uint8_t **params_buf, unsigned long /*uint64_t*/ *params_buf_l,
 			const uint32_t type, const uint8_t *attr1,
 			const uint32_t attr1_l, const uint8_t *attr2,
 			const uint32_t attr2_l, const uint32_t key_size)
@@ -969,9 +986,9 @@ static int encode_params(uint8_t **params_buf, uint64_t *params_buf_l,
 	int res = CRYPT_OK;
 	struct bignum *num_attr1 = NULL;
 	uint8_t *out_buf = NULL;
-	uint64_t out_buf_l = 0;
+	unsigned long /*uint64_t*/ out_buf_l = 0;
 	uint32_t offset = 0;
-	uint64_t rsa_pe = 0;
+	unsigned long /*uint64_t*/ rsa_pe = 0;
 	/* rounded up the bytes count */
 	uint32_t key_size_bytes = (key_size + 7) / 8;
 
@@ -1080,15 +1097,15 @@ static TEE_Result TA_asn1_encode_pubkey(uint32_t ptypes,
 	uint32_t type = params[2].value.a;
 	uint32_t key_size = params[2].value.b;
 	unsigned char *output = params[3].memref.buffer;
-	uint64_t output_size = params[3].memref.size;
+	unsigned long /*uint64_t*/ output_size = params[3].memref.size;
 	uint32_t attr1_l = params[0].memref.size;
 	uint32_t attr2_l = params[1].memref.size;
 	uint8_t *attr1 = params[0].memref.buffer;
 	uint8_t *attr2 = params[1].memref.buffer;
-	const uint64_t *oid1 = NULL;
-	const uint64_t *oid2 = NULL;
-	uint64_t oid1_c = 0;
-	uint64_t oid2_c = 0;
+	const unsigned long /*uint64_t*/ *oid1 = NULL;
+	const unsigned long /*uint64_t*/ *oid2 = NULL;
+	unsigned long /*uint64_t*/ oid1_c = 0;
+	unsigned long /*uint64_t*/ oid2_c = 0;
 	uint64_t params_buf_l = 0;
 	uint8_t *params_buf = NULL;
 	uint64_t oid_buf_l = MAX_OID_SIZE;
@@ -1142,7 +1159,7 @@ static TEE_Result TA_asn1_encode_pubkey(uint32_t ptypes,
 		goto out;
 	}
 	res = add_obj_ident_in_seq(oid_buf, &oid_buf_l,
-				oid1, oid1_c, (uint8_t *)oid2, oid2_c,
+				oid1, oid1_c, /*(uint8_t *)*/oid2, oid2_c,
 				LTC_ASN1_OBJECT_IDENTIFIER);
 	if (res != CRYPT_OK) {
 		EMSG("Failed to encode key object ID");
@@ -2185,6 +2202,7 @@ static TEE_Result invoke_command(void *psess __unused,
 				 uint32_t cmd, uint32_t ptypes,
 				 TEE_Param params[TEE_NUM_PARAMS])
 {
+	DMSG("######################## HELLO FROM ASN1 PARSER IN CORE");
 	switch (cmd) {
 	//Generic commands
 	case CMD_ASN1_DECODE:
@@ -2211,6 +2229,16 @@ static TEE_Result invoke_command(void *psess __unused,
 	return TEE_ERROR_BAD_PARAMETERS;
 }
 
+static TEE_Result open_session(uint32_t ptype __unused,
+				TEE_Param params[TEE_NUM_PARAMS] __unused,
+				void **ppsess __unused)
+{
+	DMSG("######################## OPEN SESSION");
+
+	return TEE_SUCCESS;
+}
+
 pseudo_ta_register(.uuid = ASN1_PARSER_UUID, .name = TA_NAME,
 		.flags = PTA_DEFAULT_FLAGS,
+		.open_session_entry_point = open_session,
 		.invoke_command_entry_point = invoke_command);
