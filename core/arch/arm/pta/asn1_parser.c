@@ -94,7 +94,7 @@
 #define ATTEST_CERT_BUFFER_SIZE 4096U
 
 #define MAX_ENFORCED_PARAMS_COUNT 30
-#define SIZE_LENGTH sizeof(uint64_t)
+#define SIZE_LENGTH sizeof(size_t)
 #define SIZE_OF_ITEM(item) (item ? sizeof(item[0]) : 0)
 
 struct import_data_t {
