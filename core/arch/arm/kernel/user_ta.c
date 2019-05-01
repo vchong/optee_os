@@ -755,12 +755,17 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 	size_t num_segs = 0;
 	struct load_seg *segs = NULL;
 
+	DMSG("in");
+
 	res = ta_store->open(uuid, &handle);
-	if (res)
+	if (res) {
+		DMSG("res = 0x%x", res);
 		return res;
+	}
 
 	elf = ta_elf(uuid, utc);
 	if (!elf) {
+		DMSG("!elf");
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		goto out;
 	}
@@ -770,20 +775,25 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 
 	res = elf_load_init(ta_store, handle, elf == exe, &utc->elfs,
 			    resolve_symbol, &elf_state);
-	if (res)
+	if (res) {
+		DMSG("elf_load_init: res = 0x%x", res);
 		goto out;
+	}
 	elf->elf_state = elf_state;
 
 	res = elf_load_head(elf_state,
 			    elf == exe ? sizeof(struct ta_head) : 0,
 			    &p, &vasize, &utc->is_32bit);
-	if (res)
+	if (res) {
+		DMSG("elf_load_head: res = 0x%x", res);
 		goto out;
+	}
 	ta_head = p;
 
 
 	elf->mobj_code = alloc_ta_mem(vasize);
 	if (!elf->mobj_code) {
+		DMSG("!elf->mobj_code");
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		goto out;
 	}
@@ -794,11 +804,13 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 					  STACK_ALIGNMENT);
 
 		if (!stack_sz) {
+			DMSG("!stack_sz");
 			res = TEE_ERROR_OUT_OF_MEMORY;
 			goto out;
 		}
 		utc->mobj_stack = alloc_ta_mem(stack_sz);
 		if (!utc->mobj_stack) {
+			DMSG("!utc->mobj_stack");
 			res = TEE_ERROR_OUT_OF_MEMORY;
 			goto out;
 		}
@@ -809,20 +821,26 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 	 */
 	if (elf == exe) {
 		res = vm_info_init(utc);
-		if (res != TEE_SUCCESS)
+		if (res != TEE_SUCCESS) {
+			DMSG("vm_info_init: res = 0x%x", res);
 			goto out;
+		}
 
 		utc->stack_addr = get_stack_va_hint(utc);
 		res = vm_map(utc, &utc->stack_addr, utc->mobj_stack->size,
 			     TEE_MATTR_URW | TEE_MATTR_PRW, utc->mobj_stack,
 			     0);
-		if (res)
+		if (res) {
+			DMSG("vm_map: res = 0x%x", res);
 			goto out;
+		}
 	}
 
 	res = get_elf_segments(elf, &segs, &num_segs);
-	if (res != TEE_SUCCESS)
+	if (res != TEE_SUCCESS) {
+		DMSG("get_elf_segment: res = 0x%x", res);
 		goto out;
+	}
 
 	if (prev)
 		elf->load_addr = prev->load_addr + prev->mobj_code->size;
@@ -838,8 +856,10 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 		segs[n].size = segs[n].oend - segs[n].offs;
 		res = vm_map(utc, &segs[n].va, segs[n].size, prot,
 			     elf->mobj_code, segs[n].offs);
-		if (res)
+		if (res) {
+			DMSG("vm_map 2: res = 0x%x", res);
 			goto out;
+		}
 		if (!n) {
 			elf->load_addr = segs[0].va;
 			DMSG("ELF load address %#" PRIxVA, elf->load_addr);
@@ -849,12 +869,16 @@ static TEE_Result load_elf_from_store(const TEE_UUID *uuid,
 	tee_mmu_set_ctx(&utc->ctx);
 
 	res = elf_load_body(elf_state, elf->load_addr);
-	if (res)
+	if (res) {
+		DMSG("elf_load_body: res = 0x%x", res);
 		goto out;
+	}
 
 	/* Find any external dependency (dynamically linked libraries) */
 	res = add_deps(utc, elf_state, elf->load_addr);
+	DMSG("add_deps: res = 0x%x", res);
 out:
+	DMSG("out: res = 0x%x", res);
 	if (res) {
 		free(segs);
 	} else {
@@ -871,6 +895,8 @@ static TEE_Result load_elf(const TEE_UUID *uuid, struct user_ta_ctx *utc)
 {
 	TEE_Result res = TEE_ERROR_ITEM_NOT_FOUND;
 	const struct user_ta_store_ops *op = NULL;
+
+	check_ta_store();
 
 	SCATTERED_ARRAY_FOREACH(op, ta_stores, struct user_ta_store_ops) {
 		DMSG("Lookup user TA ELF %pUl (%s)", (void *)uuid,
