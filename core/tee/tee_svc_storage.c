@@ -24,19 +24,24 @@ const struct tee_file_operations *tee_svc_storage_file_ops(uint32_t storage_id)
 
 	switch (storage_id) {
 	case TEE_STORAGE_PRIVATE:
+		DMSG("TEE_STORAGE_PRIVATE");
 #if defined(CFG_REE_FS)
+		DMSG("CFG_REE_FS");
 		return &ree_fs_ops;
 #elif defined(CFG_RPMB_FS)
+		DMSG("CFG_RPMB_FS");
 		return &rpmb_fs_ops;
 #else
 #error At least one filesystem must be enabled.
 #endif
 #ifdef CFG_REE_FS
 	case TEE_STORAGE_PRIVATE_REE:
+		DMSG("TEE_STORAGE_PRIVATE_REE");
 		return &ree_fs_ops;
 #endif
 #ifdef CFG_RPMB_FS
 	case TEE_STORAGE_PRIVATE_RPMB:
+		DMSG("TEE_STORAGE_PRIVATE_RPMB");
 		return &rpmb_fs_ops;
 #endif
 	default:

@@ -1191,19 +1191,25 @@ static TEE_Result tee_rpmb_read(uint16_t dev_id, uint32_t addr, uint8_t *data,
 	uint16_t blkcnt;
 	uint8_t byte_offset;
 
-	if (!data || !len)
+	DMSG("in");
+
+	if (!data || !len) {
+		DMSG("TEE_ERROR_BAD_PARAMETERS");
 		return TEE_ERROR_BAD_PARAMETERS;
+	}
 
 	blk_idx = addr / RPMB_DATA_SIZE;
 	byte_offset = addr % RPMB_DATA_SIZE;
 
 	if (len + byte_offset + RPMB_DATA_SIZE < RPMB_DATA_SIZE) {
+		DMSG("TEE_ERROR_BAD_PARAMETERS");
 		/* Overflow */
 		return TEE_ERROR_BAD_PARAMETERS;
 	}
 	blkcnt =
 	    ROUNDUP(len + byte_offset, RPMB_DATA_SIZE) / RPMB_DATA_SIZE;
 	res = tee_rpmb_init(dev_id);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
@@ -1211,11 +1217,13 @@ static TEE_Result tee_rpmb_read(uint16_t dev_id, uint32_t addr, uint8_t *data,
 	resp_size = RPMB_DATA_FRAME_SIZE * blkcnt;
 	res = tee_rpmb_alloc(req_size, resp_size, &mem,
 			     (void *)&req, (void *)&resp);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
 	msg_type = RPMB_MSG_TYPE_REQ_AUTH_DATA_READ;
 	res = crypto_rng_read(nonce, RPMB_NONCE_SIZE);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
@@ -1224,6 +1232,7 @@ static TEE_Result tee_rpmb_read(uint16_t dev_id, uint32_t addr, uint8_t *data,
 	rawdata.nonce = nonce;
 	rawdata.blk_idx = &blk_idx;
 	res = tee_rpmb_req_pack(req, &rawdata, 1, dev_id, NULL, NULL);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
@@ -1233,6 +1242,7 @@ static TEE_Result tee_rpmb_read(uint16_t dev_id, uint32_t addr, uint8_t *data,
 	     blk_idx);
 
 	res = tee_rpmb_invoke(&mem);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
@@ -1250,12 +1260,14 @@ static TEE_Result tee_rpmb_read(uint16_t dev_id, uint32_t addr, uint8_t *data,
 	rawdata.byte_offset = byte_offset;
 
 	res = tee_rpmb_resp_unpack_verify(resp, &rawdata, blkcnt, fek, uuid);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto func_exit;
 
 	res = TEE_SUCCESS;
 
 func_exit:
+	DMSG("res = 0x%x", res);
 	tee_rpmb_free(&mem);
 	return res;
 }
@@ -1754,16 +1766,19 @@ static TEE_Result read_fat(struct rpmb_file_handle *fh, tee_mm_pool_t *p)
 	DMSG("fat_address %d", fh->rpmb_fat_address);
 
 	res = rpmb_fs_setup();
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
 	res = get_fat_start_address(&fat_address);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
 	size = N_ENTRIES * sizeof(struct rpmb_fat_entry);
 	fat_entries = malloc(size);
 	if (!fat_entries) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		res = TEE_ERROR_OUT_OF_MEMORY;
 		goto out;
 	}
@@ -1777,6 +1792,7 @@ static TEE_Result read_fat(struct rpmb_file_handle *fh, tee_mm_pool_t *p)
 	while (!last_entry_found && (!entry_found || p)) {
 		res = tee_rpmb_read(CFG_RPMB_FS_DEV_ID, fat_address,
 				    (uint8_t *)fat_entries, size, NULL, NULL);
+		DMSG("res = 0x%x", res);
 		if (res != TEE_SUCCESS)
 			goto out;
 
@@ -1860,6 +1876,7 @@ static TEE_Result read_fat(struct rpmb_file_handle *fh, tee_mm_pool_t *p)
 
 		mm = tee_mm_alloc2(p, RPMB_STORAGE_START_ADDRESS, fat_address);
 		if (!mm) {
+			DMSG("TEE_ERROR_OUT_OF_MEMORY");
 			res = TEE_ERROR_OUT_OF_MEMORY;
 			goto out;
 		}
@@ -1909,8 +1926,11 @@ static TEE_Result rpmb_fs_open_internal(struct rpmb_file_handle *fh,
 	bool pool_result;
 	TEE_Result res = TEE_ERROR_GENERIC;
 
+	DMSG("in");
+
 	/* We need to do setup in order to make sure fs_par is filled in */
 	res = rpmb_fs_setup();
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
@@ -1924,16 +1944,19 @@ static TEE_Result rpmb_fs_open_internal(struct rpmb_file_handle *fh,
 					  TEE_MM_POOL_HI_ALLOC);
 
 		if (!pool_result) {
+			DMSG("TEE_ERROR_OUT_OF_MEMORY");
 			res = TEE_ERROR_OUT_OF_MEMORY;
 			goto out;
 		}
 
 		res = read_fat(fh, &p);
+		DMSG("res = 0x%x", res);
 		tee_mm_final(&p);
 		if (res != TEE_SUCCESS)
 			goto out;
 	} else {
 		res = read_fat(fh, NULL);
+		DMSG("res = 0x%x", res);
 		if (res != TEE_SUCCESS)
 			goto out;
 	}
@@ -1952,6 +1975,7 @@ static TEE_Result rpmb_fs_open_internal(struct rpmb_file_handle *fh,
 			fh->fat_entry.flags = FILE_IS_ACTIVE;
 
 			res = generate_fek(&fh->fat_entry, uuid);
+			DMSG("res = 0x%x", res);
 			if (res != TEE_SUCCESS)
 				goto out;
 			DMSG("GENERATE FEK key: %p",
@@ -1959,6 +1983,7 @@ static TEE_Result rpmb_fs_open_internal(struct rpmb_file_handle *fh,
 			DHEXDUMP(fh->fat_entry.fek, sizeof(fh->fat_entry.fek));
 
 			res = write_fat_entry(fh, true);
+			DMSG("res = 0x%x", res);
 			if (res != TEE_SUCCESS)
 				goto out;
 		}
@@ -2517,12 +2542,17 @@ static TEE_Result rpmb_fs_open(struct tee_pobj *po, size_t *size,
 	TEE_Result res;
 	struct rpmb_file_handle *fh = alloc_file_handle(po, po->temporary);
 
-	if (!fh)
+	DMSG("in");
+
+	if (!fh) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 
 	mutex_lock(&rpmb_mutex);
 
 	res = rpmb_fs_open_internal(fh, &po->uuid, false);
+	DMSG("res = 0x%x", res);
 	if (!res && size)
 		*size = fh->fat_entry.data_size;
 
@@ -2546,16 +2576,22 @@ static TEE_Result rpmb_fs_create(struct tee_pobj *po, bool overwrite,
 	size_t pos = 0;
 	struct rpmb_file_handle *fh = alloc_file_handle(po, po->temporary);
 
-	if (!fh)
+	DMSG("in");
+
+	if (!fh) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 
 	mutex_lock(&rpmb_mutex);
 	res = rpmb_fs_open_internal(fh, &po->uuid, true);
+	DMSG("res = 0x%x", res);
 	if (res)
 		goto out;
 
 	if (head && head_size) {
 		res = rpmb_fs_write_primitive(fh, pos, head, head_size);
+		DMSG("res = 0x%x", res);
 		if (res)
 			goto out;
 		pos += head_size;
@@ -2563,6 +2599,7 @@ static TEE_Result rpmb_fs_create(struct tee_pobj *po, bool overwrite,
 
 	if (attr && attr_size) {
 		res = rpmb_fs_write_primitive(fh, pos, attr, attr_size);
+		DMSG("res = 0x%x", res);
 		if (res)
 			goto out;
 		pos += attr_size;
@@ -2570,6 +2607,7 @@ static TEE_Result rpmb_fs_create(struct tee_pobj *po, bool overwrite,
 
 	if (data && data_size) {
 		res = rpmb_fs_write_primitive(fh, pos, data, data_size);
+		DMSG("res = 0x%x", res);
 		if (res)
 			goto out;
 	}
@@ -2582,6 +2620,7 @@ static TEE_Result rpmb_fs_create(struct tee_pobj *po, bool overwrite,
 		 */
 		po->temporary = false;
 		res = rpmb_fs_rename_internal(po, NULL, overwrite);
+		DMSG("res = 0x%x", res);
 		if (res) {
 			po->temporary = true;
 			goto out;

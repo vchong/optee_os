@@ -199,16 +199,22 @@ static TEE_Result tadb_open(struct tee_tadb_dir **db_ret)
 		.obj_id_len = sizeof(tadb_obj_id)
 	};
 
-	if (!db)
+	DMSG("in");
+
+	if (!db) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 
 	db->ops = tee_svc_storage_file_ops(TEE_STORAGE_PRIVATE);
 
 	res = db->ops->open(&po, NULL, &db->fh);
+	DMSG("res = 0x%x", res);
 	if (res == TEE_ERROR_ITEM_NOT_FOUND)
 		res = db->ops->create(&po, false, NULL, 0, NULL, 0, NULL, 0,
 				      &db->fh);
 
+	DMSG("res = 0x%x", res);
 	if (res)
 		free(db);
 	else
@@ -219,12 +225,15 @@ static TEE_Result tadb_open(struct tee_tadb_dir **db_ret)
 
 static TEE_Result tee_tadb_open(struct tee_tadb_dir **db)
 {
+	DMSG("in");
+
 	if (!refcount_inc(&tadb_db_refc)) {
 		TEE_Result res;
 
 		mutex_lock(&tadb_mutex);
 		if (!tadb_db) {
 			res = tadb_open(&tadb_db);
+			DMSG("res=0x%x", res);
 			if (!res)
 				refcount_set(&tadb_db_refc, 1);
 		} else {
@@ -245,8 +254,10 @@ static TEE_Result tee_tadb_open(struct tee_tadb_dir **db)
 			res = TEE_SUCCESS;
 		}
 		mutex_unlock(&tadb_mutex);
-		if (res)
+		if (res) {
+			DMSG("res = 0x%x", res);
 			return res;
+		}
 	}
 
 	*db = tadb_db;
