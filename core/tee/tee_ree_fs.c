@@ -423,24 +423,31 @@ static TEE_Result ree_fs_open_primitive(bool create, uint8_t *hash,
 	TEE_Result res;
 	struct tee_fs_fd *fdp;
 
+	DMSG("in");
 	fdp = calloc(1, sizeof(struct tee_fs_fd));
-	if (!fdp)
+	if (!fdp) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 	fdp->fd = -1;
 	fdp->uuid = uuid;
 
-	if (create)
+	if (create) {
+		DMSG("create");
 		res = tee_fs_rpc_create_dfh(OPTEE_RPC_CMD_FS,
 					    dfh, &fdp->fd);
+	}
 	else
 		res = tee_fs_rpc_open_dfh(OPTEE_RPC_CMD_FS, dfh, &fdp->fd);
 
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
 	res = tee_fs_htree_open(create, hash, uuid, &ree_fs_storage_ops,
 				fdp, &fdp->ht);
 out:
+	DMSG("res = 0x%x", res);
 	if (res == TEE_SUCCESS) {
 		if (dfh)
 			fdp->dfh = *dfh;
@@ -619,18 +626,23 @@ static TEE_Result ree_fs_open(struct tee_pobj *po, size_t *size,
 	struct tee_fs_dirfile_dirh *dirh = NULL;
 	struct tee_fs_dirfile_fileh dfh;
 
+DMSG("in");
+
 	mutex_lock(&ree_fs_mutex);
 
 	res = get_dirh(&dirh);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
 	res = tee_fs_dirfile_find(dirh, &po->uuid, po->obj_id, po->obj_id_len,
 				  &dfh);
+	DMSG("res = 0x%x", res);
 	if (res != TEE_SUCCESS)
 		goto out;
 
 	res = ree_fs_open_primitive(false, dfh.hash, &po->uuid, &dfh, fh);
+	DMSG("res = 0x%x", res);
 	if (res == TEE_ERROR_ITEM_NOT_FOUND) {
 		/*
 		 * If the object isn't found someone has tampered with it,
@@ -644,6 +656,7 @@ static TEE_Result ree_fs_open(struct tee_pobj *po, size_t *size,
 	}
 
 out:
+DMSG("res = 0x%x", res);
 	if (res)
 		put_dirh(dirh, false);
 	mutex_unlock(&ree_fs_mutex);
