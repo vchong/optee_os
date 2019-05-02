@@ -637,40 +637,55 @@ TEE_Result tee_tadb_ta_open(const TEE_UUID *uuid,
 	struct tee_tadb_ta_read *ta;
 	static struct tadb_entry last_entry;
 
-	if (is_null_uuid(uuid))
+	DMSG("in");
+
+	if (is_null_uuid(uuid)) {
+		DMSG("uuid is null");
 		return TEE_ERROR_GENERIC;
+	}
 
 	ta = calloc(1, sizeof(*ta));
-	if (!ta)
+	if (!ta) {
+		DMSG("TEE_ERROR_OUT_OF_MEMORY");
 		return TEE_ERROR_OUT_OF_MEMORY;
+	}
 
 	if (!memcmp(uuid, &last_entry.prop.uuid, sizeof(*uuid))) {
 		ta->entry = last_entry;
 	} else {
 		res = tee_tadb_open(&ta->db);
-		if (res)
+		if (res) {
+			DMSG("tee_tadb_open: res = 0x%x", res);
 			goto err_free; /* Mustn't all tadb_put() */
+		}
 
 		mutex_read_lock(&tadb_mutex);
 		res = find_ent(ta->db, uuid, &idx, &ta->entry);
 		mutex_read_unlock(&tadb_mutex);
-		if (res)
+		if (res) {
+			DMSG("find_ent: res = 0x%x", res);
 			goto err;
+		}
 	}
 
 	res = ta_operation_open(OPTEE_RPC_FS_OPEN, ta->entry.file_number,
 				&ta->fd);
-	if (res)
+	if (res) {
+		DMSG("ta_operation_open: res = 0x%x", res);
 		goto err;
+	}
 
 	res = tadb_authenc_init(TEE_MODE_DECRYPT, &ta->entry, &ta->ctx);
-	if (res)
+	if (res) {
+		DMSG("tadb_authenc_init: res = 0x%x", res);
 		goto err;
+	}
 
 	*ta_ret = ta;
 
 	return TEE_SUCCESS;
 err:
+	DMSG("res = 0x%x", res);
 	tadb_put(ta->db);
 err_free:
 	free(ta);

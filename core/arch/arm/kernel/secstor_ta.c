@@ -17,8 +17,10 @@ static TEE_Result secstor_ta_open(const TEE_UUID *uuid,
 	const struct tee_tadb_property *prop;
 
 	res = tee_tadb_ta_open(uuid, &ta);
-	if (res)
+	if (res) {
+		DMSG("res = 0x%x", res);
 		return res;
+	}
 	prop = tee_tadb_ta_get_property(ta);
 
 	l = prop->custom_size;
