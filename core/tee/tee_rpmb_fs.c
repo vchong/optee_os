@@ -1604,20 +1604,25 @@ static TEE_Result write_fat_entry(struct rpmb_file_handle *fh,
 {
 	TEE_Result res = TEE_ERROR_GENERIC;
 
+	DMSG("in");
+
 	/* Protect partition data. */
 	if (fh->rpmb_fat_address < sizeof(struct rpmb_fs_partition)) {
 		res = TEE_ERROR_ACCESS_CONFLICT;
+		DMSG("TEE_ERROR_ACCESS_CONFLICT");
 		goto out;
 	}
 
 	if (fh->rpmb_fat_address % sizeof(struct rpmb_fat_entry) != 0) {
 		res = TEE_ERROR_BAD_PARAMETERS;
+		DMSG("TEE_ERROR_BAD_PARAMETERS");
 		goto out;
 	}
 
 	if (update_write_counter) {
 		res = tee_rpmb_get_write_counter(CFG_RPMB_FS_DEV_ID,
 						 &fh->fat_entry.write_counter);
+		DMSG("res = 0x%x", res);
 		if (res != TEE_SUCCESS)
 			goto out;
 	}
@@ -1625,6 +1630,7 @@ static TEE_Result write_fat_entry(struct rpmb_file_handle *fh,
 	res = tee_rpmb_write(CFG_RPMB_FS_DEV_ID, fh->rpmb_fat_address,
 			     (uint8_t *)&fh->fat_entry,
 			     sizeof(struct rpmb_fat_entry), NULL, NULL);
+	DMSG("res = 0x%x", res);
 
 	dump_fat();
 
@@ -1891,6 +1897,7 @@ static TEE_Result read_fat(struct rpmb_file_handle *fh, tee_mm_pool_t *p)
 			last_fh.fat_entry.flags = FILE_IS_LAST_ENTRY;
 			last_fh.rpmb_fat_address = fat_address;
 			res = write_fat_entry(&last_fh, true);
+			DMSG("res = 0x%x", res);
 			if (res != TEE_SUCCESS)
 				goto out;
 		}
@@ -1900,6 +1907,7 @@ static TEE_Result read_fat(struct rpmb_file_handle *fh, tee_mm_pool_t *p)
 		res = TEE_ERROR_ITEM_NOT_FOUND;
 
 out:
+	DMSG("res = 0x%x", res);
 	free(fat_entries);
 	return res;
 }
