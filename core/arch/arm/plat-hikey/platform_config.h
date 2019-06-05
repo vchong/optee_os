@@ -108,6 +108,7 @@
 #define DRAM0_SIZE		0x3F000000
 #define DRAM0_SIZE_NSEC		0x3E000000
 #define DRAM1_BASE		0x40000000
+#define DRAM2_BASE		0x100000000
 
 #if defined(PLATFORM_FLAVOR_hikey)
 
@@ -121,17 +122,35 @@
 
 #elif defined(PLATFORM_FLAVOR_hikey960)
 
-#if (CFG_DRAM_SIZE_GB == 3)
-#define DRAM1_SIZE_NSEC		0x80000000
-#elif (CFG_DRAM_SIZE_GB == 4)
 /*
- * SoC reference manual [1] page 2-23 says that the DRAM address range
- * is 0x00000000 - 0xDFFFFFFF for a total of 3.5GB, so the limit would
- * seem to be 0xE0000000.
+ * SoC reference manual [1] page 2-17 specifies the DRAM address range
+ * as follows:
+ *
+ * 4GB board
+ * 0-3.5 GB, 4-4.5 GB
+ * 0-0xDFFFFFFF, 0x100000000-0x11FFFFFFF
+ *
+ * 6GB board
+ * 0-3.5 GB, 4-6.5 GB
+ * 0-0xDFFFFFFF, 0x100000000-0x19FFFFFFF
+ *
+ * 8GB board
+ * 0-3.5 GB, 4-8.5 GB
+ * 0-0xDFFFFFFF, 0x100000000-0x21FFFFFFF
  *
  * [1] https://github.com/96boards/documentation/raw/master/consumer/hikey/hikey960/hardware-docs/HiKey960_SoC_Reference_Manual.pdf
  */
+#if (CFG_DRAM_SIZE_GB == 3)
+#define DRAM1_SIZE_NSEC		0x80000000
+#elif (CFG_DRAM_SIZE_GB == 4)
 #define DRAM1_SIZE_NSEC		0xA0000000
+#define DRAM2_SIZE_NSEC		0x20000000
+#elif (CFG_DRAM_SIZE_GB == 6)
+#define DRAM1_SIZE_NSEC		0xA0000000
+#define DRAM2_SIZE_NSEC		0xA0000000
+#elif (CFG_DRAM_SIZE_GB == 8)
+#define DRAM1_SIZE_NSEC		0xA0000000
+#define DRAM2_SIZE_NSEC		0x120000000
 #else
 #error Unknown DRAM size
 #endif
