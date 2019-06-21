@@ -1051,6 +1051,9 @@ static TEE_Result tee_rpmb_init(uint16_t dev_id)
 	TEE_Result res = TEE_SUCCESS;
 	struct rpmb_dev_info dev_info;
 	uint32_t nblocks = 0;
+#ifdef CFG_RPMB_WRITE_KEY
+	uint8_t i;
+#endif
 
 	if (!rpmb_ctx) {
 		rpmb_ctx = calloc(1, sizeof(struct tee_rpmb_ctx));
@@ -1105,6 +1108,10 @@ static TEE_Result tee_rpmb_init(uint16_t dev_id)
 				       RPMB_KEY_MAC_SIZE);
 		if (res != TEE_SUCCESS)
 			goto func_exit;
+#ifdef CFG_RPMB_WRITE_KEY
+		else
+			DHEXDUMP(rpmb_ctx->key, RPMB_KEY_MAC_SIZE);
+#endif
 
 		rpmb_ctx->key_derived = true;
 	}
