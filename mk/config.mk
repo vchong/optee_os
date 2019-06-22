@@ -134,12 +134,16 @@ CFG_TEE_FW_MANUFACTURER ?= FW_MAN_UNDEF
 CFG_REE_FS ?= y
 
 # RPMB file system support
-CFG_RPMB_FS ?= n
+CFG_RPMB_FS ?= y
 
 # Device identifier used when CFG_RPMB_FS = y.
 # The exact meaning of this value is platform-dependent. On Linux, the
 # tee-supplicant process will open /dev/mmcblk<id>rpmb
 CFG_RPMB_FS_DEV_ID ?= 0
+#CFG_RPMB_FS_DEV_ID ?= 1
+
+# hexdump eMMC request and response packets
+#CFG_RPMB_FS_DEBUG_DATA ?= y
 
 # Enables RPMB key programming by the TEE, in case the RPMB partition has not
 # been configured yet.
@@ -149,7 +153,13 @@ CFG_RPMB_FS_DEV_ID ?= 0
 # This option is useful in the following situations:
 # - Testing
 # - RPMB key provisioning in a controlled environment (factory setup)
-CFG_RPMB_WRITE_KEY ?= n
+CFG_RPMB_WRITE_KEY ?= y
+
+# if your RPMB device is already manually programmed with a key, set it
+# as rpmb_test_key in core/tee/tee_rpmb_fs.c (see
+# https://github.com/vchong/optee_os/commit/3caa4fff2a64bcade3b4bc97199adaa582b79894
+# for reference) and enable CFG_RPMB_TESTKEY below
+#CFG_RPMB_TESTKEY ?= y
 
 # Embed public part of this key in OP-TEE OS
 TA_SIGN_KEY ?= keys/default_ta.pem
