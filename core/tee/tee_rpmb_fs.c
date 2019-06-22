@@ -756,6 +756,8 @@ static TEE_Result tee_rpmb_resp_unpack_verify(struct rpmb_data_frame *datafrm,
 
 	/* Handle operation result and translate to TEEC error code. */
 	bytes_to_u16(lastfrm.op_result, &op_result);
+	DMSG("op_result = 0x%x", op_result);
+	DMSG("b[1] = 0x%x, b[0] = 0x%x", lastfrm.op_result[1], lastfrm.op_result[0]);
 	if (rawdata->op_result)
 		*rawdata->op_result = op_result;
 	if (op_result == RPMB_RESULT_AUTH_KEY_NOT_PROGRAMMED)
