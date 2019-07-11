@@ -131,7 +131,7 @@ CFG_TEE_FW_MANUFACTURER ?= FW_MAN_UNDEF
 # provides the actual storage.
 # This is the default FS when enabled (i.e., the one used when
 # TEE_STORAGE_PRIVATE is passed to the trusted storage API)
-CFG_REE_FS ?= y
+CFG_REE_FS ?= n
 
 # RPMB file system support
 CFG_RPMB_FS ?= y
@@ -139,8 +139,8 @@ CFG_RPMB_FS ?= y
 # Device identifier used when CFG_RPMB_FS = y.
 # The exact meaning of this value is platform-dependent. On Linux, the
 # tee-supplicant process will open /dev/mmcblk<id>rpmb
-CFG_RPMB_FS_DEV_ID ?= 0
-#CFG_RPMB_FS_DEV_ID ?= 1
+#CFG_RPMB_FS_DEV_ID ?= 0
+CFG_RPMB_FS_DEV_ID ?= 1
 
 # hexdump eMMC request and response packets
 #CFG_RPMB_FS_DEBUG_DATA ?= y
@@ -159,7 +159,7 @@ CFG_RPMB_WRITE_KEY ?= y
 # as rpmb_test_key in core/tee/tee_rpmb_fs.c (see
 # https://github.com/vchong/optee_os/commit/3caa4fff2a64bcade3b4bc97199adaa582b79894
 # for reference) and enable CFG_RPMB_TESTKEY below
-#CFG_RPMB_TESTKEY ?= y
+CFG_RPMB_TESTKEY ?= y
 
 # Embed public part of this key in OP-TEE OS
 TA_SIGN_KEY ?= keys/default_ta.pem
