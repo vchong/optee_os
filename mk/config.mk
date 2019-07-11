@@ -131,10 +131,10 @@ CFG_TEE_FW_MANUFACTURER ?= FW_MAN_UNDEF
 # provides the actual storage.
 # This is the default FS when enabled (i.e., the one used when
 # TEE_STORAGE_PRIVATE is passed to the trusted storage API)
-CFG_REE_FS ?= n
+CFG_REE_FS ?= y
 
 # RPMB file system support
-CFG_RPMB_FS ?= y
+CFG_RPMB_FS ?= n
 
 # Device identifier used when CFG_RPMB_FS = y.
 # The exact meaning of this value is platform-dependent. On Linux, the
