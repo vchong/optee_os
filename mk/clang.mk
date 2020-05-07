@@ -26,8 +26,8 @@ comp-cflags-warns-clang := -Wno-language-extension-token \
 
 # Note, the currently used compiler runtime library may be libgcc.a or
 # libclang_rt.builtins.*.a depending on the compiler build-time configuration.
-libgcc$(sm)  	:= $(shell $(CC$(sm)) $(CFLAGS$(arch-bits-$(sm))) $(comp-cflags$(sm)) \
-			-print-libgcc-file-name 2> /dev/null)
+libgcc$(sm)	:= $(shell $(CC$(sm)) $(CFLAGS$(arch-bits-$(sm))) $(comp-cflags$(sm)) \
+			-rtlib=compiler-rt -print-libgcc-file-name 2> /dev/null)
 
 # Core ASLR relies on the executable being ready to run from its preferred load
 # address, because some symbols are used before the MMU is enabled and the
@@ -44,5 +44,5 @@ OBJCOPY		:= false
 OBJDUMP		:= false
 READELF		:= false
 nostdinc	:= --bad-nostdinc-variable
-libgcc  	:= --bad-libgcc-variable
+libgcc		:= --bad-libgcc-variable
 
