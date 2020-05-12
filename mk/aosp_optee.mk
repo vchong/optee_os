@@ -21,6 +21,10 @@
 ##########################################################
 TOP_ROOT_ABS := $(realpath $(TOP))
 
+include $(TOP_ROOT_ABS)/$(OPTEE_OS_DIR)/mk/android_flags.mk
+
+#$(info $$CFG_CORE_HEAP_SIZE is [${CFG_CORE_HEAP_SIZE}])
+
 PREBUILT_MAKE ?= prebuilts/build-tools/linux-x86/bin/make
 # we need this check because the Pie build does not have
 # this prebuilt make tool
