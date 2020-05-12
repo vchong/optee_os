@@ -1,0 +1,6 @@
+CFG_TA_DYNLINK = y
+CFG_CORE_ASLR = y
+
+ifneq (,$(filter $(TARGET_PRODUCT), hikey))
+OPTEE_EXTRA_FLAGS += CFG_CORE_HEAP_SIZE=196608
+endif
