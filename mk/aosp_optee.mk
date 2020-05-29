@@ -65,6 +65,8 @@ CROSS_COMPILE_LINE += CROSS_COMPILE32=arm-linux-androideabi-
 
 CLANG_PATH ?= $(TOP_ROOT_ABS)/$(LLVM_PREBUILTS_PATH)/
 
+$(info $$CLANG_PATH is [${CLANG_PATH}])
+
 OPTEE_BIN := $(OPTEE_OS_OUT_DIR)/core/tee.bin
 
 $(OPTEE_BIN) : $(sort $(shell find -L $(OPTEE_OS_DIR)))
