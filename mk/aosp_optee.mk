@@ -63,6 +63,8 @@ TA_DEV_KIT_DIR := $(ABS_OPTEE_OS_OUT_DIR)/export-${OPTEE_TA_TARGETS}
 CROSS_COMPILE_LINE := CROSS_COMPILE64=aarch64-linux-android-
 CROSS_COMPILE_LINE += CROSS_COMPILE32=arm-linux-androideabi-
 
+CLANG_PATH ?= $(TOP_ROOT_ABS)/$(LLVM_PREBUILTS_PATH)
+
 OPTEE_BIN := $(OPTEE_OS_OUT_DIR)/core/tee.bin
 
 $(OPTEE_BIN) : $(sort $(shell find -L $(OPTEE_OS_DIR)))
@@ -81,6 +83,7 @@ ifneq (true,$(BUILD_OPTEE_OS_DEFINED))
 BUILD_OPTEE_OS_DEFINED := true
 $(OPTEE_BIN):
 	@echo "CROSS_COMPILE = $(CROSS_COMPILE)"
+	@echo "CLANG_PATH = $(CLANG_PATH)"
 	@echo "Start building optee_os..."
 	+$(HOST_MAKE) -C $(TOP_ROOT_ABS)/$(OPTEE_OS_DIR) \
 		O=$(ABS_OPTEE_OS_OUT_DIR) \
@@ -89,7 +92,7 @@ $(OPTEE_BIN):
 		PLATFORM=$(OPTEE_PLATFORM) \
 		PLATFORM_FLAVOR=$(OPTEE_PLATFORM_FLAVOR) \
 		COMPILER=clang \
-		CLANG_PATH=$(TOP_ROOT_ABS)/$(LLVM_PREBUILTS_PATH)/ \
+		CLANG_PATH=$(CLANG_PATH)/ \
 		$(CROSS_COMPILE_LINE) \
 		$(OPTEE_EXTRA_FLAGS)
 	@echo "Finished building optee_os..."
