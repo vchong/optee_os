@@ -56,9 +56,9 @@ struct thread_core_local thread_core_local[CFG_TEE_CORE_NB_CORE] __nex_bss;
 
 #ifdef ARM32
 #ifdef CFG_CORE_SANITIZE_KADDRESS
-#define STACK_TMP_SIZE		(3072 + STACK_TMP_OFFS)
+#define STACK_TMP_SIZE		(4096 + STACK_TMP_OFFS)
 #else
-#define STACK_TMP_SIZE		(2048 + STACK_TMP_OFFS)
+#define STACK_TMP_SIZE		(4096 + STACK_TMP_OFFS)
 #endif
 #define STACK_THREAD_SIZE	8192
 
