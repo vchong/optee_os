@@ -69,7 +69,7 @@ $(info $$CLANG_PATH is [${CLANG_PATH}])
 
 OPTEE_BIN := $(OPTEE_OS_OUT_DIR)/core/tee.bin
 
-$(OPTEE_BIN) : $(sort $(shell find -L $(OPTEE_OS_DIR)))
+$(OPTEE_BIN) : $(sort $(shell find -L $(OPTEE_OS_DIR) | grep -v -e out -e .git))
 
 ###########################################################
 ## define making rules for $(OPTEE_BIN) target, and add  ##
