@@ -66,6 +66,9 @@ CROSS_COMPILE_LINE += CROSS_COMPILE32=arm-linux-androideabi-
 CLANG_PATH ?= $(TOP_ROOT_ABS)/$(LLVM_PREBUILTS_PATH)/
 
 $(info $$CLANG_PATH is [${CLANG_PATH}])
+$(info python3 is [$(shell which python3)])
+
+HOST_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 OPTEE_BIN := $(OPTEE_OS_OUT_DIR)/core/tee.bin
 
@@ -86,8 +89,9 @@ BUILD_OPTEE_OS_DEFINED := true
 $(OPTEE_BIN):
 	@echo "CROSS_COMPILE = $(CROSS_COMPILE)"
 	@echo "CLANG_PATH = $(CLANG_PATH)"
+	@echo "python3 is $(shell which python3)"
 	@echo "Start building optee_os..."
-	+$(HOST_MAKE) -C $(TOP_ROOT_ABS)/$(OPTEE_OS_DIR) \
+	PATH=$(HOST_PATH):$$PATH $(HOST_MAKE) -C $(TOP_ROOT_ABS)/$(OPTEE_OS_DIR) \
 		O=$(ABS_OPTEE_OS_OUT_DIR) \
 		CFG_USER_TA_TARGETS=$(OPTEE_TA_TARGETS) \
 		CFG_ARM64_core=$(OPTEE_CFG_ARM64_CORE) \
@@ -132,7 +136,8 @@ $(TA_TMP_FILE): PRIVATE_TA_TMP_FILE := $(TA_TMP_FILE)
 $(TA_TMP_FILE): PRIVATE_TA_TMP_DIR := $(TA_TMP_DIR)
 $(TA_TMP_FILE): $(OPTEE_BIN)
 	@echo "Start building TA for $(PRIVATE_TA_SRC_DIR) $(PRIVATE_TA_TMP_FILE)..."
-	+$(HOST_MAKE) -C $(TOP_ROOT_ABS)/$(PRIVATE_TA_SRC_DIR) O=$(ABS_OPTEE_TA_OUT_DIR)/$(PRIVATE_TA_TMP_DIR) \
+	@echo "python3 is $(shell which python3)"
+	PATH=$(HOST_PATH):$$PATH $(HOST_MAKE) -C $(TOP_ROOT_ABS)/$(PRIVATE_TA_SRC_DIR) O=$(ABS_OPTEE_TA_OUT_DIR)/$(PRIVATE_TA_TMP_DIR) \
 		TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR) \
 		COMPILER=clang \
 		CLANG_PATH=$(CLANG_PATH)/ \

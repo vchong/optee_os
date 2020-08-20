@@ -7,6 +7,7 @@ clang-target	:= $(patsubst %-,%,$(notdir $(lastword $(CROSS_COMPILE_$(sm)))))
 ccache-cmd	:= $(if $(findstring ccache,$(CROSS_COMPILE_$(sm))),$(firstword $(CROSS_COMPILE_$(sm))) ,)
 
 $(info $$CLANG_PATH is [${CLANG_PATH}])
+$(info python3 is [$(which python3)])
 CC$(sm)		:= $(ccache-cmd)$(CLANG_PATH)clang --target=$(clang-target)
 CXX$(sm)	:= false # Untested yet
 # Due to the absence of clang-cpp in AOSP's prebuilt version of clang,
