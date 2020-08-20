@@ -36,7 +36,7 @@ WARNS ?= 3
 # This variable is set to the default python3 interpreter in the user's
 # path. But build environments that require more explicit control can
 # set the path to a specific interpreter through this variable.
-PYTHON3 ?= python3
+PYTHON3 ?= /usr/bin/python3
 
 # Define DEBUG=1 to compile without optimization (forces -O0)
 # DEBUG=1
