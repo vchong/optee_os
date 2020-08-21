@@ -11,4 +11,6 @@ endif
 CFG_SCTLR_ALIGNMENT_CHECK = n
 
 # Force DEBUG=0 for now else boot will hang (https://pastebin.ubuntu.com/p/jX3yfQ2xYV/)
+# This is fixed by increasing STACK_TMP_SIZE in optee_os to 4096
+# Set it anyway cos saw clang 11 segfault without it
 OPTEE_EXTRA_FLAGS += DEBUG=0
