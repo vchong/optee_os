@@ -13,13 +13,6 @@
 
 #include "acipher_helpers.h"
 
-void crypto_acipher_free_ecc_keypair(struct ecc_keypair *s)
-{
-	crypto_bignum_free(s->d);
-	crypto_bignum_free(s->x);
-	crypto_bignum_free(s->y);
-}
-
 static void _ltc_ecc_free_public_key(struct ecc_public_key *s)
 {
 	if (!s)
