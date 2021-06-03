@@ -35,6 +35,12 @@ bool processing_is_tee_symm(enum pkcs11_mechanism_id proc_id)
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 	/* Ciphering */
 	case PKCS11_CKM_AES_ECB:
 	case PKCS11_CKM_AES_CBC:
@@ -71,6 +77,12 @@ pkcs2tee_algorithm(uint32_t *tee_id, struct pkcs11_attribute_head *proc_params)
 		{ PKCS11_CKM_SHA256_HMAC, TEE_ALG_HMAC_SHA256 },
 		{ PKCS11_CKM_SHA384_HMAC, TEE_ALG_HMAC_SHA384 },
 		{ PKCS11_CKM_SHA512_HMAC, TEE_ALG_HMAC_SHA512 },
+		{ PKCS11_CKM_MD5_HMAC_GENERAL, TEE_ALG_HMAC_MD5 },
+		{ PKCS11_CKM_SHA_1_HMAC_GENERAL, TEE_ALG_HMAC_SHA1 },
+		{ PKCS11_CKM_SHA224_HMAC_GENERAL, TEE_ALG_HMAC_SHA224 },
+		{ PKCS11_CKM_SHA256_HMAC_GENERAL, TEE_ALG_HMAC_SHA256 },
+		{ PKCS11_CKM_SHA384_HMAC_GENERAL, TEE_ALG_HMAC_SHA384 },
+		{ PKCS11_CKM_SHA512_HMAC_GENERAL, TEE_ALG_HMAC_SHA512 },
 	};
 	size_t n = 0;
 
@@ -128,6 +140,12 @@ static enum pkcs11_rc pkcsmech2tee_key_type(uint32_t *tee_type,
 		{ PKCS11_CKM_SHA256_HMAC, TEE_TYPE_HMAC_SHA256 },
 		{ PKCS11_CKM_SHA384_HMAC, TEE_TYPE_HMAC_SHA384 },
 		{ PKCS11_CKM_SHA512_HMAC, TEE_TYPE_HMAC_SHA512 },
+		{ PKCS11_CKM_MD5_HMAC_GENERAL, TEE_TYPE_HMAC_MD5 },
+		{ PKCS11_CKM_SHA_1_HMAC_GENERAL, TEE_TYPE_HMAC_SHA1 },
+		{ PKCS11_CKM_SHA224_HMAC_GENERAL, TEE_TYPE_HMAC_SHA224 },
+		{ PKCS11_CKM_SHA256_HMAC_GENERAL, TEE_TYPE_HMAC_SHA256 },
+		{ PKCS11_CKM_SHA384_HMAC_GENERAL, TEE_TYPE_HMAC_SHA384 },
+		{ PKCS11_CKM_SHA512_HMAC_GENERAL, TEE_TYPE_HMAC_SHA512 },
 	};
 	size_t n = 0;
 
@@ -154,6 +172,12 @@ static enum pkcs11_rc hmac_to_tee_hash(uint32_t *algo,
 		{ PKCS11_CKM_SHA256_HMAC, TEE_ALG_SHA256 },
 		{ PKCS11_CKM_SHA384_HMAC, TEE_ALG_SHA384 },
 		{ PKCS11_CKM_SHA512_HMAC, TEE_ALG_SHA512 },
+		{ PKCS11_CKM_MD5_HMAC_GENERAL, TEE_ALG_MD5 },
+		{ PKCS11_CKM_SHA_1_HMAC_GENERAL, TEE_ALG_SHA1 },
+		{ PKCS11_CKM_SHA224_HMAC_GENERAL, TEE_ALG_SHA224 },
+		{ PKCS11_CKM_SHA256_HMAC_GENERAL, TEE_ALG_SHA256 },
+		{ PKCS11_CKM_SHA384_HMAC_GENERAL, TEE_ALG_SHA384 },
+		{ PKCS11_CKM_SHA512_HMAC_GENERAL, TEE_ALG_SHA512 },
 	};
 	size_t n = 0;
 
@@ -194,6 +218,12 @@ allocate_tee_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		mechanism_supported_key_sizes_bytes(params->id, &min_key_size,
 						    &max_key_size);
 		if (key_size < min_key_size)
@@ -295,6 +325,12 @@ static enum pkcs11_rc load_tee_key(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		key_type = get_key_type(obj->attributes);
 		/*
 		 * If Object Key type is PKCS11_CKK_GENERIC_SECRET,
@@ -464,6 +500,34 @@ init_tee_operation(struct pkcs11_session *session,
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
 		rc = PKCS11_CKR_OK;
 		break;
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		if (proc_params->size != sizeof(uint32_t)) {
+			EMSG("Unexpected var size");
+			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+		}
+
+		if (!proc_params->data) {
+			EMSG("Unexpected null pointer");
+			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+		}
+
+		/*
+		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
+		 * extra_ctx
+		 */
+		session->processing->extra_ctx = (void *)proc_params->data;
+
+		DMSG("hmac_len = %u\n",
+		     *(uint32_t *)session->processing->extra_ctx);
+
+		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
+		rc = PKCS11_CKR_OK;
+		break;
 	case PKCS11_CKM_AES_ECB:
 		if (proc_params->size)
 			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
@@ -612,6 +676,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	uint32_t in2_size = 0;
 	bool output_data = false;
 	struct active_processing *proc = session->processing;
+	static uint32_t hmac_len;
+	uint8_t computed_mac[TEE_MAX_HASH_SIZE];
+	uint32_t computed_mac_size = TEE_MAX_HASH_SIZE;
 
 	if (TEE_PARAM_TYPE_GET(ptypes, 1) == TEE_PARAM_TYPE_MEMREF_INPUT) {
 		in_buf = params[1].memref.buffer;
@@ -659,6 +726,12 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		if (step == PKCS11_FUNC_STEP_FINAL ||
 		    step == PKCS11_FUNC_STEP_ONESHOT)
 			break;
@@ -742,6 +815,70 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			res = TEE_MACCompareFinal(proc->tee_op_handle,
 						  in_buf, in_size, in2_buf,
 						  in2_size);
+			rc = tee2pkcs_error(res);
+			break;
+		default:
+			TEE_Panic(function);
+			break;
+		}
+
+		break;
+
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		if (session->processing->extra_ctx) {
+			hmac_len = *(uint32_t *)session->processing->extra_ctx;
+			/*
+			 * remove ptr to NW addr so that it doesn't get
+			 * freed in release_active_processing()
+			 */
+			session->processing->extra_ctx = NULL;
+
+			DMSG("hmac_len = %u", hmac_len);
+		}
+
+		switch (function) {
+		case PKCS11_FUNCTION_SIGN:
+			res = TEE_MACComputeFinal(proc->tee_op_handle,
+						  in_buf, in_size, out_buf,
+						  &out_size);
+			if (res == TEE_SUCCESS) {
+				/* truncate to hmac_len */
+				out_size = hmac_len;
+			}
+			output_data = true;
+			rc = tee2pkcs_error(res);
+			break;
+		case PKCS11_FUNCTION_VERIFY:
+			/* must compute full mac before comparing partial */
+			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
+						  in_size, computed_mac,
+						  &computed_mac_size);
+
+			DMSG("computed_mac_size = %u\n", computed_mac_size);
+
+			if (!in2_size || in2_size > computed_mac_size) {
+				EMSG("Invalid signature size: %u", in2_size);
+				return PKCS11_CKR_SIGNATURE_LEN_RANGE;
+			}
+
+			if (res == TEE_SUCCESS) {
+				/*
+				 * Only the first in2_size bytes of the
+				 * signature to be verified is passed in from
+				 * NW
+				 */
+				if (TEE_MemCompare(in2_buf, computed_mac,
+						   in2_size)) {
+					EMSG("C_VerifyFinal() MAC mismatch");
+					res = TEE_ERROR_MAC_INVALID;
+				}
+			}
+
 			rc = tee2pkcs_error(res);
 			break;
 		default:
