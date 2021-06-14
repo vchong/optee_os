@@ -494,14 +494,37 @@ init_tee_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
+		if (proc_params->size)
+			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+
+		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
+		rc = PKCS11_CKR_OK;
+		break;
 	case PKCS11_CKM_MD5_HMAC_GENERAL:
 	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
 	case PKCS11_CKM_SHA224_HMAC_GENERAL:
 	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
-		if (proc_params->size)
+		if (proc_params->size != sizeof(uint32_t)) {
+			EMSG("Unexpected var size");
 			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+		}
+
+		if (!proc_params->data) {
+			EMSG("Unexpected null pointer");
+			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+		}
+
+		/*
+		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
+		 * extra_ctx
+		 */
+		session->processing->extra_ctx =
+			*(uint32_t *)proc_params->data);
+
+		DMSG("hmac_len = %lu\n",
+		     *(uint32_t *)session->processing->extra_ctx);
 
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
 		rc = PKCS11_CKR_OK;
@@ -781,12 +804,6 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC:
 	case PKCS11_CKM_SHA384_HMAC:
 	case PKCS11_CKM_SHA512_HMAC:
-	case PKCS11_CKM_MD5_HMAC_GENERAL:
-	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
-	case PKCS11_CKM_SHA224_HMAC_GENERAL:
-	case PKCS11_CKM_SHA256_HMAC_GENERAL:
-	case PKCS11_CKM_SHA384_HMAC_GENERAL:
-	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
 			res = TEE_MACComputeFinal(proc->tee_op_handle,
@@ -802,6 +819,47 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			res = TEE_MACCompareFinal(proc->tee_op_handle,
 						  in_buf, in_size, in2_buf,
 						  in2_size);
+			rc = tee2pkcs_error(res);
+			break;
+		default:
+			TEE_Panic(function);
+			break;
+		}
+
+		break;
+
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		switch (function) {
+		case PKCS11_FUNCTION_SIGN:
+			res = TEE_MACComputeFinal(proc->tee_op_handle,
+						  in_buf, in_size, out_buf,
+						  &out_size);
+
+			/* truncate to hmac_len */
+			out_size = (uint32_t)session->processing->extra_ctx;
+
+			output_data = true;
+			rc = tee2pkcs_error(res);
+			break;
+		case PKCS11_FUNCTION_VERIFY:
+			rc = input_sign_size_is_valid(
+				proc,
+				(uint32_t)session->processing->extra_ctx);
+			if (rc)
+				return rc;
+
+			/* compare up to hmac_len only */
+			res = TEE_MACCompareFinal(proc->tee_op_handle,
+				in_buf,
+				(uint32_t)session->processing->extra_ctx,
+				in2_buf,
+				(uint32_t)session->processing->extra_ctx);
+
 			rc = tee2pkcs_error(res);
 			break;
 		default:
