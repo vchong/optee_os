@@ -852,8 +852,12 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size2 = %u\n", in_size);
 			DMSG("out_size2 = %u\n", out_size);
 
-			/* truncate to hmac_len */
-			out_size = *(uint32_t *)session->processing->extra_ctx;
+			if (res == TEE_SUCCESS &&
+			    session->processing->extra_ctx) {
+				/* truncate to hmac_len */
+				out_size =
+				*(uint32_t *)session->processing->extra_ctx;
+			}
 
 			DMSG("in_size3 = %u\n", in_size);
 			DMSG("out_size3 = %u\n", out_size);
@@ -867,6 +871,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("hmac_len = %u, in2_size = %u\n",
 			     *(uint32_t *)session->processing->extra_ctx,
 			     in2_size);
+
+			if (!session->processing->extra_ctx)
+				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
 
 			rc = input_sign_size_is_valid(
 				proc, in2_size);
