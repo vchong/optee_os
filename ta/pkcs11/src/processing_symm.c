@@ -839,9 +839,15 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
+			DMSG("in_size = %u\n", in_size);
+			DMSG("out_size = %u\n", out_size);
+
 			res = TEE_MACComputeFinal(proc->tee_op_handle,
 						  in_buf, in_size, out_buf,
 						  &out_size);
+
+			DMSG("in_size = %u\n", in_size);
+			DMSG("out_size = %u\n", out_size);
 
 			/* truncate to hmac_len */
 			out_size = *(uint32_t *)session->processing->extra_ctx;
