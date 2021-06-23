@@ -522,7 +522,7 @@ init_tee_operation(struct pkcs11_session *session,
 		 */
 		session->processing->extra_ctx = (void *)proc_params->data;
 
-		DMSG("hmac_len = %lu\n",
+		DMSG("hmac_len = %u\n",
 		     *(uint32_t *)session->processing->extra_ctx);
 
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
@@ -853,7 +853,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			rc = tee2pkcs_error(res);
 			break;
 		case PKCS11_FUNCTION_VERIFY:
-			DMSG("hmac_len = %lu, in2_size = %u\n",
+			DMSG("hmac_len = %u, in2_size = %u\n",
 			     *(uint32_t *)session->processing->extra_ctx,
 			     in2_size);
 
