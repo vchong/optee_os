@@ -855,8 +855,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			if (res == TEE_SUCCESS &&
 			    session->processing->extra_ctx) {
 				/* truncate to hmac_len */
-				out_size =
-				*(uint32_t *)session->processing->extra_ctx;
+				//out_size =
+				//*(uint32_t *)session->processing->extra_ctx;
 			}
 
 			DMSG("in_size3 = %u\n", in_size);
@@ -933,7 +933,24 @@ out:
 		switch (TEE_PARAM_TYPE_GET(ptypes, 2)) {
 		case TEE_PARAM_TYPE_MEMREF_OUTPUT:
 		case TEE_PARAM_TYPE_MEMREF_INOUT:
-			params[2].memref.size = out_size;
+			switch (session->processing->mecha_type) {
+			case PKCS11_CKM_MD5_HMAC_GENERAL:
+			case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+			case PKCS11_CKM_SHA224_HMAC_GENERAL:
+			case PKCS11_CKM_SHA256_HMAC_GENERAL:
+			case PKCS11_CKM_SHA384_HMAC_GENERAL:
+			case PKCS11_CKM_SHA512_HMAC_GENERAL:
+				if (step == PKCS11_FUNC_STEP_FINAL ||
+				    step == PKCS11_FUNC_STEP_ONESHOT)
+					params[2].memref.size =
+					*(uint32_t *)session->processing->extra_ctx;
+				else
+					params[2].memref.size = out_size;
+				break;
+			default:
+				params[2].memref.size = out_size;
+				break;
+			}
 			break;
 		default:
 			rc = PKCS11_CKR_ARGUMENTS_BAD;
