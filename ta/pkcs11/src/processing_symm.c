@@ -842,13 +842,18 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			/* truncate to hmac_len */
 			out_size = *(uint32_t *)session->processing->extra_ctx;
 
+			DMSG("hmac_len = %lu\n", out_size);
+
 			output_data = true;
 			rc = tee2pkcs_error(res);
 			break;
 		case PKCS11_FUNCTION_VERIFY:
+			DMSG("hmac_len = %lu, in2_size = %lu\n",
+			     *(uint32_t *)session->processing->extra_ctx,
+			     in2_size);
+
 			rc = input_sign_size_is_valid(
-				proc,
-				*(uint32_t *)session->processing->extra_ctx);
+				proc, in2_size);
 			if (rc)
 				return rc;
 
