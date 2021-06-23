@@ -808,6 +808,10 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			res = TEE_MACComputeFinal(proc->tee_op_handle,
 						  in_buf, in_size, out_buf,
 						  &out_size);
+
+			DMSG("in_size = %u\n", in_size);
+			DMSG("out_size = %u\n", out_size);
+
 			output_data = true;
 			rc = tee2pkcs_error(res);
 			break;
@@ -842,7 +846,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			/* truncate to hmac_len */
 			out_size = *(uint32_t *)session->processing->extra_ctx;
 
-			DMSG("hmac_len = %u\n", out_size);
+			DMSG("in_size = %u\n", in_size);
+			DMSG("out_size = %u\n", out_size);
 
 			output_data = true;
 			rc = tee2pkcs_error(res);
