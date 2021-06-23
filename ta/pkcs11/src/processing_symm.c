@@ -520,8 +520,7 @@ init_tee_operation(struct pkcs11_session *session,
 		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
 		 * extra_ctx
 		 */
-		session->processing->extra_ctx =
-			*(uint32_t *)proc_params->data);
+		session->processing->extra_ctx = (void *)proc_params->data;
 
 		DMSG("hmac_len = %lu\n",
 		     *(uint32_t *)session->processing->extra_ctx);
@@ -841,7 +840,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 						  &out_size);
 
 			/* truncate to hmac_len */
-			out_size = (uint32_t)session->processing->extra_ctx;
+			out_size = *(uint32_t *)session->processing->extra_ctx;
 
 			output_data = true;
 			rc = tee2pkcs_error(res);
@@ -849,16 +848,16 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 		case PKCS11_FUNCTION_VERIFY:
 			rc = input_sign_size_is_valid(
 				proc,
-				(uint32_t)session->processing->extra_ctx);
+				*(uint32_t *)session->processing->extra_ctx);
 			if (rc)
 				return rc;
 
 			/* compare up to hmac_len only */
 			res = TEE_MACCompareFinal(proc->tee_op_handle,
 				in_buf,
-				(uint32_t)session->processing->extra_ctx,
+				*(uint32_t *)session->processing->extra_ctx,
 				in2_buf,
-				(uint32_t)session->processing->extra_ctx);
+				*(uint32_t *)session->processing->extra_ctx);
 
 			rc = tee2pkcs_error(res);
 			break;
