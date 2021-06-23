@@ -850,7 +850,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("out_size = %u\n", out_size);
 
 			output_data = true;
+			DMSG("foo");
 			rc = tee2pkcs_error(res);
+			DMSG("bar");
 			break;
 		case PKCS11_FUNCTION_VERIFY:
 			DMSG("hmac_len = %u, in2_size = %u\n",
@@ -869,7 +871,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				in2_buf,
 				*(uint32_t *)session->processing->extra_ctx);
 
+			DMSG("foo2");
 			rc = tee2pkcs_error(res);
+			DMSG("bar2");
 			break;
 		default:
 			TEE_Panic(function);
