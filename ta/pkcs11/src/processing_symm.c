@@ -940,10 +940,8 @@ out:
 			case PKCS11_CKM_SHA256_HMAC_GENERAL:
 			case PKCS11_CKM_SHA384_HMAC_GENERAL:
 			case PKCS11_CKM_SHA512_HMAC_GENERAL:
-				if ((step == PKCS11_FUNC_STEP_FINAL ||
-				     step == PKCS11_FUNC_STEP_ONESHOT) &&
-				    res == TEE_SUCCESS &&
-				    session->processing->extra_ctx)
+				if (step == PKCS11_FUNC_STEP_FINAL ||
+				    step == PKCS11_FUNC_STEP_ONESHOT)
 					params[2].memref.size =
 					*(uint32_t *)session->processing->extra_ctx;
 				else
