@@ -481,6 +481,7 @@ err:
 	return rc;
 }
 
+#if 0
 static enum pkcs11_rc
 tee_init_derive_hmac_len(struct active_processing *processing,
 			 struct pkcs11_attribute_head *proc_params)
@@ -488,7 +489,6 @@ tee_init_derive_hmac_len(struct active_processing *processing,
 	struct serialargs args = { };
 	enum pkcs11_rc rc = PKCS11_CKR_OK;
 	struct input_data_ref *param = NULL;
-	void *iv = NULL;
 
 	if (!proc_params)
 		return PKCS11_CKR_ARGUMENTS_BAD;
@@ -523,6 +523,7 @@ err:
 	TEE_Free(param);
 	return rc;
 }
+#endif
 
 static enum pkcs11_rc
 init_tee_operation(struct pkcs11_session *session,
@@ -697,7 +698,7 @@ static enum pkcs11_rc input_sign_size_is_valid(struct active_processing *proc,
 	return PKCS11_CKR_OK;
 }
 
-
+#if 0
 /* Validate input buffer size as per PKCS#11 constraints */
 static enum pkcs11_rc input_truncated_sign_size_is_valid(
 						struct active_processing *proc,
@@ -766,6 +767,7 @@ static void handle_hmac_general_error(enum pkcs11_rc *rc, TEE_Result res,
 	session->processing->extra_ctx = NULL;
 	*rc = tee2pkcs_error(res);
 }
+#endif
 
 /*
  * step_sym_cipher - processing symmetric (and related) cipher operation step
@@ -998,7 +1000,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
 			if (!in2_size)
-				return CKR_SIGNATURE_LEN_RANGE;
+				return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 
 			/* must compute full mac before comparing partial */
 			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
@@ -1008,7 +1010,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
 			if (res == TEE_SUCCESS) {
-				if (TEE_MemCompare(in2_buf, computed_mac, hmac_len))
+				if (TEE_MemCompare(in2_buf, computed_mac,
+						   hmac_len))
 				{
 					EMSG("C_VerifyFinal() MAC mismatch");
 					res = TEE_ERROR_MAC_INVALID;
