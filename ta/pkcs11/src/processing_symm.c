@@ -823,6 +823,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
 		case PKCS11_FUNCTION_VERIFY:
+			DMSG("in_size = %u\n", in_size);
 			TEE_MACUpdate(proc->tee_op_handle, in_buf, in_size);
 			rc = PKCS11_CKR_OK;
 			break;
