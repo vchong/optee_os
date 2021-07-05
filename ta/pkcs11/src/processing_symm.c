@@ -707,7 +707,9 @@ static enum pkcs11_rc input_truncated_sign_size_is_valid(
 {
 	size_t sign_sz = 0;
 
-	if (!in_size || in_size < hmac_len)
+	/* in_size MUST be between 1 to sign_sz */
+
+	if (!in_size)
 		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 
 	switch (proc->mecha_type) {
@@ -1005,6 +1007,10 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size = %u\n", in_size);
 			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
+			/*
+			 * Only the first in2_size bytes of the signature to be
+			 * verified is passed in from NW
+			 */
 			rc = input_truncated_sign_size_is_valid(proc,
 								in2_size,
 								hmac_len);
