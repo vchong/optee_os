@@ -498,6 +498,9 @@ tee_init_derive_hmac_len(struct active_processing *processing,
 		return PKCS11_CKR_DEVICE_MEMORY;
 
 	serialargs_init(&args, proc_params->data, proc_params->size);
+	DMSG("proc_params->size = %u\n", proc_params->size);
+	DMSG("sizeof(uint32_t) = %u\n", sizeof(uint32_t));
+	DMSG("sizeof(uint64_t) = %u\n", sizeof(uint64_t));
 
 	rc = serialargs_get(&args, &param->size, sizeof(uint32_t));
 	if (rc)
