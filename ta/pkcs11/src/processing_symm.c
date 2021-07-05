@@ -482,6 +482,46 @@ err:
 }
 
 static enum pkcs11_rc
+tee_init_derive_hmac_len(struct active_processing *processing,
+			 struct pkcs11_attribute_head *proc_params)
+{
+	struct serialargs args = { };
+	enum pkcs11_rc rc = PKCS11_CKR_OK;
+	struct input_data_ref *param = NULL;
+	void *iv = NULL;
+
+	if (!proc_params)
+		return PKCS11_CKR_ARGUMENTS_BAD;
+
+	param =	TEE_Malloc(sizeof(struct input_data_ref), TEE_MALLOC_FILL_ZERO);
+	if (!param)
+		return PKCS11_CKR_DEVICE_MEMORY;
+
+	serialargs_init(&args, proc_params->data, proc_params->size);
+
+	rc = serialargs_get(&args, &param->size, sizeof(uint32_t));
+	if (rc)
+		goto err;
+
+	rc = serialargs_get(&args, &param->data, param->size);
+	if (rc)
+		goto err;
+
+	if (serialargs_remaining_bytes(&args)) {
+		rc = PKCS11_CKR_ARGUMENTS_BAD;
+		goto err;
+	}
+
+	processing->extra_ctx = param;
+	DMSG("hmac_len = %u\n", *(uint32_t *)processing->extra_ctx);
+
+err:
+	processing->extra_ctx = NULL;
+	TEE_Free(param);
+	return rc;
+}
+
+static enum pkcs11_rc
 init_tee_operation(struct pkcs11_session *session,
 		   struct pkcs11_attribute_head *proc_params)
 {
@@ -520,10 +560,12 @@ init_tee_operation(struct pkcs11_session *session,
 		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
 		 * extra_ctx
 		 */
-		session->processing->extra_ctx = (void *)proc_params->data;
+		//session->processing->extra_ctx = (void *)proc_params->data;
 
-		DMSG("hmac_len = %u\n",
-		     *(uint32_t *)session->processing->extra_ctx);
+		//DMSG("hmac_len = %u\n",
+		//     *(uint32_t *)session->processing->extra_ctx);
+
+		tee_init_derive_hmac_len(session->processing, proc_params);
 
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
 		rc = PKCS11_CKR_OK;
