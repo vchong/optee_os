@@ -692,19 +692,23 @@ static enum pkcs11_rc input_sign_size_is_valid(struct active_processing *proc,
 		return PKCS11_CKR_GENERAL_ERROR;
 	}
 
-	if (in_size < sign_sz)
+	if (in_size != sign_sz)
 		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 
 	return PKCS11_CKR_OK;
 }
 
-#if 0
+
 /* Validate input buffer size as per PKCS#11 constraints */
 static enum pkcs11_rc input_truncated_sign_size_is_valid(
 						struct active_processing *proc,
-						size_t in_size)
+						size_t in_size,
+						uint32_t hmac_len)
 {
 	size_t sign_sz = 0;
+
+	if (!in_size || in_size < hmac_len)
+		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 
 	switch (proc->mecha_type) {
 	case PKCS11_CKM_MD5_HMAC_GENERAL:
@@ -726,6 +730,7 @@ static enum pkcs11_rc input_truncated_sign_size_is_valid(
 		sign_sz = TEE_SHA512_HASH_SIZE;
 		break;
 	default:
+		EMSG("Should NOT be here!");
 		return PKCS11_CKR_GENERAL_ERROR;
 	}
 
@@ -735,6 +740,7 @@ static enum pkcs11_rc input_truncated_sign_size_is_valid(
 	return PKCS11_CKR_OK;
 }
 
+#if 0
 /* Validate input buffer size as per PKCS#11 constraints */
 static size_t get_valid_sign_size(struct active_processing *proc)
 {
@@ -999,8 +1005,11 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size = %u\n", in_size);
 			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
-			if (!in2_size)
-				return PKCS11_CKR_SIGNATURE_LEN_RANGE;
+			rc = input_truncated_sign_size_is_valid(proc,
+								in2_size,
+								hmac_len);
+			if (rc)
+				return rc;
 
 			/* must compute full mac before comparing partial */
 			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
@@ -1011,7 +1020,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 
 			if (res == TEE_SUCCESS) {
 				if (TEE_MemCompare(in2_buf, computed_mac,
-						   hmac_len))
+						   in2_size))
 				{
 					EMSG("C_VerifyFinal() MAC mismatch");
 					res = TEE_ERROR_MAC_INVALID;
