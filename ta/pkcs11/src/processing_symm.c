@@ -734,6 +734,28 @@ static enum pkcs11_rc input_truncated_sign_size_is_valid(
 	return PKCS11_CKR_OK;
 }
 
+/* Validate input buffer size as per PKCS#11 constraints */
+static size_t get_valid_sign_size(struct active_processing *proc)
+{
+	switch (proc->mecha_type) {
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+		return TEE_MD5_HASH_SIZE;
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+		return TEE_SHA1_HASH_SIZE;
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+		return TEE_SHA224_HASH_SIZE;
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+		return TEE_SHA256_HASH_SIZE;
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+		return TEE_SHA384_HASH_SIZE;
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		return TEE_SHA512_HASH_SIZE;
+	default:
+		EMSG("Should NOT be here!");
+		return 0;
+	}
+}
+
 static void handle_hmac_general_error(enum pkcs11_rc *rc, TEE_Result res,
 				      struct pkcs11_session *session)
 {
@@ -770,6 +792,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	bool output_data = false;
 	struct active_processing *proc = session->processing;
 	static uint32_t hmac_len = 0;
+	uint8_t computed_mac[TEE_MAX_HASH_SIZE];
+	uint32_t computed_mac_size = TEE_MAX_HASH_SIZE;
 
 	if (TEE_PARAM_TYPE_GET(ptypes, 1) == TEE_PARAM_TYPE_MEMREF_INPUT) {
 		in_buf = params[1].memref.buffer;
@@ -971,22 +995,23 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 		case PKCS11_FUNCTION_VERIFY:
 			DMSG("in2_size = %u\n", in2_size);
 			DMSG("in_size = %u\n", in_size);
-			DMSG("out_size = %u\n", out_size);
+			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
-			rc = input_truncated_sign_size_is_valid(proc,
-								in2_size);
-			if (rc)
-				return rc;
+			if (!in2_size)
+				return CKR_SIGNATURE_LEN_RANGE;
 
+			/* must compute full mac before comparing partial */
 			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
-						  hmac_len, out_buf,
-						  &out_size);
-			DMSG("out_size = %u\n", out_size);
+						  in_size, computed_mac,
+						  &computed_mac_size);
+
+			DMSG("computed_mac_size = %u\n", computed_mac_size);
+
 			if (res == TEE_SUCCESS) {
-				if (TEE_MemCompare(in2_buf, out_buf, hmac_len))
+				if (TEE_MemCompare(in2_buf, computed_mac, hmac_len))
 				{
-					res = TEE_ERROR_MAC_INVALID;
 					EMSG("C_VerifyFinal() MAC mismatch");
+					res = TEE_ERROR_MAC_INVALID;
 				}
 			}
 
