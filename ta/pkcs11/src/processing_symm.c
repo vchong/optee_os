@@ -734,6 +734,17 @@ static enum pkcs11_rc input_truncated_sign_size_is_valid(
 	return PKCS11_CKR_OK;
 }
 
+static void handle_hmac_general_error(enum pkcs11_rc *rc, TEE_Result res,
+				      struct pkcs11_session *session)
+{
+	/*
+	 * remove ptr to NW addr so that it doesn't get
+	 * freed in release_active_processing()
+	 */
+	session->processing->extra_ctx = NULL;
+	*rc = tee2pkcs_error(res);
+}
+
 /*
  * step_sym_cipher - processing symmetric (and related) cipher operation step
  *
@@ -758,6 +769,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	uint32_t in2_size = 0;
 	bool output_data = false;
 	struct active_processing *proc = session->processing;
+	static uint32_t hmac_len = 0;
 
 	if (TEE_PARAM_TYPE_GET(ptypes, 1) == TEE_PARAM_TYPE_MEMREF_INPUT) {
 		in_buf = params[1].memref.buffer;
@@ -920,11 +932,19 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		if (session->processing->extra_ctx)
+			hmac_len = *(uint32_t *)session->processing->extra_ctx;
+			/*
+			 * remove ptr to NW addr so that it doesn't get
+			 * freed in release_active_processing()
+			 */
+			session->processing->extra_ctx = NULL;
+
+			DMSG("hmac_len = %u", hmac_len);
+		}
+
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
-			if (!session->processing->extra_ctx)
-				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
-
 			DMSG("in_size = %u\n", in_size);
 			DMSG("out_size = %u\n", out_size);
 
@@ -937,13 +957,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 
 			if (res == TEE_SUCCESS) {
 				/* truncate to hmac_len */
-				out_size =
-				*(uint32_t *)session->processing->extra_ctx;
-				/*
-				 * remove ptr to NW addr so that it doesn't get
-				 * freed in release_active_processing()
-				 */
-				session->processing->extra_ctx = NULL;
+				out_size = hmac_len;
 			}
 
 			DMSG("in_size3 = %u\n", in_size);
@@ -955,12 +969,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("bar");
 			break;
 		case PKCS11_FUNCTION_VERIFY:
-			if (!session->processing->extra_ctx)
-				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
-
-			DMSG("hmac_len = %u, in2_size = %u\n",
-			     *(uint32_t *)session->processing->extra_ctx,
-			     in2_size);
+			DMSG("in2_size = %u\n", in2_size);
 			DMSG("in_size = %u\n", in_size);
 			DMSG("out_size = %u\n", out_size);
 
@@ -969,22 +978,17 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			if (rc)
 				return rc;
 
-			res = TEE_MACCompareFinal(proc->tee_op_handle,
-						  in_buf, in_size, in2_buf,
-						  in2_size);
-
-			/* ignore return and compare up to hmac_len only */
-			if (!TEE_MemCompare(in_buf, in2_buf,
-				*(uint32_t *)session->processing->extra_ctx))
-				res = TEE_SUCCESS;
-			else
-				DMSG("C_VerifyFinal() MAC mismatch");
-
-			/*
-			 * remove ptr to NW addr so that it doesn't get
-			 * freed in release_active_processing()
-			 */
-			session->processing->extra_ctx = NULL;
+			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
+						  hmac_len, out_buf,
+						  &out_size);
+			DMSG("out_size = %u\n", out_size);
+			if (res == TEE_SUCCESS) {
+				if (TEE_MemCompare(in2_buf, out_buf, hmac_len))
+				{
+					res = TEE_ERROR_MAC_INVALID;
+					EMSG("C_VerifyFinal() MAC mismatch");
+				}
+			}
 
 			DMSG("foo2");
 			rc = tee2pkcs_error(res);
