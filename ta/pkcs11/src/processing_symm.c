@@ -563,12 +563,12 @@ init_tee_operation(struct pkcs11_session *session,
 		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
 		 * extra_ctx
 		 */
-		//session->processing->extra_ctx = (void *)proc_params->data;
+		session->processing->extra_ctx = (void *)proc_params->data;
 
-		//DMSG("hmac_len = %u\n",
-		//     *(uint32_t *)session->processing->extra_ctx);
+		DMSG("hmac_len = %u\n",
+		     *(uint32_t *)session->processing->extra_ctx);
 
-		tee_init_derive_hmac_len(session->processing, proc_params);
+		//tee_init_derive_hmac_len(session->processing, proc_params);
 
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
 		rc = PKCS11_CKR_OK;
@@ -902,6 +902,11 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				/* truncate to hmac_len */
 				out_size =
 				*(uint32_t *)session->processing->extra_ctx;
+				/*
+				 * remove ptr to NW addr so that it doesn't get
+				 * free in release_active_processing()
+				 */
+				session->processing->extra_ctx = NULL;
 			}
 
 			DMSG("in_size3 = %u\n", in_size);
@@ -931,6 +936,12 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				*(uint32_t *)session->processing->extra_ctx,
 				in2_buf,
 				*(uint32_t *)session->processing->extra_ctx);
+
+			/*
+			 * remove ptr to NW addr so that it doesn't get
+			 * free in release_active_processing()
+			 */
+			session->processing->extra_ctx = NULL;
 
 			DMSG("foo2");
 			rc = tee2pkcs_error(res);
