@@ -896,6 +896,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			rc = tee2pkcs_error(res);
 			break;
 		case PKCS11_FUNCTION_VERIFY:
+			DMSG("in2_size = %u\n", in2_size);
+			DMSG("in_size = %u\n", in_size);
+			DMSG("out_size = %u\n", out_size);
 			rc = input_sign_size_is_valid(proc, in2_size);
 			if (rc)
 				return rc;
