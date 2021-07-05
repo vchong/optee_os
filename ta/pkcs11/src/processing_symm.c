@@ -932,7 +932,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size2 = %u\n", in_size);
 			DMSG("out_size2 = %u\n", out_size);
 
-			if (in_size == out_size) {
+			if (res == TEE_SUCCESS) {
 				/* truncate to hmac_len */
 				out_size =
 				*(uint32_t *)session->processing->extra_ctx;
