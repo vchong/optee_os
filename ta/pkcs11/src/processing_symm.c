@@ -937,7 +937,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				*(uint32_t *)session->processing->extra_ctx;
 				/*
 				 * remove ptr to NW addr so that it doesn't get
-				 * free in release_active_processing()
+				 * freed in release_active_processing()
 				 */
 				session->processing->extra_ctx = NULL;
 			}
@@ -973,7 +973,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			if (res == TEE_SUCCESS) {
 				/*
 				 * remove ptr to NW addr so that it doesn't get
-				 * free in release_active_processing()
+				 * freed in release_active_processing()
 				 */
 				session->processing->extra_ctx = NULL;
 			}
