@@ -670,27 +670,21 @@ static enum pkcs11_rc input_sign_size_is_valid(struct active_processing *proc,
 
 	switch (proc->mecha_type) {
 	case PKCS11_CKM_MD5_HMAC:
-	case PKCS11_CKM_MD5_HMAC_GENERAL:
 		sign_sz = TEE_MD5_HASH_SIZE;
 		break;
 	case PKCS11_CKM_SHA_1_HMAC:
-	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
 		sign_sz = TEE_SHA1_HASH_SIZE;
 		break;
 	case PKCS11_CKM_SHA224_HMAC:
-	case PKCS11_CKM_SHA224_HMAC_GENERAL:
 		sign_sz = TEE_SHA224_HASH_SIZE;
 		break;
 	case PKCS11_CKM_SHA256_HMAC:
-	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 		sign_sz = TEE_SHA256_HASH_SIZE;
 		break;
 	case PKCS11_CKM_SHA384_HMAC:
-	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 		sign_sz = TEE_SHA384_HASH_SIZE;
 		break;
 	case PKCS11_CKM_SHA512_HMAC:
-	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		sign_sz = TEE_SHA512_HASH_SIZE;
 		break;
 	default:
@@ -698,6 +692,43 @@ static enum pkcs11_rc input_sign_size_is_valid(struct active_processing *proc,
 	}
 
 	if (in_size < sign_sz)
+		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
+
+	return PKCS11_CKR_OK;
+}
+
+
+/* Validate input buffer size as per PKCS#11 constraints */
+static enum pkcs11_rc input_truncated_sign_size_is_valid(
+						struct active_processing *proc,
+						size_t in_size)
+{
+	size_t sign_sz = 0;
+
+	switch (proc->mecha_type) {
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+		sign_sz = TEE_MD5_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+		sign_sz = TEE_SHA1_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+		sign_sz = TEE_SHA224_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+		sign_sz = TEE_SHA256_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+		sign_sz = TEE_SHA384_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		sign_sz = TEE_SHA512_HASH_SIZE;
+		break;
+	default:
+		return PKCS11_CKR_GENERAL_ERROR;
+	}
+
+	if (in_size > sign_sz)
 		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 
 	return PKCS11_CKR_OK;
@@ -887,6 +918,9 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
+			if (!session->processing->extra_ctx)
+				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+
 			DMSG("in_size = %u\n", in_size);
 			DMSG("out_size = %u\n", out_size);
 
@@ -897,8 +931,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size2 = %u\n", in_size);
 			DMSG("out_size2 = %u\n", out_size);
 
-			if (res == TEE_SUCCESS &&
-			    session->processing->extra_ctx) {
+			if (res == TEE_SUCCESS) {
 				/* truncate to hmac_len */
 				out_size =
 				*(uint32_t *)session->processing->extra_ctx;
@@ -918,15 +951,15 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("bar");
 			break;
 		case PKCS11_FUNCTION_VERIFY:
+			if (!session->processing->extra_ctx)
+				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+
 			DMSG("hmac_len = %u, in2_size = %u\n",
 			     *(uint32_t *)session->processing->extra_ctx,
 			     in2_size);
 
-			if (!session->processing->extra_ctx)
-				return PKCS11_CKR_MECHANISM_PARAM_INVALID;
-
-			rc = input_sign_size_is_valid(
-				proc, in2_size);
+			rc = input_truncated_sign_size_is_valid(proc,
+								in2_size);
 			if (rc)
 				return rc;
 
@@ -937,11 +970,13 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				in2_buf,
 				*(uint32_t *)session->processing->extra_ctx);
 
-			/*
-			 * remove ptr to NW addr so that it doesn't get
-			 * free in release_active_processing()
-			 */
-			session->processing->extra_ctx = NULL;
+			if (res == TEE_SUCCESS) {
+				/*
+				 * remove ptr to NW addr so that it doesn't get
+				 * free in release_active_processing()
+				 */
+				session->processing->extra_ctx = NULL;
+			}
 
 			DMSG("foo2");
 			rc = tee2pkcs_error(res);
