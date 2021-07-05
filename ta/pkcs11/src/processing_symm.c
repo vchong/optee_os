@@ -932,7 +932,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("in_size2 = %u\n", in_size);
 			DMSG("out_size2 = %u\n", out_size);
 
-			if (res == TEE_SUCCESS) {
+			if (in_size == out_size) {
 				/* truncate to hmac_len */
 				out_size =
 				*(uint32_t *)session->processing->extra_ctx;
@@ -964,20 +964,22 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			if (rc)
 				return rc;
 
-			/* compare up to hmac_len only */
 			res = TEE_MACCompareFinal(proc->tee_op_handle,
-				in_buf,
-				*(uint32_t *)session->processing->extra_ctx,
-				in2_buf,
-				*(uint32_t *)session->processing->extra_ctx);
+						  in_buf, in_size, in2_buf,
+						  in2_size);
 
-			if (res == TEE_SUCCESS) {
-				/*
-				 * remove ptr to NW addr so that it doesn't get
-				 * freed in release_active_processing()
-				 */
-				session->processing->extra_ctx = NULL;
-			}
+			/* ignore return and compare up to hmac_len only */
+			if (!TEE_MemCompare(in_buf, in2_buf,
+				*(uint32_t *)session->processing->extra_ctx))
+				res = TEE_SUCCESS;
+			else
+				DMSG("C_VerifyFinal MAC mismatch");
+
+			/*
+			 * remove ptr to NW addr so that it doesn't get
+			 * freed in release_active_processing()
+			 */
+			session->processing->extra_ctx = NULL;
 
 			DMSG("foo2");
 			rc = tee2pkcs_error(res);
