@@ -932,7 +932,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
-		if (session->processing->extra_ctx)
+		if (session->processing->extra_ctx) {
 			hmac_len = *(uint32_t *)session->processing->extra_ctx;
 			/*
 			 * remove ptr to NW addr so that it doesn't get
