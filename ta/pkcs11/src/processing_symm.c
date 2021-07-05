@@ -958,7 +958,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			DMSG("hmac_len = %u, in2_size = %u\n",
 			     *(uint32_t *)session->processing->extra_ctx,
 			     in2_size);
-			DMSG("in_size = %u\n", in_size
+			DMSG("in_size = %u\n", in_size);
 			DMSG("out_size = %u\n", out_size);
 
 			rc = input_truncated_sign_size_is_valid(proc,
