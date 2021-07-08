@@ -502,11 +502,11 @@ tee_init_derive_hmac_len(struct active_processing *processing,
 	DMSG("sizeof(uint32_t) = %u\n", sizeof(uint32_t));
 	DMSG("sizeof(uint64_t) = %u\n", sizeof(uint64_t));
 
-	rc = serialargs_get(&args, &param->size, sizeof(uint32_t));
+	rc = serialargs_get(&args, &param->size, proc_params->size);
 	if (rc)
 		goto err;
 
-	rc = serialargs_get(&args, &param->data, param->size);
+	rc = serialargs_get_ptr(&args, &param->data, param->size);
 	if (rc)
 		goto err;
 
