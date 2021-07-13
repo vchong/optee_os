@@ -511,11 +511,6 @@ init_tee_operation(struct pkcs11_session *session,
 			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
 		}
 
-		if (!proc_params->data) {
-			EMSG("Unexpected null pointer");
-			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
-		}
-
 		/*
 		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
 		 * extra_ctx
