@@ -22,6 +22,9 @@
 #include "serializer.h"
 #include "token_capabilities.h"
 
+// to dbg pkcs11_1004.1 test setting g_unwrap set to true fails
+#define DEBUG 1
+
 static uint32_t pkcs11_func2ckfm(enum processing_func function)
 {
 	switch (function) {
