@@ -482,10 +482,46 @@ err:
 }
 
 static enum pkcs11_rc
+input_hmac_len_is_valid(struct pkcs11_attribute_head *proc_params,
+			uint32_t hmac_len)
+{
+	uint32_t sign_sz = 0;
+
+	switch (proc_params->id) {
+	case PKCS11_CKM_MD5_HMAC_GENERAL:
+		sign_sz = TEE_MD5_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA_1_HMAC_GENERAL:
+		sign_sz = TEE_SHA1_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA224_HMAC_GENERAL:
+		sign_sz = TEE_SHA224_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA256_HMAC_GENERAL:
+		sign_sz = TEE_SHA256_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA384_HMAC_GENERAL:
+		sign_sz = TEE_SHA384_HASH_SIZE;
+		break;
+	case PKCS11_CKM_SHA512_HMAC_GENERAL:
+		sign_sz = TEE_SHA512_HASH_SIZE;
+		break;
+	default:
+		return PKCS11_CKR_MECHANISM_INVALID;
+	}
+
+	if (!hmac_len || hmac_len > sign_sz)
+		return PKCS11_CKR_SIGNATURE_LEN_RANGE;
+
+	return PKCS11_CKR_OK;
+}
+
+static enum pkcs11_rc
 init_tee_operation(struct pkcs11_session *session,
 		   struct pkcs11_attribute_head *proc_params)
 {
 	enum pkcs11_rc rc = PKCS11_CKR_GENERAL_ERROR;
+	uint32_t *pkcs11_data = NULL;
 
 	switch (proc_params->id) {
 	case PKCS11_CKM_MD5_HMAC:
@@ -507,18 +543,21 @@ init_tee_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		if (proc_params->size != sizeof(uint32_t)) {
-			EMSG("Unexpected var size");
 			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
 		}
 
-		/*
-		 * store output length in bytes (CK_MAC_GENERAL_PARAMS) in
-		 * extra_ctx
-		 */
-		session->processing->extra_ctx = (void *)proc_params->data;
+		pkcs11_data = TEE_Malloc(sizeof(uint32_t),
+					 TEE_MALLOC_FILL_ZERO);
+		if (!pkcs11_data)
+			return PKCS11_CKR_DEVICE_MEMORY;
 
-		DMSG("hmac_len = %u\n",
-		     *(uint32_t *)session->processing->extra_ctx);
+		memcpy(pkcs11_data, proc_params->data, sizeof(uint32_t));
+
+		rc = input_hmac_len_is_valid(proc_params, *pkcs11_data);
+		if (rc)
+			return rc;
+
+		session->processing->extra_ctx = (void *)pkcs11_data;
 
 		TEE_MACInit(session->processing->tee_op_handle, NULL, 0);
 		rc = PKCS11_CKR_OK;
@@ -671,8 +710,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	uint32_t in2_size = 0;
 	bool output_data = false;
 	struct active_processing *proc = session->processing;
-	static uint32_t hmac_len;
-	uint8_t computed_mac[TEE_MAX_HASH_SIZE];
+	uint32_t hmac_len = 0;
+	uint8_t computed_mac[TEE_MAX_HASH_SIZE] = { 0 };
 	uint32_t computed_mac_size = TEE_MAX_HASH_SIZE;
 
 	if (TEE_PARAM_TYPE_GET(ptypes, 1) == TEE_PARAM_TYPE_MEMREF_INPUT) {
@@ -825,16 +864,10 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
-		if (session->processing->extra_ctx) {
+		if (session->processing->extra_ctx)
 			hmac_len = *(uint32_t *)session->processing->extra_ctx;
-			/*
-			 * remove ptr to NW addr so that it doesn't get
-			 * freed in release_active_processing()
-			 */
-			session->processing->extra_ctx = NULL;
-
-			DMSG("hmac_len = %u", hmac_len);
-		}
+		else
+			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
 
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
@@ -853,8 +886,6 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
 						  in_size, computed_mac,
 						  &computed_mac_size);
-
-			DMSG("computed_mac_size = %u\n", computed_mac_size);
 
 			if (!in2_size || in2_size > computed_mac_size) {
 				EMSG("Invalid signature size: %u", in2_size);
