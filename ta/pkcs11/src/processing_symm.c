@@ -677,7 +677,7 @@ static enum pkcs11_rc input_sign_size_is_valid(struct active_processing *proc,
 		sign_sz = TEE_SHA512_HASH_SIZE;
 		break;
 	default:
-		return PKCS11_CKR_GENERAL_ERROR;
+		return PKCS11_CKR_MECHANISM_INVALID;
 	}
 
 	if (in_size != sign_sz)
