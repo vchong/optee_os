@@ -552,6 +552,7 @@ init_tee_operation(struct pkcs11_session *session,
 			return PKCS11_CKR_DEVICE_MEMORY;
 
 		memcpy(pkcs11_data, proc_params->data, sizeof(uint32_t));
+		DMSG("hmac_len = %u\n", *pkcs11_data);
 
 		rc = input_hmac_len_is_valid(proc_params, *pkcs11_data);
 		if (rc)
@@ -866,6 +867,7 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
 		assert(session->processing->extra_ctx);
 		hmac_len = *(uint32_t *)session->processing->extra_ctx;
+		DMSG("hmac_len = %u", hmac_len);
 
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
