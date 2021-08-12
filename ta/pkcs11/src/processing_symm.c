@@ -864,10 +864,8 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 	case PKCS11_CKM_SHA256_HMAC_GENERAL:
 	case PKCS11_CKM_SHA384_HMAC_GENERAL:
 	case PKCS11_CKM_SHA512_HMAC_GENERAL:
-		if (session->processing->extra_ctx)
-			hmac_len = *(uint32_t *)session->processing->extra_ctx;
-		else
-			return PKCS11_CKR_MECHANISM_PARAM_INVALID;
+		assert(session->processing->extra_ctx);
+		hmac_len = *(uint32_t *)session->processing->extra_ctx;
 
 		switch (function) {
 		case PKCS11_FUNCTION_SIGN:
@@ -877,18 +875,19 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 			if (res == TEE_SUCCESS) {
 				/* truncate to hmac_len */
 				out_size = hmac_len;
+				output_data = true;
 			}
-			output_data = true;
 			rc = tee2pkcs_error(res);
 			break;
 		case PKCS11_FUNCTION_VERIFY:
-			/* must compute full mac before comparing partial */
+			/* must compute full MAC before comparing partial */
 			res = TEE_MACComputeFinal(proc->tee_op_handle, in_buf,
 						  in_size, computed_mac,
 						  &computed_mac_size);
 
 			if (!in2_size || in2_size > computed_mac_size) {
-				EMSG("Invalid signature size: %u", in2_size);
+				EMSG("Invalid signature size: %"PRIu32,
+				     in2_size);
 				return PKCS11_CKR_SIGNATURE_LEN_RANGE;
 			}
 
@@ -900,7 +899,6 @@ enum pkcs11_rc step_symm_operation(struct pkcs11_session *session,
 				 */
 				if (TEE_MemCompare(in2_buf, computed_mac,
 						   in2_size)) {
-					EMSG("C_VerifyFinal() MAC mismatch");
 					res = TEE_ERROR_MAC_INVALID;
 				}
 			}
