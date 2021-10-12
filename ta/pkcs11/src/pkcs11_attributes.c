@@ -1011,6 +1011,9 @@ create_attributes_from_template(struct obj_attrs **out, void *template,
 	switch (function) {
 	case PKCS11_FUNCTION_MODIFY:
 	case PKCS11_FUNCTION_COPY:
+		#ifdef DEBUG
+		trace_attributes("object", temp);
+		#endif
 		*out = temp;
 		return rc;
 	case PKCS11_FUNCTION_DERIVE:
