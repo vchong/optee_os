@@ -9,7 +9,8 @@ ifeq ($(CFG_CORE_FFA),y)
 ifeq ($(PLATFORM_FLAVOR_fvp),y)
 srcs-$(CFG_ARM64_core) += fvp_spmc_pm.c
 endif
-ifeq ($(PLATFORM_FLAVOR_qemu_armv8a),y)
 srcs-y += fvp_spmc_pm.c
 endif
+ifeq ($(PLATFORM_FLAVOR_qemu_armv8a),y)
+srcs-y += tpm2_platform.c
 endif

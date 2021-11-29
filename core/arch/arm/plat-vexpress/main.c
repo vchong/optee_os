@@ -22,12 +22,15 @@
 #include <sm/psci.h>
 #include <stdint.h>
 #include <string.h>
+#include <tpm2_platform.h>
 #include <trace.h>
 
 static struct gic_data gic_data __nex_bss;
 static struct pl011_data console_data __nex_bss;
+//static struct tpm2_mmio_data tpm2_data __nex_bss;
 
 register_phys_mem_pgdir(MEM_AREA_IO_SEC, CONSOLE_UART_BASE, PL011_REG_SIZE);
+register_phys_mem_pgdir(MEM_AREA_IO_SEC, TPM2_BASE, TPM2_REG_SIZE);
 #if defined(PLATFORM_FLAVOR_fvp)
 register_phys_mem(MEM_AREA_RAM_SEC, TZCDRAM_BASE, TZCDRAM_SIZE);
 #endif
@@ -126,6 +129,31 @@ static TEE_Result init_console_itr(void)
 }
 driver_init(init_console_itr);
 #endif
+
+#if defined(PLATFORM_FLAVOR_qemu_armv8a)
+static TEE_Result init_tpm2(void)
+{
+	enum tpm2_result res = TPM2_OK;
+	/*
+	 * MUST be static to init all members to 0,
+	 * else will fail tpm2_init() in while() loop of
+	 * tpm2_get_locality() due to value of chip->timeout_a
+	 */
+	static struct tpm2_mmio_data tpm2_data;
+
+	res = tpm2_mmio_init(&tpm2_data, TPM2_BASE);
+	if (res) {
+		EMSG("Failed to initialize TPM2 MMIO");
+		return TEE_ERROR_GENERIC;
+	}
+
+	DMSG("TPM2 MMIO initialized");
+
+	test_tpm2(&tpm2_data);
+	return TEE_SUCCESS;
+}
+driver_init(init_tpm2);
+#endif /* defined(PLATFORM_FLAVOR_qemu_armv8a) */
 
 #ifdef CFG_TZC400
 register_phys_mem_pgdir(MEM_AREA_IO_SEC, TZC400_BASE, TZC400_REG_SIZE);
