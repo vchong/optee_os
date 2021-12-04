@@ -5,12 +5,13 @@
  */
 
 #include <assert.h>
+#include <delay.h>
 #include <initcall.h>
 #include <io.h>
 #include <keep.h>
 #include <kernel/panic.h>
 #include <kernel/tee_time.h>
-//#include <platform_config.h>
+#include <platform_config.h>
 #include <tpm2.h>
 #include <trace.h>
 #include <util.h>
@@ -28,9 +29,9 @@ static bool tpm2_check_locality(struct tpm2_chip *chip, int loc)
 	struct tpm2_ops *ops = chip->ops;
 	uint8_t locality;
 
-	ops->rx8(chip, TPM_ACCESS(loc), 1, &locality);
+	ops->rx8(chip, TPM2_ACCESS(loc), 1, &locality);
 	if ((locality & (TPM2_ACCESS_ACTIVE_LOCALITY | TPM2_ACCESS_VALID |
-	    TPM2_ACCESS_REQUEST_USE)) ==
+	     TPM2_ACCESS_REQUEST_USE)) ==
 	    (TPM2_ACCESS_ACTIVE_LOCALITY | TPM2_ACCESS_VALID)) {
 		chip->locality = loc;
 		return true;
@@ -43,34 +44,42 @@ static int tpm2_get_locality(struct tpm2_chip *chip, int loc)
 {
 	struct tpm2_ops *ops = chip->ops;
 	uint8_t buf = TPM2_ACCESS_REQUEST_USE;
-	uint64_t start, stop;
+	unsigned long timeout = chip->timeout_a;
+	unsigned long timeout_prev = 0;
 
+	/* first check if locality exists */
 	if (tpm2_check_locality(chip, loc))
 		return 0;
 
-	ops->tx8(chip, TPM_ACCESS(loc), 1, &buf);
-	start = get_timer(0);
-	stop = chip->timeout_a;
+	/* if not get one */
+	ops->tx8(chip, TPM2_ACCESS(loc), 1, &buf);
 	do {
+		/* keep trying to get one until timeout */
 		if (tpm2_check_locality(chip, loc))
 			return 0;
 		mdelay(TPM2_TIMEOUT_MS);
-	} while (get_timer(start) < stop);
-	// TODO: impl get_timer()
+		/*
+		 * Use timeout_prev in case timeout
+		 * becomes a -ve number, i.e. a big
+		 * +ve number.
+		 */
+		timeout_prev = timeout;
+		timeout -= TPM2_TIMEOUT_MS;
+	} while (timeout > 0 || timeout < timeout_prev);
 
 	return -1;
 }
 
-int tpm_tis_release_locality(struct tpm2_chip *chip, int loc)
+int tpm2_release_locality(struct tpm2_chip *chip, int loc)
 {
 	struct tpm2_ops *ops = chip->ops;
-	uint8_ buf = TPM2_ACCESS_ACTIVE_LOCALITY;
+	uint8_t buf = TPM2_ACCESS_ACTIVE_LOCALITY;
 	int ret;
 
 	if (chip->locality < 0)
 		return 0;
 
-	ret = ops->tx8(chip, TPM_ACCESS(loc), 1, &buf);
+	ret = ops->tx8(chip, TPM2_ACCESS(loc), 1, &buf);
 	chip->locality = -1;
 
 	return ret;
@@ -79,8 +88,8 @@ int tpm_tis_release_locality(struct tpm2_chip *chip, int loc)
 int tpm2_init(struct tpm2_chip *chip)
 {
 	int ret;
-	u32 tmp;
 	tpm2_ops *ops = chip->ops;
+	uint32_t tmp;
 
 	if (!tpm2_check_ops(ops)) {
 		EMSG("No read write functions defined\n");
@@ -96,14 +105,14 @@ int tpm2_init(struct tpm2_chip *chip)
 	chip->timeout_d = TPM2_SHORT_TIMEOUT_MS;
 
 	/* Disable interrupts */
-	chip->ops->rx32(chip, TPM_INT_ENABLE(chip->locality), &tmp);
+	chip->ops->rx32(chip, TPM2_INT_ENABLE(chip->locality), &tmp);
 	tmp |= TPM2_INTF_CMD_READY_INT | TPM2_INTF_LOCALITY_CHANGE_INT |
 	       TPM2_INTF_DATA_AVAIL_INT | TPM2_INTF_STS_VALID_INT;
 	tmp &= ~TPM2_GLOBAL_INT_ENABLE;
-	chip->ops->tx32(chip, TPM_INT_ENABLE(chip->locality), tmp);
+	chip->ops->tx32(chip, TPM2_INT_ENABLE(chip->locality), tmp);
 
-	chip->ops->rx8(chip, TPM_RID(chip->locality), 1, &chip->rid);
-	chip->ops->rx32(chip, TPM_DID_VID(chip->locality), &chip->vend_dev);
+	chip->ops->rx8(chip, TPM2_RID(chip->locality), 1, &chip->rid);
+	chip->ops->rx32(chip, TPM2_DID_VID(chip->locality), &chip->vend_dev);
 
 	return tpm2_release_locality(chip, chip->locality);
 }

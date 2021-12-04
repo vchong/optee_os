@@ -11,28 +11,27 @@
 #include <sys/queue.h>
 #include <types_ext.h>
 
-// TODO: use SHIFT
-#define TPM_ACCESS(l)                   (0x0000 | ((l) << 12))
-#define TPM_INT_ENABLE(l)               (0x0008 | ((l) << 12))
-#define TPM_STS(l)                      (0x0018 | ((l) << 12))
-#define TPM_DATA_FIFO(l)                (0x0024 | ((l) << 12))
-#define TPM_DID_VID(l)                  (0x0f00 | ((l) << 12))
-#define TPM_RID(l)                      (0x0f04 | ((l) << 12))
-#define TPM_INTF_CAPS(l)                (0x0014 | ((l) << 12))
+#define TPM2_ACCESS(l)		(0x0000 | SHIFT_U32(l, 12))
+#define TPM2_INT_ENABLE(l)	(0x0008 | SHIFT_U32(l, 12))
+#define TPM2_INTF_CAPS(l)	(0x0014 | SHIFT_U32(l, 12))
+#define TPM2_STS(l)		(0x0018 | SHIFT_U32(l, 12))
+#define TPM2_DATA_FIFO(l)	(0x0024 | SHIFT_U32(l, 12))
+#define TPM2_DID_VID(l)		(0x0F00 | SHIFT_U32(l, 12))
+#define TPM2_RID(l)		(0x0F04 | SHIFT_U32(l, 12))
 
 enum tpm2_access {
-	TPM2_ACCESS_VALID		= 0x80,
-	TPM2_ACCESS_ACTIVE_LOCALITY	= 0x20,
-	TPM2_ACCESS_REQUEST_PENDING	= 0x04,
-	TPM2_ACCESS_REQUEST_USE		= 0x02,
+	TPM2_ACCESS_VALID = 0x80,
+	TPM2_ACCESS_ACTIVE_LOCALITY = 0x20,
+	TPM2_ACCESS_REQUEST_PENDING = 0x04,
+	TPM2_ACCESS_REQUEST_USE = 0x02,
 };
 
 enum tpm2_timeout {
-	TPM2_TIMEOUT_MS			= 5,
-	TPM2_SHORT_TIMEOUT_MS		= 750,
-	TPM2_LONG_TIMEOUT_MS		= 2000,
-	TPM2_SLEEP_DURATION_US		= 60,
-	TPM2_DURATION_LONG_US		= 210,
+	TPM2_TIMEOUT_MS = 5,
+	TPM2_SHORT_TIMEOUT_MS = 750,
+	TPM2_LONG_TIMEOUT_MS = 2000,
+	TPM2_SLEEP_DURATION_US = 60,
+	TPM2_DURATION_LONG_US = 210,
 };
 
 enum tpm2_int_flags {
@@ -58,13 +57,12 @@ struct tpm2_ops {
 };
 
 struct tpm2_chip {
-	const struct tpm2_ops *ops;
-	uint64_t chip_type;
-	/* ms */
-	uint64_t timeout_a;
-	uint64_t timeout_b;
-	uint64_t timeout_c;
-	uint64_t timeout_d;
+	struct tpm2_ops *ops;
+	unsigned long chip_type;
+	unsigned long timeout_a;
+	unsigned long timeout_b;
+	unsigned long timeout_c;
+	unsigned long timeout_d;
 	uint32_t vend_dev;
 	int32_t is_open;
 	int32_t locality;
