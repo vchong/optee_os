@@ -47,13 +47,40 @@ enum tpm2_int_flags {
 	TPM2_INTF_DATA_AVAIL_INT = 0x001,
 };
 
+enum tpm2_status {
+	TPM2_STS_VALID = 0x80,
+	TPM2_STS_COMMAND_READY = 0x40,
+	TPM2_STS_GO = 0x20,
+	TPM2_STS_DATA_AVAIL = 0x10,
+	TPM2_STS_DATA_EXPECT = 0x08,
+};
+
+enum {
+	TPM2_STS_FAMILY_SHIFT = 26,
+	TPM2_STS_FAMILY_MASK = SHIFT_U32(0x3, TPM2_STS_FAMILY_SHIFT),
+	TPM2_STS_FAMILY_TPM2 = BIT32(TPM2_STS_FAMILY_SHIFT),
+	TPM2_STS_RESE_TESTABLISMENT_BIT = BIT32(25),
+	TPM2_STS_COMMAND_CANCEL = BIT32(24),
+	TPM2_STS_BURST_COUNT_SHIFT = 8,
+	TPM2_STS_BURST_COUNT_MASK =
+		SHIFT_U32(0xFFFF, TPM2_STS_BURST_COUNT_SHIFT),
+	TPM2_STS_VALID = BIT32(7),
+	TPM2_STS_COMMAND_READY = BIT32(6),
+	TPM2_STS_GO = BIT32(5),
+	TPM2_STS_DATA_AVAIL = BIT32(4),
+	TPM2_STS_DATA_EXPECT = BIT32(3),
+	TPM2_STS_SELF_TEST_DONE = BIT32(2),
+	TPM2_STS_RESPONSE_RETRY = BIT32(1),
+	TPM2_STS_READ_ZERO = 0x23
+};
+
 struct tpm2_ops {
-	int (*rx32)(struct tpm2_chip *chip, uint32_t addr, uint32_t *result);
-	int (*tx32)(struct tpm2_chip *chip, uint32_t addr, uint32_t src);
-	int (*rx8)(struct tpm2_chip *chip, uint32_t addr, uint16_t len,
-		   uint8_t *result);
-	int (*tx8)(struct tpm2_chip *chip, uint32_t addr, uint16_t len,
-		   const uint8_t *value);
+	int (*rx32)(struct tpm2_chip *chip, uint32_t adr, uint32_t *buf);
+	int (*tx32)(struct tpm2_chip *chip, uint32_t adr, uint32_t val);
+	int (*rx8)(struct tpm2_chip *chip, uint32_t adr, uint16_t len,
+		   uint8_t *buf);
+	int (*tx8)(struct tpm2_chip *chip, uint32_t adr, uint16_t len,
+		   uint8_t *buf);
 };
 
 struct tpm2_chip {
