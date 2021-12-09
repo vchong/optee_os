@@ -79,6 +79,8 @@ enum tpm2_result {
 	TPM2_ERROR_GENERIC = -1,
 	TPM2_ERROR_INVALID_ARG = -2,
 	TPM2_ERROR_BUSY = -3,
+	TPM2_ERROR_TIMEOUT = -4,
+	TPM2_ERROR_IO = -5,
 };
 
 struct tpm2_ops {

@@ -40,12 +40,24 @@ static bool tpm2_check_locality(struct tpm2_chip *chip, int loc)
 	return false;
 }
 
+static void tpm2_delay(unsigned long *to, unsigned long *to_prev)
+{
+	mdelay(TPM2_TIMEOUT_MS);
+	/*
+	 * Use timeout_prev in case timeout
+	 * becomes a -ve number, i.e. a big
+	 * +ve number.
+	 */
+	to_prev = to;
+	to -= TPM2_TIMEOUT_MS;
+}
+
 static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
 {
 	struct tpm2_ops *ops = chip->ops;
 	uint8_t buf = TPM2_ACCESS_REQUEST_USE;
 	unsigned long timeout = chip->timeout_a;
-	unsigned long timeout_prev = 0;
+	unsigned long timeout_prev = timeout;
 
 	/* first check if locality exists */
 	if (tpm2_check_locality(chip, loc))
@@ -57,17 +69,11 @@ static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
 		/* keep trying to get one until timeout */
 		if (tpm2_check_locality(chip, loc))
 			return TPM2_OK;
-		mdelay(TPM2_TIMEOUT_MS);
-		/*
-		 * Use timeout_prev in case timeout
-		 * becomes a -ve number, i.e. a big
-		 * +ve number.
-		 */
-		timeout_prev = timeout;
-		timeout -= TPM2_TIMEOUT_MS;
-	} while (timeout > 0 || timeout < timeout_prev);
 
-	return TPM2_ERROR_GENERIC;
+		tpm2_delay(&timeout, &timeout_prev);
+	} while (timeout != 0 || timeout < timeout_prev);
+
+	return TPM2_ERROR_TIMEOUT;
 }
 
 enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
@@ -92,7 +98,7 @@ enum tpm2_result tpm2_start(struct tpm2_chip *chip)
 	uint32_t flags;
 
 	if (!tpm2_check_ops(ops)) {
-		EMSG("TPM2: No rx tx functions defined\n");
+		EMSG("No rx tx functions defined");
 		return TPM2_ERROR_GENERIC;
 	}
 	ret = tpm2_get_locality(chip, 0);
@@ -104,7 +110,7 @@ enum tpm2_result tpm2_start(struct tpm2_chip *chip)
 	chip->timeout_c = TPM2_SHORT_TIMEOUT_MS;
 	chip->timeout_d = TPM2_SHORT_TIMEOUT_MS;
 
-	/* Disable interrupts */
+	/* disable interrupts */
 	chip->ops->rx32(chip, TPM2_INT_ENABLE(chip->locality), &flags);
 	flags |= TPM2_INTF_CMD_READY_INT | TPM2_INTF_LOCALITY_CHANGE_INT |
 		 TPM2_INTF_DATA_AVAIL_INT | TPM2_INTF_STS_VALID_INT;
@@ -123,8 +129,8 @@ static enum tpm2_result tpm2_ready(struct tpm2_chip *chip)
 	uint8_t buf = TPM2_STS_COMMAND_READY;
 
 	/*
-	 * cancel all pending commands and
-	 * put module on ready
+	 * Cancel all pending commands and
+	 * put module on ready.
 	 */
 	return ops->tx8(chip, TPM2_STS(chip->locality), 1, &buf);
 }
@@ -173,12 +179,58 @@ static enum tpm2_result tpm2_get_status(struct tpm2_chip *chip, uint8_t *status)
 	ops->rx8(chip, TPM2_STS(chip->locality), 1, status);
 
 	if ((*status & TPM2_STS_READ_ZERO)) {
-		EMSG("TPM2: invalid status\n");
+		EMSG("Invalid status");
 		return TPM2_ERROR_INVALID_ARG;
 	}
 
 	return TPM2_OK;
 }
+
+static enum tpm2_result tpm2_wait_for_status(struct tpm2_chip *chip,
+					     uint8_t mask,
+					     unsigned long timeout,
+					     uint8_t *status)
+{
+	enum tpm2_result ret = TPM2_OK;
+	unsigned long timeout_prev = timeout;
+
+	do {
+		ret = tpm2_get_status(chip, status);
+		if (ret)
+			return ret;
+
+		if ((*status & mask) == mask)
+			return TPM2_OK;
+
+		tpm2_delay(&timeout, &timeout_prev);
+	} while (timeout != 0 || timeout < timeout_prev);
+
+	return TPM2_ERROR_TIMEOUT;
+}
+
+static enum tpm2_result tpm2_wait_burstcount(struct tpm2_chip *chip,
+					     size_t *burstcount)
+{
+	struct tpm2_ops *ops = chip->ops;
+	unsigned long timeout = chip->timeout_a;
+	unsigned long timeout_prev = timeout;
+	uint32_t burst;
+
+	if (chip->locality < 0)
+		return TPM2_ERROR_INVALID_ARG;
+
+	do {
+		ops->rx32(chip, TPM2_STS(chip->locality), &burst);
+		*burstcount = (burst >> 8) & 0xFFFF;
+		if (*burstcount)
+			return TPM2_OK;
+
+		tpm2_delay(&timeout, &timeout_prev);
+	} while (timeout != 0 || timeout < timeout_prev);
+
+	return TPM2_ERROR_TIMEOUT;
+}
+
 
 enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 {
@@ -186,9 +238,9 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	size_t burstcnt = 0;
 	size_t sent = 0;
 	size_t wr_size = 0;
-	struct tpm2_ops *phy_ops = chip->ops;
+	struct tpm2_ops *ops = chip->ops;
 	uint8_t data = TPM2_STS_GO;
-	uint8_t status;
+	uint8_t status = 0;
 
 	if (!chip)
 		return TPM2_ERROR_GENERIC;
@@ -197,72 +249,69 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	if (ret)
 		return ret;
 
-	ret = tpm_tis_status(dev, &status);
+	ret = tpm2_get_status(chip, &status);
 	if (ret)
-		goto release_locality;
+		goto free_locality;
 
-	if (!(status & TPM_STS_COMMAND_READY)) {
-		ret = tpm_tis_ready(dev);
+	if (!(status & TPM2_STS_COMMAND_READY)) {
+		ret = tpm2_ready(chip);
 		if (ret) {
-			log_err("Can't cancel previous TPM operation\n");
-			goto release_locality;
+			EMSG("Previous cmd cancel failed");
+			goto free_locality;
 		}
-		ret = tpm_tis_wait_for_stat(dev, TPM_STS_COMMAND_READY,
-					    chip->timeout_b, &status);
+		ret = tpm2_wait_for_status(chip, TPM2_STS_COMMAND_READY,
+					   chip->timeout_b, &status);
 		if (ret) {
-			log_err("TPM not ready\n");
-			goto release_locality;
+			EMSG("Module not ready\n");
+			goto free_locality;
 		}
 	}
 
 	while (len > 0) {
-		ret = tpm_tis_get_burstcount(dev, &burstcnt);
+		ret = tpm2_wait_burstcount(chip, &burstcnt);
 		if (ret)
-			goto release_locality;
+			goto free_locality;
 
-		wr_size = min(len, burstcnt);
-		ret = phy_ops->write_bytes(dev, TPM_DATA_FIFO(chip->locality),
-					   wr_size, buf + sent);
+		wr_size = MIN(len, burstcnt);
+		ret = ops->tx8(chip, TPM2_DATA_FIFO(chip->locality), wr_size,
+			       buf + sent);
 		if (ret < 0)
-			goto release_locality;
+			goto free_locality;
 
-		ret = tpm_tis_wait_for_stat(dev, TPM_STS_VALID,
-					    chip->timeout_c, &status);
+		ret = tpm2_wait_for_status(chip, TPM2_STS_VALID,
+					   chip->timeout_c, &status);
 		if (ret)
-			goto release_locality;
+			goto free_locality;
 
 		sent += wr_size;
 		len -= wr_size;
-		/* make sure the TPM expects more data */
-		if (len && !(status & TPM_STS_DATA_EXPECT)) {
-			ret = -EIO;
-			goto release_locality;
+		/* TPM2 should expect more data */
+		if (len && !(status & TPM2_STS_DATA_EXPECT)) {
+			ret = TPM2_ERROR_IO;
+			goto free_locality;
 		}
 	}
 
-	/*
-	 * Make a final check ensuring everything is ok and the TPM expects no
-	 * more data
-	 */
-	ret = tpm_tis_wait_for_stat(dev, TPM_STS_VALID, chip->timeout_c,
-				    &status);
+	/* last check everything is ok and TPM2 expects no more data */
+	ret = tpm2_wait_for_status(chip, TPM2_STS_VALID, chip->timeout_c,
+				   &status);
 	if (ret)
-		goto release_locality;
+		goto free_locality;
 
-	if (status & TPM_STS_DATA_EXPECT) {
-		ret = -EIO;
-		goto release_locality;
+	if (status & TPM2_STS_DATA_EXPECT) {
+		ret = TPM2_ERROR_IO;
+		goto free_locality;
 	}
 
-	ret = phy_ops->write_bytes(dev, TPM_STS(chip->locality), 1, &data);
+	ret = ops->tx8(chip, TPM2_STS(chip->locality), 1, &data);
 	if (ret)
-		goto release_locality;
+		goto free_locality;
 
 	return sent;
 
-release_locality:
-	tpm_tis_ready(dev);
-	tpm_tis_release_locality(dev, chip->locality);
+free_locality:
+	tpm2_ready(chip);
+	tpm2_free_locality(chip);
 
 	return ret;
 }
