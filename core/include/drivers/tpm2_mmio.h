@@ -10,8 +10,10 @@
 #include <tpm2.h>
 
 struct tpm2_mmio_data {
+	struct tpm2_chip *chip;	
+	uint32_t pcr_count;
+	uint32_t pcr_select_min;
 	vaddr_t tpm2_base;
-	struct tpm2_chip *chip;
 }
 
 #endif	/* __TPM2_MMIO_H__ */
