@@ -123,7 +123,7 @@ enum tpm2_result tpm2_start(struct tpm2_chip *chip)
 	return tpm2_free_locality(chip);
 }
 
-static enum tpm2_result tpm2_ready(struct tpm2_chip *chip)
+static enum tpm2_result tpm2_get_ready(struct tpm2_chip *chip)
 {
 	struct tpm2_ops *ops = chip->ops;
 	uint8_t buf = TPM2_STS_COMMAND_READY;
@@ -137,7 +137,7 @@ static enum tpm2_result tpm2_ready(struct tpm2_chip *chip)
 
 enum tpm2_result tpm2_end(struct tpm2_chip *chip)
 {
-	tpm2_ready(chip);
+	tpm2_get_ready(chip);
 	tpm2_free_locality(chip);
 
 	return TPM2_OK;
@@ -208,8 +208,8 @@ static enum tpm2_result tpm2_wait_for_status(struct tpm2_chip *chip,
 	return TPM2_ERROR_TIMEOUT;
 }
 
-static enum tpm2_result tpm2_wait_burstcount(struct tpm2_chip *chip,
-					     size_t *burstcount)
+static enum tpm2_result tpm2_get_burstcount(struct tpm2_chip *chip,
+					    size_t *burstcount)
 {
 	struct tpm2_ops *ops = chip->ops;
 	unsigned long timeout = chip->timeout_a;
@@ -219,6 +219,7 @@ static enum tpm2_result tpm2_wait_burstcount(struct tpm2_chip *chip,
 	if (chip->locality < 0)
 		return TPM2_ERROR_INVALID_ARG;
 
+	/* wait for burstcount */
 	do {
 		ops->rx32(chip, TPM2_STS(chip->locality), &burst);
 		*burstcount = (burst >> 8) & 0xFFFF;
@@ -245,6 +246,7 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	if (!chip)
 		return TPM2_ERROR_GENERIC;
 
+	/* free in tpm2_rx */
 	ret = tpm2_get_locality(chip, 0);
 	if (ret)
 		return ret;
@@ -254,7 +256,7 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 		goto free_locality;
 
 	if (!(status & TPM2_STS_COMMAND_READY)) {
-		ret = tpm2_ready(chip);
+		ret = tpm2_get_ready(chip);
 		if (ret) {
 			EMSG("Previous cmd cancel failed");
 			goto free_locality;
@@ -268,7 +270,7 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	}
 
 	while (len > 0) {
-		ret = tpm2_wait_burstcount(chip, &burstcnt);
+		ret = tpm2_get_burstcount(chip, &burstcnt);
 		if (ret)
 			goto free_locality;
 
@@ -310,13 +312,80 @@ enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	return sent;
 
 free_locality:
-	tpm2_ready(chip);
+	tpm2_get_ready(chip);
 	tpm2_free_locality(chip);
 
 	return ret;
 }
 
+static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
+				    size_t len)
+{
+	enum tpm2_result ret = TPM2_OK;
+	enum tpm2_result size = TPM2_OK;
+	int len = 0;
+	size_t burstcnt = 0;
+	struct tpm2_ops *ops = chip->ops;
+	uint8_t status = 0;
+
+	while (size < len &&
+	       tpm2_wait_for_status(chip, TPM2_STS_DATA_AVAIL | TPM2_STS_VALID,
+				    chip->timeout_c, &status) == 0) {
+		ret = tpm2_get_burstcount(chip, &burstcnt);
+		if (ret)
+			return ret;
+
+		len = MIN(burstcnt, len - size)
+		ret = ops->rx8(chip, TPM2_DATA_FIFO(chip->locality), len,
+			       buf + size);
+		if (ret)
+			return ret;
+
+		size += len;
+	}
+
+	return size;
+}
+
+static int tpm2_convert2be(uint8_t *buf)
+{
+	return buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
+}
+
 enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 {
+	enum tpm2_result size = 0;
+	int expected = 0;
+
+	if (len < TPM2_HEADER_SIZE)
+		return TPM2_ERROR_ARG_LIST_TOO_LONG;
+
+	size = tpm2_rx_dat(chip, buf, TPM2_HEADER_SIZE);
+	if (size < TPM2_HEADER_SIZE) {
+		EMSG("Unable to read TPM2 header\n");
+		goto out;
+	}
+
+	expected = tpm2_convert2be(buf + TPM2_CMD_COUNT_OFFSET);
+	if (expected > len) {
+		size = TPM2_ERROR_IO;
+		EMSG("Too much data: %d > %zu", expected, len);
+		goto out;
+	}
+
+	size += tpm2_rx_dat(chip, &buf[TPM2_HEADER_SIZE],
+			    expected - TPM2_HEADER_SIZE);
+	if (size < expected) {
+		EMSG("Unable to rx remaining data");
+		size = TPM2_ERROR_IO;
+		goto out;
+	}
+
+out:
+	tpm2_get_ready(chip);
+	/* gotten from tpm2_tx */
+	tpm2_free_locality(chip);
+
+	return size;
 }
 

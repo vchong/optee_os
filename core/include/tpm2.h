@@ -11,6 +11,8 @@
 #include <sys/queue.h>
 #include <types_ext.h>
 
+#define TPM2_HEADER_SIZE	10
+
 #define TPM2_ACCESS(l)		(0x0000 | SHIFT_U32(l, 12))
 #define TPM2_INT_ENABLE(l)	(0x0008 | SHIFT_U32(l, 12))
 #define TPM2_INTF_CAPS(l)	(0x0014 | SHIFT_U32(l, 12))
@@ -74,6 +76,12 @@ enum {
 	TPM2_STS_READ_ZERO = 0x23,
 };
 
+enum {
+	TPM2_CMD_COUNT_OFFSET = 2,
+	TPM2_CMD_ORDINAL_OFFSET = 6,
+	TPM2_MAX_BUF_SIZE = 1260,
+};
+
 enum tpm2_result {
 	TPM2_OK = 0,
 	TPM2_ERROR_GENERIC = -1,
@@ -81,6 +89,7 @@ enum tpm2_result {
 	TPM2_ERROR_BUSY = -3,
 	TPM2_ERROR_TIMEOUT = -4,
 	TPM2_ERROR_IO = -5,
+	TPM2_ERROR_ARG_LIST_TOO_LONG = -6,
 };
 
 struct tpm2_ops {
@@ -106,6 +115,13 @@ struct tpm2_chip {
 	int32_t locality;
 	uint8_t rid;
 };
+
+enum tpm2_result tpm2_start(struct tpm2_chip *chip);
+enum tpm2_result tpm2_end(struct tpm2_chip *chip);
+enum tpm2_result tpm2_open(struct tpm2_chip *chip);
+enum tpm2_result tpm2_close(struct tpm2_chip *chip);
+enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len);
+enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len);
 
 #endif	/* __TPM2_H__ */
 
