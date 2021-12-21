@@ -13,11 +13,13 @@
 #define MMIO_REG_SIZE	0x1000
 
 struct tpm2_mmio_data {
+	struct io_pa_va base;
 	struct tpm2_chip *chip;	
 	uint32_t pcr_count;
 	uint32_t pcr_select_min;
-	vaddr_t base;
 }
+
+enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase);
 
 #endif	/* __TPM2_MMIO_H__ */
 
