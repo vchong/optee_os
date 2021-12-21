@@ -21,7 +21,7 @@ static vaddr_t *chip_to_base(struct tpm2_chip *chip)
 	struct tpm2_mmio_data *md =
 		container_of(chip, struct tpm2_mmio_data, chip);
 
-	return io_pa_or_va(&md->base, MMIO_REG_SIZE);
+	return io_pa_or_va(&md->base, TPM2_MMIO_REG_SIZE);
 }
 
 static enum tpm2_result tpm2_mmio_rx32(struct tpm2_chip *chip, uint32_t adr,
@@ -82,7 +82,7 @@ enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase)
 	md->base.pa = pbase;
 	md->chip.ops = &tpm2_mmio_ops;
 
-	base = io_pa_or_va(&md->base, MMIO_REG_SIZE);
+	base = io_pa_or_va(&md->base, TPM2_MMIO_REG_SIZE);
 
 	return tpm2_start(md->chip);
 }
