@@ -9,9 +9,6 @@
 
 #include <tpm2.h>
 
-/* not sure about this */
-#define TPM2_MMIO_REG_SIZE 0x1000
-
 struct tpm2_mmio_data {
 	struct io_pa_va base;
 	struct tpm2_chip *chip;	

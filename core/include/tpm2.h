@@ -11,6 +11,9 @@
 #include <sys/queue.h>
 #include <types_ext.h>
 
+/* from Ruchi's u-boot log */
+#define TPM2_REG_SIZE 0x5000
+
 #define TPM2_HEADER_SIZE	10
 
 #define TPM2_ACCESS(l)		(0x0000 | SHIFT_U32(l, 12))
