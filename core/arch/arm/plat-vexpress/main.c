@@ -92,16 +92,19 @@ void console_init(void)
 	register_serial_console(&console_data.chip);
 }
 
-static TEE_Result tpm2_init(void)
+void tpm2_init(void)
 {
-	enum tpm2_result ret = tpm2_mmio_init(&tpm2_data, TPM2_BASE);
-	if (ret) {
+	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE)) {
 		EMSG("Failed to initialize TPM2 MMIO %d", ret);
-		return TEE_ERROR_GENERIC;
 	}
+}
+
+static TEE_Result init_tpm2(void)
+{
+	tpm2_init();
 	return TEE_SUCCESS;
 }
-driver_init(tpm2_init);
+driver_init(init_tpm2);
 
 #if defined(IT_CONSOLE_UART) && \
 	!(defined(CFG_WITH_ARM_TRUSTED_FW) && defined(CFG_ARM_GICV3))
