@@ -93,12 +93,15 @@ void console_init(void)
 	register_serial_console(&console_data.chip);
 }
 
+#if defined(PLATFORM_FLAVOR_qemu_armv8a)
+
 static TEE_Result init_tpm2(void)
 {
 	tpm2_init();
 	return TEE_SUCCESS;
 }
 driver_init(init_tpm2);
+#endif
 
 #if defined(IT_CONSOLE_UART) && \
 	!(defined(CFG_WITH_ARM_TRUSTED_FW) && defined(CFG_ARM_GICV3))
