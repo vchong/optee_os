@@ -95,7 +95,7 @@ void console_init(void)
 static void tpm2_init(void)
 {
 	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE))
-		EMSG("Failed to initialize TPM2 MMIO")
+		EMSG("Failed to initialize TPM2 MMIO");
 }
 driver_init(tpm2_init);
 
