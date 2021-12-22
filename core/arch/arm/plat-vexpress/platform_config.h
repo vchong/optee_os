@@ -150,6 +150,4 @@
 #define CONSOLE_UART_CLK_IN_HZ	1
 #endif
 
-void tpm2_init(void);
-
 #endif /*PLATFORM_CONFIG_H*/

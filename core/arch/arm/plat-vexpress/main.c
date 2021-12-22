@@ -23,6 +23,7 @@
 #include <sm/psci.h>
 #include <stdint.h>
 #include <string.h>
+#include <tpm2_platform.h>
 #include <trace.h>
 
 static struct gic_data gic_data __nex_bss;
