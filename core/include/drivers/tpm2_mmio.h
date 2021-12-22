@@ -14,7 +14,7 @@ struct tpm2_mmio_data {
 	struct tpm2_chip *chip;	
 	uint32_t pcr_count;
 	uint32_t pcr_select_min;
-}
+};
 
 enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase);
 

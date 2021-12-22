@@ -97,17 +97,6 @@ enum tpm2_result {
 	TPM2_ERROR_ARG_LIST_TOO_LONG = -6,
 };
 
-struct tpm2_ops {
-	enum tpm2_result (*rx32)(struct tpm2_chip *chip, uint32_t adr,
-				 uint32_t *buf);
-	enum tpm2_result (*tx32)(struct tpm2_chip *chip, uint32_t adr,
-				 uint32_t val);
-	enum tpm2_result (*rx8)(struct tpm2_chip *chip, uint32_t adr,
-				uint16_t len, uint8_t *buf);
-	enum tpm2_result (*tx8)(struct tpm2_chip *chip, uint32_t adr,
-				uint16_t len, uint8_t *buf);
-};
-
 struct tpm2_chip {
 	struct tpm2_ops *ops;
 	unsigned long chip_type;
@@ -119,6 +108,17 @@ struct tpm2_chip {
 	int32_t is_open;
 	int32_t locality;
 	uint8_t rid;
+};
+
+struct tpm2_ops {
+	enum tpm2_result (*rx32)(struct tpm2_chip *chip, uint32_t adr,
+				 uint32_t *buf);
+	enum tpm2_result (*tx32)(struct tpm2_chip *chip, uint32_t adr,
+				 uint32_t val);
+	enum tpm2_result (*rx8)(struct tpm2_chip *chip, uint32_t adr,
+				uint16_t len, uint8_t *buf);
+	enum tpm2_result (*tx8)(struct tpm2_chip *chip, uint32_t adr,
+				uint16_t len, uint8_t *buf);
 };
 
 enum tpm2_result tpm2_start(struct tpm2_chip *chip);
