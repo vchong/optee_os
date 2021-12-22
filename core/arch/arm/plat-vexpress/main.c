@@ -93,12 +93,6 @@ void console_init(void)
 	register_serial_console(&console_data.chip);
 }
 
-void tpm2_init(void)
-{
-	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE))
-		EMSG("Failed to initialize TPM2 MMIO");
-}
-
 static TEE_Result init_tpm2(void)
 {
 	tpm2_init();
