@@ -52,6 +52,7 @@ enum tpm2_int_flags {
 	TPM2_INTF_DATA_AVAIL_INT = 0x001,
 };
 
+/*
 enum tpm2_status {
 	TPM2_STS_VALID = 0x80,
 	TPM2_STS_COMMAND_READY = 0x40,
@@ -59,6 +60,7 @@ enum tpm2_status {
 	TPM2_STS_DATA_AVAIL = 0x10,
 	TPM2_STS_DATA_EXPECT = 0x08,
 };
+*/
 
 enum {
 	TPM2_STS_FAMILY_SHIFT = 26,
