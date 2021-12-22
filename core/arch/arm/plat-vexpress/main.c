@@ -92,10 +92,14 @@ void console_init(void)
 	register_serial_console(&console_data.chip);
 }
 
-static void tpm2_init(void)
+static TEE_Result tpm2_init(void)
 {
-	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE))
-		EMSG("Failed to initialize TPM2 MMIO");
+	enum tpm2_result ret = tpm2_mmio_init(&tpm2_data, TPM2_BASE);
+	if (ret) {
+		EMSG("Failed to initialize TPM2 MMIO %d", ret);
+		return TEE_ERROR_GENERIC;
+	}
+	return TEE_SUCCESS;
 }
 driver_init(tpm2_init);
 
