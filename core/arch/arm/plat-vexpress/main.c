@@ -94,9 +94,8 @@ void console_init(void)
 
 void tpm2_init(void)
 {
-	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE)) {
-		EMSG("Failed to initialize TPM2 MMIO %d", ret);
-	}
+	if (tpm2_mmio_init(&tpm2_data, TPM2_BASE))
+		EMSG("Failed to initialize TPM2 MMIO");
 }
 
 static TEE_Result init_tpm2(void)
