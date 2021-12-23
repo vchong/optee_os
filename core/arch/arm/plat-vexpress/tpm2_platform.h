@@ -7,6 +7,8 @@
 #ifndef __TPM2_PLATFORM_H__
 #define __TPM2_PLATFORM_H__
 
+#define TPM2_BASE		0xc0000000
+
 void tpm2_init(void);
 
 #endif /*__TPM2_PLATFORM_H__ */
