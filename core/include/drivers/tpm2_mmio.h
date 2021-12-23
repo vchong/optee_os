@@ -8,6 +8,7 @@
 #define __TPM2_MMIO_H__
 
 #include <tpm2.h>
+#include <types_ext.h>
 
 struct tpm2_mmio_data {
 	struct io_pa_va base;
