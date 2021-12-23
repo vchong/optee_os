@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <drivers/tpm2_mmio.h>
 #include <initcall.h>
 #include <io.h>
 #include <keep.h>
@@ -12,7 +13,6 @@
 #include <kernel/panic.h>
 #include <kernel/tee_time.h>
 #include <platform_config.h>
-#include <tpm2_mmio.h>
 #include <trace.h>
 #include <util.h>
 
