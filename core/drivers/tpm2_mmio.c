@@ -16,7 +16,7 @@
 #include <trace.h>
 #include <util.h>
 
-static vaddr_t *chip_to_base(struct tpm2_chip *chip)
+static vaddr_t chip_to_base(struct tpm2_chip *chip)
 {
 	struct tpm2_mmio_data *md =
 		container_of(chip, struct tpm2_mmio_data, chip);
@@ -44,7 +44,7 @@ static enum tpm2_result tpm2_mmio_tx32(struct tpm2_chip *chip, uint32_t adr,
 	return TPM2_OK;
 }
 
-static enum tpm2_result tpm2_mmio_rx8(tpm2_chip *chip, uint32_t adr,
+static enum tpm2_result tpm2_mmio_rx8(struct tpm2_chip *chip, uint32_t adr,
 				      uint16_t len, uint8_t *buf)
 {
 	vaddr_t base = chip_to_base(chip);
@@ -55,7 +55,7 @@ static enum tpm2_result tpm2_mmio_rx8(tpm2_chip *chip, uint32_t adr,
 	return TPM2_OK;
 }
 
-static enum tpm2_result tpm2_mmio_tx8(tpm2_chip *chip, uint32_t adr,
+static enum tpm2_result tpm2_mmio_tx8(struct tpm2_chip *chip, uint32_t adr,
 				      uint16_t len, uint8_t *buf)
 {
 	vaddr_t base = chip_to_base(chip);
@@ -76,14 +76,14 @@ DECLARE_KEEP_PAGER(tpm2_mmio_ops);
 
 enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase)
 {
-	enum tpm2_result ret = TPM2_OK;
 	vaddr_t base;
 
 	md->base.pa = pbase;
 	md->chip.ops = &tpm2_mmio_ops;
 
 	base = io_pa_or_va(&md->base, TPM2_REG_SIZE);
+	DMSG("TPM2 MMIO base: 0x%" PRIxVA, base);
 
-	return tpm2_start(md->chip);
+	return tpm2_start(&md->chip);
 }
 

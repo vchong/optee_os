@@ -16,7 +16,7 @@
 
 struct tpm2_mmio_data {
 	struct io_pa_va base;
-	struct tpm2_chip *chip;	
+	struct tpm2_chip chip;
 	uint32_t pcr_count;
 	uint32_t pcr_select_min;
 };
