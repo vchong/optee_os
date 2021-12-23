@@ -47,8 +47,8 @@ static void tpm2_delay(unsigned long *to, unsigned long *to_prev)
 	 * becomes a -ve number, i.e. a big
 	 * +ve number.
 	 */
-	to_prev = to;
-	to -= TPM2_TIMEOUT_MS;
+	*to_prev = *to;
+	*to -= TPM2_TIMEOUT_MS;
 }
 
 static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
@@ -75,7 +75,7 @@ static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
 	return TPM2_ERROR_TIMEOUT;
 }
 
-enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
+static enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
 {
 	enum tpm2_result ret = TPM2_OK;
 	struct tpm2_ops *ops = chip->ops;
@@ -90,38 +90,6 @@ enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
 	return ret;
 }
 
-enum tpm2_result tpm2_start(struct tpm2_chip *chip)
-{
-	enum tpm2_result ret = TPM2_OK;
-	tpm2_ops *ops = chip->ops;
-	uint32_t flags;
-
-	if (!tpm2_check_ops(ops)) {
-		EMSG("No rx tx functions defined");
-		return TPM2_ERROR_GENERIC;
-	}
-	ret = tpm2_get_locality(chip, 0);
-	if (ret)
-		return ret;
-
-	chip->timeout_a = TPM2_SHORT_TIMEOUT_MS;
-	chip->timeout_b = TPM2_LONG_TIMEOUT_MS;
-	chip->timeout_c = TPM2_SHORT_TIMEOUT_MS;
-	chip->timeout_d = TPM2_SHORT_TIMEOUT_MS;
-
-	/* disable interrupts */
-	chip->ops->rx32(chip, TPM2_INT_ENABLE(chip->locality), &flags);
-	flags |= TPM2_INTF_CMD_READY_INT | TPM2_INTF_LOCALITY_CHANGE_INT |
-		 TPM2_INTF_DATA_AVAIL_INT | TPM2_INTF_STS_VALID_INT;
-	flags &= ~TPM2_GLOBAL_INT_ENABLE;
-	chip->ops->tx32(chip, TPM2_INT_ENABLE(chip->locality), flags);
-
-	chip->ops->rx8(chip, TPM2_RID(chip->locality), 1, &chip->rid);
-	chip->ops->rx32(chip, TPM2_DID_VID(chip->locality), &chip->vend_dev);
-
-	return tpm2_free_locality(chip);
-}
-
 static enum tpm2_result tpm2_get_ready(struct tpm2_chip *chip)
 {
 	struct tpm2_ops *ops = chip->ops;
@@ -134,43 +102,9 @@ static enum tpm2_result tpm2_get_ready(struct tpm2_chip *chip)
 	return ops->tx8(chip, TPM2_STS(chip->locality), 1, &buf);
 }
 
-enum tpm2_result tpm2_end(struct tpm2_chip *chip)
-{
-	tpm2_get_ready(chip);
-	tpm2_free_locality(chip);
-
-	return TPM2_OK;
-}
-
-enum tpm2_result tpm2_open(struct tpm2_chip *chip)
-{
-	enum tpm2_result ret = TPM2_OK;
-
-	if (chip->is_open)
-		return TPM2_ERROR_GENERIC;
-
-	ret = tpm2_get_locality(chip, 0);
-	if (!ret)
-		chip->is_open = 1;
-
-	return ret;
-}
-
-enum tpm2_result tpm2_close(struct tpm2_chip *chip)
-{
-	enum tpm2_result ret = TPM2_OK;
-
-	if (chip->is_open) {
-		ret = tpm2_free_locality(chip);
-		chip->is_open = 0;
-	}
-
-	return ret;
-}
-
 static enum tpm2_result tpm2_get_status(struct tpm2_chip *chip, uint8_t *status)
 {
-	struct tpm2_ops *ops = chip->phy_ops;
+	struct tpm2_ops *ops = chip->ops;
 
 	if (chip->locality < 0)
 		return TPM2_ERROR_INVALID_ARG;
@@ -231,6 +165,76 @@ static enum tpm2_result tpm2_get_burstcount(struct tpm2_chip *chip,
 	return TPM2_ERROR_TIMEOUT;
 }
 
+static int tpm2_convert2be(uint8_t *buf)
+{
+	return buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
+}
+
+enum tpm2_result tpm2_start(struct tpm2_chip *chip)
+{
+	enum tpm2_result ret = TPM2_OK;
+	struct tpm2_ops *ops = chip->ops;
+	uint32_t flags;
+
+	if (!tpm2_check_ops(ops)) {
+		EMSG("No rx tx functions defined");
+		return TPM2_ERROR_GENERIC;
+	}
+	ret = tpm2_get_locality(chip, 0);
+	if (ret)
+		return ret;
+
+	chip->timeout_a = TPM2_SHORT_TIMEOUT_MS;
+	chip->timeout_b = TPM2_LONG_TIMEOUT_MS;
+	chip->timeout_c = TPM2_SHORT_TIMEOUT_MS;
+	chip->timeout_d = TPM2_SHORT_TIMEOUT_MS;
+
+	/* disable interrupts */
+	chip->ops->rx32(chip, TPM2_INT_ENABLE(chip->locality), &flags);
+	flags |= TPM2_INTF_CMD_READY_INT | TPM2_INTF_LOCALITY_CHANGE_INT |
+		 TPM2_INTF_DATA_AVAIL_INT | TPM2_INTF_STS_VALID_INT;
+	flags &= ~TPM2_GLOBAL_INT_ENABLE;
+	chip->ops->tx32(chip, TPM2_INT_ENABLE(chip->locality), flags);
+
+	chip->ops->rx8(chip, TPM2_RID(chip->locality), 1, &chip->rid);
+	chip->ops->rx32(chip, TPM2_DID_VID(chip->locality), &chip->vend_dev);
+
+	return tpm2_free_locality(chip);
+}
+
+enum tpm2_result tpm2_end(struct tpm2_chip *chip)
+{
+	tpm2_get_ready(chip);
+	tpm2_free_locality(chip);
+
+	return TPM2_OK;
+}
+
+enum tpm2_result tpm2_open(struct tpm2_chip *chip)
+{
+	enum tpm2_result ret = TPM2_OK;
+
+	if (chip->is_open)
+		return TPM2_ERROR_GENERIC;
+
+	ret = tpm2_get_locality(chip, 0);
+	if (!ret)
+		chip->is_open = 1;
+
+	return ret;
+}
+
+enum tpm2_result tpm2_close(struct tpm2_chip *chip)
+{
+	enum tpm2_result ret = TPM2_OK;
+
+	if (chip->is_open) {
+		ret = tpm2_free_locality(chip);
+		chip->is_open = 0;
+	}
+
+	return ret;
+}
 
 enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 {
@@ -318,23 +322,23 @@ free_locality:
 }
 
 static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
-				    size_t len)
+				    size_t cnt)
 {
 	enum tpm2_result ret = TPM2_OK;
-	enum tpm2_result size = TPM2_OK;
-	int len = 0;
 	size_t burstcnt = 0;
+	size_t len = 0;
+	size_t size = 0;
 	struct tpm2_ops *ops = chip->ops;
 	uint8_t status = 0;
 
-	while (size < len &&
+	while (size < cnt &&
 	       tpm2_wait_for_status(chip, TPM2_STS_DATA_AVAIL | TPM2_STS_VALID,
 				    chip->timeout_c, &status) == 0) {
 		ret = tpm2_get_burstcount(chip, &burstcnt);
 		if (ret)
 			return ret;
 
-		len = MIN(burstcnt, len - size)
+		len = MIN(burstcnt, cnt - size)
 		ret = ops->rx8(chip, TPM2_DATA_FIFO(chip->locality), len,
 			       buf + size);
 		if (ret)
@@ -344,11 +348,6 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 	}
 
 	return size;
-}
-
-static int tpm2_convert2be(uint8_t *buf)
-{
-	return buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
 }
 
 enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
