@@ -14,7 +14,6 @@
 #include <platform_config.h>
 #include <tpm2.h>
 #include <trace.h>
-#include <util.h>
 
 static bool tpm2_check_ops(struct tpm2_ops *ops)
 {

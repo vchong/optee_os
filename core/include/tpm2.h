@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <sys/queue.h>
 #include <types_ext.h>
+#include <util.h>
 
 /* from Ruchi's u-boot log */
 #define TPM2_REG_SIZE 0x5000
