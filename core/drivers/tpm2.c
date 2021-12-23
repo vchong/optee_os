@@ -338,7 +338,7 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 		if (ret)
 			return ret;
 
-		len = MIN(burstcnt, cnt - size)
+		len = MIN(burstcnt, cnt - size);
 		ret = ops->rx8(chip, TPM2_DATA_FIFO(chip->locality), len,
 			       buf + size);
 		if (ret)
@@ -353,7 +353,7 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 {
 	enum tpm2_result size = 0;
-	int expected = 0;
+	size_t expected = 0;
 
 	if (len < TPM2_HEADER_SIZE)
 		return TPM2_ERROR_ARG_LIST_TOO_LONG;
