@@ -352,8 +352,8 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 
 enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 {
-	enum tpm2_result size = 0;
 	size_t expected = 0;
+	size_t size = 0;
 
 	if (len < TPM2_HEADER_SIZE)
 		return TPM2_ERROR_ARG_LIST_TOO_LONG;
@@ -367,7 +367,7 @@ enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, size_t len)
 	expected = tpm2_convert2be(buf + TPM2_CMD_COUNT_OFFSET);
 	if (expected > len) {
 		size = TPM2_ERROR_IO;
-		EMSG("Too much data: %d > %zu", expected, len);
+		EMSG("Too much data: %zu > %zu", expected, len);
 		goto out;
 	}
 
