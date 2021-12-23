@@ -5,10 +5,10 @@
  */
 
 #include <assert.h>
-#include <delay.h>
 #include <initcall.h>
 #include <io.h>
 #include <keep.h>
+#include <kernel/delay.h>
 #include <kernel/panic.h>
 #include <kernel/tee_time.h>
 #include <platform_config.h>

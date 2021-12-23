@@ -4,12 +4,12 @@
  *
  */
 
+#include <drivers/tpm2_mmio.h>
 #include <io.h>
 #include <stdint.h>
 #include <tpm2_platform.h>
 #include <trace.h>
 #include <util.h>
-#include <drivers/tpm2_mmio.h>
 
 void tpm2_init(void)
 {
