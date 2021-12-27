@@ -12,5 +12,5 @@ endif
 srcs-y += fvp_spmc_pm.c
 endif
 ifeq ($(PLATFORM_FLAVOR_qemu_armv8a),y)
-srcs-y += tpm2_platform.c
+#srcs-y += tpm2_platform.c
 endif
