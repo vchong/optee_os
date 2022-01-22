@@ -197,6 +197,21 @@ enum tpm2_result tpm2_init(struct tpm2_chip *chip)
 	return tpm2_free_locality(chip);
 }
 
+enum tpm2_result tpm2_get_info(struct tpm2_chip *chip, char *buf,
+			       uint32_t len)
+{
+	if (len < TPM2_INFO_LEN) {
+		EMSG("Not enough space to contain info");
+		return TPM2_ERR_SHORT_BUF;
+	}
+
+	return snprintf(buf, len, "TPM v2.0: VendorID 0x%04x, DeviceID 0x%04x,"
+			" RevisionID 0x%02x [%s]",
+			chip->vend_dev & 0xFFFF,
+			chip->vend_dev >> 16, chip->rid,
+			(chip->is_open ? "open" : "closed"));
+}
+
 enum tpm2_result tpm2_end(struct tpm2_chip *chip)
 {
 	tpm2_get_ready(chip);

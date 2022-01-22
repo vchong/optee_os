@@ -66,6 +66,16 @@ static const struct tpm2_ops tpm2_mmio_ops = {
 };
 DECLARE_KEEP_PAGER(tpm2_mmio_ops);
 
+static struct tpm2_drv tpm2_mmio_drv = {
+	.get_info = tpm2_get_info,
+	.open = tpm2_open,
+	.tx = tpm2_tx,
+	.rx = tpm2_rx,
+	.close = tpm2_close,
+	.clean = tpm2_end,
+};
+//DECLARE_KEEP_PAGER(tpm2_mmio_drv); /* need this? */
+
 enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase)
 {
 	enum tpm2_result ret = TPM2_OK;

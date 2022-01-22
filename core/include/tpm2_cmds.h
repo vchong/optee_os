@@ -9,25 +9,14 @@
 
 #include <tpm2.h>
 
+#define TPM2_OFFSET_CMD_SIZE 2
+#define TPM2_OFFSET_RSP_CODE 6
+
 enum tpm2_cmd {
-	TPM2_CMD_HIER_CONTROL = 0x0121,
-	TPM2_CMD_CLEAR = 0x0126,
-	TPM2_CMD_CLEARCONTROL = 0x0127,
-	TPM2_CMD_HIERCHANGEAUTH = 0x0129,
-	TPM2_CMD_NV_DEFINE_SPACE = 0x012a,
-	TPM2_CMD_PCR_SETAUTHPOL = 0x012C,
-	TPM2_CMD_NV_WRITE = 0x0137,
-	TPM2_CMD_NV_WRITELOCK = 0x0138,
-	TPM2_CMD_DAM_RESET = 0x0139,
-	TPM2_CMD_DAM_PARAMETERS = 0x013A,
 	TPM2_CMD_SELF_TEST = 0x0143,
 	TPM2_CMD_STARTUP = 0x0144,
-	TPM2_CMD_NV_READ = 0x014E,
-	TPM2_CMD_GET_CAPABILITY = 0x017A,
-	TPM2_CMD_GET_RANDOM = 0x017B,
 	TPM2_CMD_PCR_READ = 0x017E,
 	TPM2_CMD_PCR_EXTEND = 0x0182,
-	TPM2_CMD_PCR_SETAUTHVAL = 0x0183,
 };
 
 enum tpm2_sessions {
@@ -44,6 +33,9 @@ enum tpm2_startup_state {
 #define TPM2_CMD_RSP_BUF_MAX 256
 #define TPM2_CMD_LEN_STARTUP 12
 #define TPM2_CMD_LEN_SELFTEST 11
+#define TPM2_CMD_LEN_CNT 2
+#define TPM2_CMD_LEN_ORD 6
+#define TPM2_CMD_TIMEOUT_ORD 120000 /* 2m in ms */
 
 #define TPM2_CMD_PREFIX_STARTUP \
 	TPM2_SPLIT2CHARS(TPM2_ST_NO_SESSIONS), \
@@ -57,6 +49,7 @@ enum tpm2_startup_state {
 
 enum tpm2_result tpm2_startup(struct tpm2_chip *chip,
 			      enum tpm2_startup_state state);
+enum tpm2_result tpm2_selftest(struct tpm2_chip *chip, bool yes);
 
 #endif	/* __TPM2_CMDS_H__ */
 

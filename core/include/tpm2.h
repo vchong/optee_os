@@ -11,7 +11,7 @@
 #include <util.h>
 
 #define TPM2_REG_SIZE 0x5000
-
+#define TPM2_INFO_LEN 80
 #define TPM2_HDR_LEN 10
 
 #define TPM2_ACCESS(v)		SHIFT_U32((v), 12)
@@ -43,6 +43,7 @@ enum tpm2_result {
 	TPM2_ERR_TIMEOUT = 4,
 	TPM2_ERR_IO = 5,
 	TPM2_ERR_ARG_LIST_TOO_LONG = 6,
+	TPM2_ERR_SHORT_BUF = 7,
 
 	TPM2_ERR_BAD_TAG = SHIFT_U32(0xF, 1),
 
@@ -108,6 +109,7 @@ enum {
 
 struct tpm2_chip {
 	const struct tpm2_ops *ops;
+	struct tpm2_drv *drv;
 	int32_t locality;
 	uint32_t timeout_a;
 	uint32_t timeout_b;
@@ -129,6 +131,20 @@ struct tpm2_ops {
 	enum tpm2_result (*tx8)(struct tpm2_chip *chip, uint32_t adr,
 				uint16_t len, uint8_t *buf);
 };
+
+struct tpm2_drv {
+	enum tpm2_result (*get_info)(struct tpm2_chip *chip, char *buf,
+				     uint32_t len);
+	enum tpm2_result (*open)(struct tpm2_chip *chip);
+	enum tpm2_result (*tx)(struct tpm2_chip *chip, uint8_t *buf,
+			       uint32_t len);
+	enum tpm2_result (*rx)(struct tpm2_chip *chip, uint8_t *buf,
+			       uint32_t len);
+	enum tpm2_result (*txrx)(struct tpm2_chip *chip, uint8_t *out,
+				 uint32_t wlen, uint8_t *in, uint32_t *rlen);
+	enum tpm2_result (*close)(struct tpm2_chip *chip);
+	enum tpm2_result (*end)(struct tpm2_chip *chip);
+}
 
 uint32_t tpm2_convert2be(uint8_t *buf);
 enum tpm2_result tpm2_init(struct tpm2_chip *chip);
