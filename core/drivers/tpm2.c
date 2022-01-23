@@ -398,6 +398,7 @@ out:
 	/* free locality obtained in tpm2_tx() */
 	tpm2_free_locality(chip);
 
+	/* need to pass in ptr to store 'size' for drv->rx() in tmp2_txrx()*/
 	return ret;
 }
 
