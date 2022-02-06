@@ -32,12 +32,12 @@ static enum tpm2_result tpm2_chk_cmd(uint8_t *out, uint32_t wlen)
 static enum tpm2_result tpm2_txrx(struct tpm2_chip *chip, uint8_t *out,
 				  uint32_t wlen, uint8_t *in, uint32_t *rlen)
 {
-	ulong start, stop;
 	int ret2 = 0;
-
 
 	enum tpm2_result ret = TPM2_OK;
 	struct tpm2_drv *drv = chip->drv;
+	uint32_t tmp_rlen = 0;
+	uint32_t t_cnt = 0;
 
 	if (drv->txrx)
 		return drv->txrx(chip, out, wlen, in, rlen);
@@ -55,38 +55,35 @@ static enum tpm2_result tpm2_txrx(struct tpm2_chip *chip, uint8_t *out,
 	if (ret)
 		return ret;
 
-	start = get_timer(0);
-	stop = TPM2_CMD_TIMEOUT_ORD;
 	do {
-		ret = drv->rx(chip, priv->buf, sizeof(priv->buf));
-		if (ret >= 0) {
-			if (ret > *recv_size)
-				return -ENOSPC;
-			memcpy(recvbuf, priv->buf, ret);
-			*recv_size = ret;
-			ret = 0;
+		ret = drv->rx(chip, chip->buf, TPM2_BUF_LEN, &tmp_rlen);
+		if (!ret && tmp_rlen) {
+			if (tmp_rlen > *rlen)
+				return TPM2_ERR_SHORT_BUF;
+			memcpy(in, chip->buf, tmp_rlen);
+			*rlen = tmp_rlen;
 			break;
-		} else if (ret != -EAGAIN) {
+		} else if (ret != TPM2_ERR_RETRY) {
 			return ret;
 		}
 
-		mdelay(priv->retry_time_ms);
-		if (get_timer(start) > stop) {
-			ret = -ETIMEDOUT;
-			break;
-		}
-	} while (ret);
+		mdelay(chip->retry_delay);
+		t_cnt += chip->retry_delay;
+	} while (t_cnt < TPM2_CMD_TIMEOUT_ORD);
 
-	if (ret) {
+	if (t_cnt >= TPM2_CMD_TIMEOUT_ORD) {
 		if (drv->end) {
-			ret2 = drv->end(chip);
-			if (ret2)
-				return log_msg_ret("cleanup", ret2);
+			ret = drv->end(chip);
+			if (ret) {
+				EMSG("Failed to end session");
+				return ret;
+			}
 		}
-		return log_msg_ret("xfer", ret);
+		EMSG("Timed out!");
+		return TPM2_ERR_TIMEOUT;
 	}
 
-	return 0;
+	return TPM2_OK;
 }
 
 static enum tpm2_result tpm2_run_cmd(struct tpm2_chip *chip, uint8_t *cmd,

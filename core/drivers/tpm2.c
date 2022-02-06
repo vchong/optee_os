@@ -183,6 +183,7 @@ enum tpm2_result tpm2_init(struct tpm2_chip *chip)
 	chip->timeout_b = TPM2_TIMEOUT_LONG_MS;
 	chip->timeout_c = TPM2_TIMEOUT_SHORT_MS;
 	chip->timeout_d = TPM2_TIMEOUT_SHORT_MS;
+	chip->retry_delay = TPM2_TIMEOUT_MS;
 
 	/* disable interrupts */
 	chip->ops->rx32(chip, TPM2_INT_ENABLE(chip->locality), &flags);
@@ -360,7 +361,8 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 	return ret;
 }
 
-enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len)
+enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len,
+			 uint32_t *rlen)
 {
 	enum tpm2_result ret = TPM2_OK;
 	uint32_t expected = 0;
@@ -398,7 +400,7 @@ out:
 	/* free locality obtained in tpm2_tx() */
 	tpm2_free_locality(chip);
 
-	/* need to pass in ptr to store 'size' for drv->rx() in tmp2_txrx()*/
+	*rlen = size;
 	return ret;
 }
 

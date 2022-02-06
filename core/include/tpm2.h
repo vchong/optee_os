@@ -13,6 +13,7 @@
 #define TPM2_REG_SIZE 0x5000
 #define TPM2_INFO_LEN 80
 #define TPM2_HDR_LEN 10
+#define TPM2_BUF_LEN 1261
 
 #define TPM2_ACCESS(v)		SHIFT_U32((v), 12)
 #define TPM2_INT_ENABLE(v)	(SHIFT_U32((v), 12) | BIT(3))
@@ -44,6 +45,7 @@ enum tpm2_result {
 	TPM2_ERR_IO = 5,
 	TPM2_ERR_ARG_LIST_TOO_LONG = 6,
 	TPM2_ERR_SHORT_BUF = 7,
+	TPM2_ERR_RETRY = 8,
 
 	TPM2_ERR_BAD_TAG = SHIFT_U32(0xF, 1),
 
@@ -117,6 +119,8 @@ struct tpm2_chip {
 	uint32_t timeout_d;
 	uint32_t type;
 	uint32_t vend_dev;
+	uint32_t retry_delay;
+	uint8_t buf[TPM2_BUF_LEN];
 	uint8_t rid;
 	bool is_open;
 };

@@ -35,7 +35,7 @@ enum tpm2_startup_state {
 #define TPM2_CMD_LEN_SELFTEST 11
 #define TPM2_CMD_LEN_CNT 2
 #define TPM2_CMD_LEN_ORD 6
-#define TPM2_CMD_TIMEOUT_ORD 120000 /* 2m in ms */
+#define TPM2_CMD_TIMEOUT_ORD 120000 /* 2 minutes in ms */
 
 #define TPM2_CMD_PREFIX_STARTUP \
 	TPM2_SPLIT2CHARS(TPM2_ST_NO_SESSIONS), \
