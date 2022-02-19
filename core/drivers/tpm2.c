@@ -3,11 +3,13 @@
  * Copyright (c) 2022, Linaro Limited
  */
 
+#include <assert.h>
 #include <kernel/delay.h>
+#include <stdio.h>
 #include <tpm2.h>
 #include <trace.h>
 
-static bool tpm2_check_ops(struct tpm2_ops *ops)
+static bool tpm2_check_ops(const struct tpm2_ops *ops)
 {
 	if (!ops || !ops->rx32 || !ops->tx32 || !ops->rx8 || !ops->tx8)
 		return false;
@@ -17,7 +19,7 @@ static bool tpm2_check_ops(struct tpm2_ops *ops)
 
 static bool tpm2_check_locality(struct tpm2_chip *chip, int loc)
 {
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint8_t locality = 0;
 
 	ops->rx8(chip, TPM2_ACCESS(loc), 1, &locality);
@@ -33,7 +35,7 @@ static bool tpm2_check_locality(struct tpm2_chip *chip, int loc)
 
 static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
 {
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint32_t t_cnt = 0;
 	uint8_t buf = TPM2_ACCESS_REQUEST_USE;
 
@@ -62,7 +64,7 @@ static enum tpm2_result tpm2_get_locality(struct tpm2_chip *chip, int loc)
 static enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
 {
 	enum tpm2_result ret = TPM2_OK;
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint8_t buf = TPM2_ACCESS_ACTIVE_LOCALITY;
 
 	if (chip->locality < 0)
@@ -76,7 +78,7 @@ static enum tpm2_result tpm2_free_locality(struct tpm2_chip *chip)
 
 static enum tpm2_result tpm2_get_ready(struct tpm2_chip *chip)
 {
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint8_t buf = TPM2_STS_COMMAND_READY;
 
 	/*
@@ -88,7 +90,7 @@ static enum tpm2_result tpm2_get_ready(struct tpm2_chip *chip)
 
 static enum tpm2_result tpm2_get_status(struct tpm2_chip *chip, uint8_t *status)
 {
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 
 	if (chip->locality < 0)
 		return TPM2_ERR_INVALID_ARG;
@@ -133,7 +135,7 @@ static enum tpm2_result tpm2_wait_for_status(struct tpm2_chip *chip,
 static enum tpm2_result tpm2_get_burstcount(struct tpm2_chip *chip,
 					    uint32_t *burstcount)
 {
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint32_t burst = 0;
 	uint32_t t_cnt = 0;
 
@@ -167,7 +169,7 @@ uint32_t tpm2_convert2be(uint8_t *buf)
 enum tpm2_result tpm2_init(struct tpm2_chip *chip)
 {
 	enum tpm2_result ret = TPM2_OK;
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint32_t flags = 0;
 
 	assert(tpm2_check_ops(ops));
@@ -250,7 +252,7 @@ enum tpm2_result tpm2_close(struct tpm2_chip *chip)
 enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len)
 {
 	enum tpm2_result ret = TPM2_OK;
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint32_t burstcnt = 0;
 	uint32_t sent = 0;
 	uint32_t wr_size = 0;
@@ -336,7 +338,7 @@ static enum tpm2_result tpm2_rx_dat(struct tpm2_chip *chip, uint8_t *buf,
 				    uint32_t cnt, uint32_t *size)
 {
 	enum tpm2_result ret = TPM2_OK;
-	struct tpm2_ops *ops = chip->ops;
+	const struct tpm2_ops *ops = chip->ops;
 	uint32_t burstcnt = 0;
 	uint32_t len = 0;
 	uint8_t status = 0;

@@ -50,10 +50,11 @@ static enum tpm2_result tpm2_mmio_rx8(struct tpm2_chip *chip, uint32_t adr,
 static enum tpm2_result tpm2_mmio_tx8(struct tpm2_chip *chip, uint32_t adr,
 				      uint16_t len, uint8_t *buf)
 {
+	uint16_t n = 0;
 	vaddr_t base = tpm2_chip_to_base(chip);
 
-	while (len--)
-		io_write8(base + adr, *buf++);
+	for (n = 0; n < len; n++)
+		io_write8(base + adr, buf[n]);
 
 	return TPM2_OK;
 }
