@@ -3,18 +3,20 @@
  * Copyright (c) 2021, Linaro Limited
  */
 
+#include <kernel/delay.h>
 #include <stdint.h>
+#include <string.h>
 #include <tpm2_cmds.h>
 #include <trace.h>
 
 static enum tpm2_result tpm2_chk_cmd(uint8_t *out, uint32_t wlen)
 {
 	uint32_t cnt = 0;
-	uint32_t ord = 0;
+	//uint32_t ord = 0;
 
 	/* change endian */
 	cnt = tpm2_convert2be(out + TPM2_CMD_LEN_CNT);
-	ord = tpm2_convert2be(out + TPM2_CMD_LEN_ORD);
+	//ord = tpm2_convert2be(out + TPM2_CMD_LEN_ORD);
 
 	if (!cnt) {
 		EMSG("no cmd found");
@@ -31,8 +33,6 @@ static enum tpm2_result tpm2_chk_cmd(uint8_t *out, uint32_t wlen)
 static enum tpm2_result tpm2_txrx(struct tpm2_chip *chip, uint8_t *out,
 				  uint32_t wlen, uint8_t *in, uint32_t *rlen)
 {
-	int ret2 = 0;
-
 	enum tpm2_result ret = TPM2_OK;
 	struct tpm2_drv *drv = chip->drv;
 	uint32_t tmp_rlen = 0;
@@ -89,7 +89,6 @@ static enum tpm2_result tpm2_run_cmd(struct tpm2_chip *chip, uint8_t *cmd,
 				     uint8_t *rsp, uint32_t *p_rsp_len)
 {
 	enum tpm2_result ret = TPM2_OK;
-	int i = 0;
 	uint32_t size = 0;
 	uint32_t rsp_code = 0;
 	uint8_t dum_rsp[TPM2_CMD_RSP_BUF_MAX] = { 0 };
@@ -127,10 +126,10 @@ static enum tpm2_result tpm2_run_cmd(struct tpm2_chip *chip, uint8_t *cmd,
 	if (p_rsp_len)
 		*p_rsp_len = tmp_rsp_len;
 
-	rsp_code = tpm2_convert2be(rsp + TPM2_OFFSET_RSP_CODE);
+	rsp_code = tpm2_convert2be(tmp_rsp + TPM2_OFFSET_RSP_CODE);
 
 	DMSG("TPM2 rsp code: %" PRIu32, rsp_code);
-	DHEXDUMP(rsp, tmp_rsp_len);
+	DHEXDUMP(tmp_rsp, tmp_rsp_len);
 
 	return ret;
 }
@@ -161,6 +160,6 @@ enum tpm2_result tpm2_selftest(struct tpm2_chip *chip, bool yes)
 		yes
 	};
 
-	return = tpm2_run_cmd(chip, cmd, NULL, NULL);
+	return tpm2_run_cmd(chip, cmd, NULL, NULL);
 }
 

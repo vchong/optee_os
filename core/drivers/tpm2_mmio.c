@@ -73,7 +73,7 @@ static struct tpm2_drv tpm2_mmio_drv = {
 	.tx = tpm2_tx,
 	.rx = tpm2_rx,
 	.close = tpm2_close,
-	.clean = tpm2_end,
+	.end = tpm2_end,
 };
 //DECLARE_KEEP_PAGER(tpm2_mmio_drv); /* need this? */
 
@@ -85,6 +85,7 @@ enum tpm2_result tpm2_mmio_init(struct tpm2_mmio_data *md, paddr_t pbase)
 
 	md->base.pa = pbase;
 	md->chip.ops = &tpm2_mmio_ops;
+	md->chip.drv = &tpm2_mmio_drv;
 
 	md->base.va = io_pa_or_va_secure(&md->base, TPM2_REG_SIZE);
 	assert(md->base.va);

@@ -13,6 +13,8 @@ TEE_Result test_tpm2(struct tpm2_mmio_data *md)
 	DMSG("Call tpm2_startup() and other cmds here");
 	tpm2_startup(&md->chip, TPM2_SU_CLEAR);
 	tpm2_startup(&md->chip, TPM2_SU_STATE);
+	tpm2_selftest(&md->chip, true);
+	tpm2_selftest(&md->chip, false);
 	return TEE_SUCCESS;
 }
 

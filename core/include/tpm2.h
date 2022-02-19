@@ -143,20 +143,23 @@ struct tpm2_drv {
 	enum tpm2_result (*tx)(struct tpm2_chip *chip, uint8_t *buf,
 			       uint32_t len);
 	enum tpm2_result (*rx)(struct tpm2_chip *chip, uint8_t *buf,
-			       uint32_t len);
+			       uint32_t len, uint32_t *rlen);
 	enum tpm2_result (*txrx)(struct tpm2_chip *chip, uint8_t *out,
 				 uint32_t wlen, uint8_t *in, uint32_t *rlen);
 	enum tpm2_result (*close)(struct tpm2_chip *chip);
 	enum tpm2_result (*end)(struct tpm2_chip *chip);
-}
+};
 
 uint32_t tpm2_convert2be(uint8_t *buf);
+enum tpm2_result tpm2_get_info(struct tpm2_chip *chip, char *buf,
+                               uint32_t len);
 enum tpm2_result tpm2_init(struct tpm2_chip *chip);
 enum tpm2_result tpm2_end(struct tpm2_chip *chip);
 enum tpm2_result tpm2_open(struct tpm2_chip *chip);
 enum tpm2_result tpm2_close(struct tpm2_chip *chip);
 enum tpm2_result tpm2_tx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len);
-enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len);
+enum tpm2_result tpm2_rx(struct tpm2_chip *chip, uint8_t *buf, uint32_t len,
+			 uint32_t *rlen);
 
 #endif	/* __TPM2_H__ */
 

@@ -6,6 +6,7 @@ srcs-$(CFG_GIC) += gic.c
 srcs-$(CFG_PL061) += pl061_gpio.c
 srcs-$(CFG_PL022) += pl022_spi.c
 srcs-$(CFG_TPM2) += tpm2.c
+srcs-$(CFG_TPM2) += tpm2_cmds.c
 srcs-$(CFG_TPM2_MMIO) += tpm2_mmio.c
 srcs-$(CFG_SP805_WDT) += sp805_wdt.c
 srcs-$(CFG_8250_UART) += serial8250_uart.c
