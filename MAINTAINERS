@@ -163,8 +163,9 @@ R:	Tao Lu <taolu@marvell.com> [@taovcu]
 S:	Maintained
 F:	core/arch/arm/plat-marvell/
 
-MediaTek MT8173 EVB
-S:	Orphan
+MediaTek
+R:	GM Lin <guan-gm.lin@mediatek.com> [@p870613]
+S:	Maintained
 F:	core/arch/arm/plat-mediatek/
 
 NXP LS1043A-RDB, LS1046A-RDB, LS1012A-RDB, LS1028A-RDB, LS1088A-RDB, LS2088A-RDB, LX2160A-RDB, LX2160A-QDS
