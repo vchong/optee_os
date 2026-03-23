@@ -15,22 +15,7 @@
 #include <types_ext.h>
 #include <util.h>
 
-#define STMM_RET_SUCCESS		0
-#define STMM_RET_NOT_SUPPORTED	        -1
 #define STMM_RET_INVALID_PARAM	        -2
-#define STMM_RET_DENIED		        -3
-#define STMM_RET_NO_MEM		        -5
-
-#define STMM_MEM_ATTR_ACCESS_MASK	U(0x3)
-#define STMM_MEM_ATTR_ACCESS_NONE	U(0)
-#define STMM_MEM_ATTR_ACCESS_RW		U(1)
-#define STMM_MEM_ATTR_ACCESS_RO		U(3)
-#define STMM_MEM_ATTR_EXEC_NEVER	BIT(2)
-#define STMM_MEM_ATTR_EXEC		U(0)
-#define STMM_MEM_ATTR_ALL		(STMM_MEM_ATTR_ACCESS_RW | \
-					 STMM_MEM_ATTR_ACCESS_RO | \
-					 STMM_MEM_ATTR_EXEC_NEVER)
-
 /*
  * Used for EDK2 StMM communication. Since StMM can be launched on an arbitrary
  * address it uses these 2 syscalls to define the memory attributes for the
